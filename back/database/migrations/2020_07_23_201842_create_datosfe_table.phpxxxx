@@ -1,0 +1,44 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateDatosfeTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::connection('datosfe')->create('datosfe', function (Blueprint $table) {
+            $table->bigIncrements('id');
+
+            $table->bigInteger('fac_mov_id')->nullable();
+
+            $table->text('cufe')->nullable();
+
+            $table->text('zip_key')->nullable();
+            $table->text('zip_name')->nullable();
+            $table->text('url_acceptance')->nullable();
+            $table->text('url_rejection')->nullable();
+            $table->text('pdf_base64_bytes')->nullable();
+            $table->text('dian_response_base64_bytes')->nullable();
+            $table->text('application_response_base64_bytes')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('datosfe');
+    }
+}
