@@ -1,119 +1,103 @@
 <template>
-  <div>
+  <div class="div-focus" tabindex="0" @keyup.35="openedAddPago = true" @keyup.36="() => $refs.scan.focus()" @keyup.45="openedAddProductoMethod">
     <q-page padding>
-        <!-- inicio popup ingreso de productos manualmente -->
-          <q-dialog v-model="openedAddProducto"  persistent :content-css="{minWidth: '80vw', minHeight: '10vh'}">
-            <q-layout view="Lhh lpR fff" container style="height: 400px; max-width: 800px" class="bg-white">
-              <q-page-container>
-                <q-page padding>
-                  <h3>Agregar Peso {{ temp.producto }}</h3>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-9">
-                        <q-input color="primary" type="number" v-model="temp.cantidad" label="Cantidad" ref="cantidad" v-on:keyup.enter="() => $refs.precio.focus()">
-                        </q-input>
-                      </div>
-                    </div>
-                  </div>
-                <q-btn class="q-mt-md"
-                  color="primary"
-                  label="Guardar"
-                  @click="addPeso"
-                />
-                <q-btn class="q-mt-md q-ml-sm"
-                  color="negative"
-                  @click="closeAddProducto"
-                  label="Cancelar"
-                />
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- fin popup ingreso de productos manualmente -->
+        <AddProductoManual :openedAddProducto="openedAddProducto" />
 
-        <h3>Pesos por programación</h3>
-        <div class="row q-col-gutter-md">
-          <div class="col-3">
-            <q-select
-              class="w-100"
-              v-model="temp.programacion"
-              use-input
-              hide-selected
-              fill-input
-              option-value="programacion_id"
-              option-label="programacion_id"
-              label="Seleccione Programacion"
-              option-disable="inactive"
-              input-debounce="0"
-              :options="options.programaciones"
-              @filter="filterProgramaciones"
-              @input="selectedProgramacion"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </div>
-          <div v-if="temp.programacion" class="col">
-            N° Animales: {{ temp.programacion.num_animales_programacion }} - Lote: {{ temp.programacion.lote_id }}  - Marca: {{ temp.programacion.marca }} - Tercero: {{ temp.programacion.tercero }} - Sucursal: {{ temp.programacion.sucursal }}
-          </div>
-        </div>
-        <div class="row q-mt-md">
-            <div class="col-3">
+        <div class="row">
+        <div class="row q-col-gutter-md col-md-4">
+            <div class="row col-12">
+              <h4 style="margin: 0px">Peso Marinacion</h4>
+            </div>
+            <div class="row col q-col-gutter-sm box-resumen-movimiento q-mt-md">
+              <div class="col-12">
                 <q-select
-                    label="Seleccione bascula"
-                    v-model="datos.bascula"
-                    :options="basculas"
-                    option-value="ruta"
-                    option-label="nombre"
-                    option-disable="inactive"
-                    emit-value
-                    map-options
-                />
+                class="w-100"
+                v-model="storeItems.programacion"
+                use-input
+                hide-selected
+                fill-input
+                option-value="programacion_id"
+                option-label="programacion_id"
+                label="Programacion"
+                option-disable="inactive"
+                map-options
+                input-debounce="0"
+                :options="options.programaciones"
+                @filter="filterProgramaciones"
+                >
+                <template v-slot:option="scope">
+                <q-item
+                    v-bind="scope.itemProps"
+                    v-on="scope.itemEvents"
+                >
+                    <q-item-section>
+                        <q-item-label v-html="scope.opt.programacion_id + ' - ' + scope.opt.tercero + ' - ' + scope.opt.sucursal" />
+                    </q-item-section>
+                </q-item>
+                </template>
+                <template v-if="storeItems.programacion" v-slot:selected>
+                    {{ storeItems.programacion.programacion_id }} - {{ storeItems.programacion.tercero }} - {{ storeItems.programacion.sucursal }}
+                </template>
+                <template v-slot:no-option>
+                    <q-item>
+                    <q-item-section class="text-grey">
+                        No results
+                    </q-item-section>
+                    </q-item>
+                </template>
+                </q-select>
+              </div>
+              <div v-if="storeItems.programacion" class="col-12">
+                  Tercero: {{ storeItems.programacion.tercero }}
+              </div>
+              <div v-if="storeItems.programacion" class="col-12">
+                  Sucursal: {{ storeItems.programacion.sucursal }}
+              </div>
+              <div class="col-12">
+                <div class="col-12 w-100 q-mt-sm">
+                  <q-btn class="btn-naranja w-100" icon-right="add" v-on:click="openedAddProductoMethod" label="Agregar Producto" />
+                  <q-btn class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
+                </div>
+              </div>
             </div>
-            <div class="col-3">
-                <q-btn v-if="temp.programacion !== null" color="warning" v-on:click="openedAddProducto" label="Agregar Producto" />
+            <!-- inicio tabla con calculos -->
+        </div>
+        <div class="col-md-8">
+            <div class="col-12">
+              <div class="row">
+                <div class="row col-12">
+                  <h4 style="margin: 0px">Lista de productos</h4>
+                </div>
+                <div class="col-sm-12 q-mt-md">
+                  <q-table
+                    :data="dataResumen"
+                    :columns="columns"
+                    row-key="name"
+                    class="my-sticky-header-table"
+                    binary-state-sort
+                    hide-bottom
+                    table-style="max-height: 400px"
+                    virtual-scroll
+                    :pagination.sync="pagination"
+                    :rows-per-page-options="[0]"
+                  >
+                    <template v-slot:body="props">
+                      <q-tr :props="props">
+                        <q-td key="producto_id" :props="props"><q-checkbox v-model="selected" :val="props.row.producto_id" /></q-td>
+                        <q-td key="producto" :props="props">{{ props.row.producto }}</q-td>
+                        <q-td key="cantidad" :props="props">{{ parseFloat(props.row.cantidad).toFixed(3) }}</q-td>
+                        <q-td key="acciones" :props="props">
+                          <q-btn class="q-ml-xs" icon="edit" @click="ingresarPeso(props.row.producto_id)" color="warning"></q-btn>
+                          <q-btn class="q-ml-xs" icon="delete" @click="eliminarPeso(props.row.producto_id)" color="negative"></q-btn>
+                        </q-td>
+                      </q-tr>
+                    </template>
+                  </q-table>
+                </div>
+              </div>
             </div>
         </div>
-        <div v-if="temp.programacion !== null" class="row q-mt-xl">
-            <q-table
-                title= "Pesos por licencia"
-                :data="tableData"
-                :columns="columns"
-                :filter="filter"
-                :visible-columns="visibleColumns"
-                :separator="separator"
-                row-key="id"
-                color="secondary"
-                table-style="width:100%"
-            >
-                <template slot="top-right" slot-scope="props">
-                    <q-input
-                        hide-underline
-                        color="secondary"
-                        v-model="filter"
-                        class="col-6"
-                        debounce="500"
-                    >
-                      <template v-slot:append>
-                        <q-icon name="search" />
-                      </template>
-                    </q-input>
-                    <q-btn
-                        flat round dense
-                        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-                        @click="props.toggleFullscreen"
-                    />
-                </template>
-
-                <q-td slot="body-cell-actions" slot-scope="props" :props="props">
-                    <q-btn class="q-ml-xs" icon="close" v-on:click="deletePeso(props.value)" color="negative"></q-btn>
-                </q-td>
-            </q-table>
+            <!-- fin tabla con calculos -->
         </div>
     </q-page>
   </div>
@@ -121,102 +105,61 @@
 
 <script>
 import { globalFunctions } from 'boot/mixins.js'
+import AddProductoManual from 'components/productos/addProductoManual'
+
 const axios = require('axios')
 
 export default {
-  name: 'PagePesosProgramacion',
+  components: { AddProductoManual },
+  name: 'PesoDespacho',
+  params: 'doc',
   data: function () {
     return {
-      urlAPI: 'api/lotes/programaciones/pesoprogramacion',
+      urlAPI: 'api/despachos/guardarpesodespacho',
       storeItems: {
-        producto_id: null,
+      },
+      productos: [],
+      datos: {
+      },
+      selected: [],
+      callback: [],
+      codigo_producto: null,
+      programaciones: [],
+      interval: null,
+      openedAddProducto: false,
+      producto_selected: null,
+      temp: {
         cantidad: null
       },
-      programaciones: [],
       options: {
-        programaciones: this.programaciones
+        programaciones: this.programaciones,
+        productos: this.productos
       },
-      temp: {
-        programacion: null
-      },
-      show: {
-        addAnimales: false
-      },
-      showForUpdate: false,
-      tableData: [],
       columns: [
-        { name: 'num_animal', required: true, label: 'N° Animal', align: 'left', field: 'num_animal', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'ppe', required: true, label: 'Peso Pie', align: 'left', field: 'ppe', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'pcc', required: true, label: 'Peso Canal Caliente', align: 'left', field: 'pcc', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'pcr', required: true, label: 'Peso Canal Frio', align: 'left', field: 'pcr', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
+        { name: 'producto_id', required: true, label: 'Producto id', align: 'left', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 80px' },
+        { name: 'producto', required: true, label: 'Producto', align: 'left', field: 'producto', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cantidad', required: true, label: 'Peso Despacho', align: 'right', field: 'cantidad', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'acciones', required: true, label: 'Acciones', align: 'right', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
-      visibleColumns: ['id', 'nombre', 'actions'],
-      separator: 'horizontal',
-      filter: ''
+      itemsCounter: 1,
+      dataResumen: [],
+      pagination: {
+        rowsPerPage: 0
+      }
     }
   },
   mixins: [globalFunctions],
   methods: {
-    postSave () {
-      var app = this
-      axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/pesosporprogramacion/' + parseInt(this.temp.programacion.programacion_id)).then(
-        function (response) {
-          app.tableData = response.data
-        }
-      ).catch(function (error) {
-        console.log(error)
-      }).finally(function () {
-        app.$q.loading.hide()
-      })
-      this.storeItems.num_animal = null
-      this.storeItems.ppe = null
-      this.storeItems.pcc = null
-      this.storeItems.pcr = null
+    postSave (callback = null) {
+      this.$q.loading.hide()
+      this.dataResumen = []
+      this.storeItems = {}
     },
     preSave () {
-      this.storeItems.lotProgramacion_id = this.temp.programacion.programacion_id
+      this.storeItems.lineas = this.dataResumen
+      this.storeItems.sal_mercancia_id = this.storeItems.despacho.id
     },
     postEdit () {
-    },
-    localValidation () {
-      if (this.temp.programacion.num_animales_programacion > this.tableData.length) {
-        this.globalValidate('guardar')
-      } else {
-        this.$q.notify({ color: 'negative', message: 'El numero de animales no puede ser mayor a los ingresados en la Programación.' })
-      }
-    },
-    openAddAnimals () {
-      this.show.addAnimales = true
-      this.storeItems.num_animal = null
-      this.storeItems.ppe = null
-      this.storeItems.pcc = null
-      this.storeItems.pcr = null
-    },
-    deletePeso (id) {
-      var app = this
-      axios.delete(this.$store.state.jhsoft.url + 'api/lotes/programaciones/pesoprogramacion/' + id).then(
-        function (response) {
-          if (response.data === 'done') {
-            app.$q.notify({ color: 'positive', message: 'El peso fue eliminado.' })
-          } else {
-            app.$q.notify({ color: 'negative', message: response.data })
-          }
-          axios.get(app.$store.state.jhsoft.url + 'api/lotes/programaciones/pesosporprogramacion/' + parseInt(app.temp.programacion.programacion_id)).then(
-            function (response) {
-              app.tableData = response.data
-            }
-          ).catch(function (error) {
-            console.log(error)
-          }).finally(function () {
-            app.$q.loading.hide()
-          })
-        }
-      ).catch(function (error) {
-        console.log(error)
-      }).finally(function () {
-        app.$q.loading.hide()
-      })
     },
     filterProgramaciones (val, update, abort) {
       update(() => {
@@ -224,29 +167,120 @@ export default {
         this.options.programaciones = this.programaciones.filter(v => v.programacion_id.toLowerCase().indexOf(needle) > -1)
       })
     },
-    selectedProgramacion () {
+    openedAddProductoMethod () {
+      this.openedAddProducto = true
+    },
+    closeAddProducto () {
+      this.producto_selected = null
+      this.temp.cantidad = null
+      this.openedAddProducto = false
+    },
+    eliminarSelected () {
       var app = this
-      axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/pesosporprogramacion/' + parseInt(this.temp.programacion.programacion_id)).then(
-        function (response) {
-          app.tableData = response.data
-        }
-      ).catch(function (error) {
-        console.log(error)
-      }).finally(function () {
-        app.$q.loading.hide()
+      this.selected.forEach(function (elementSelected, j) {
+        app.dataResumen.forEach(function (element, i) {
+          if (elementSelected === element.producto_id) {
+            app.dataResumen.splice(i, 1)
+          }
+        })
       })
+      this.selected = []
+    },
+    addPeso () {
+      var item = this.dataResumen.find(v => parseInt(v.producto_id) === parseInt(this.temp.producto_id))
+      item.cantidad = parseFloat(item.cantidad) + parseFloat(this.temp.cantidad)
+      this.temp.cantidad = null
+      this.temp.producto = null
+      this.temp.producto_id = null
+      this.stopGetPeso()
+      this.openedAddProducto = false
+    },
+    ingresarPeso (productoId) {
+      this.openedAddProducto = true
+      this.getPeso()
+      const item = this.dataResumen.find(v => parseFloat(v.producto_id) === parseFloat(productoId))
+      this.temp.cantidad = 0
+      this.temp.producto = item.producto
+      this.temp.producto_id = item.producto_id
+    },
+    eliminarPeso (productoId) {
+      var item = this.dataResumen.find(v => parseFloat(v.producto_id) === parseFloat(productoId))
+      item.cantidad = 0
+    },
+    getPeso () {
+      var v = this
+      this.interval = setInterval(function () {
+        axios.get('http://127.0.0.1:5002/basculas').then(
+          function (response) {
+            v.temp.cantidad = parseFloat(response.data.substr(7, 8))
+          }
+        )
+      }, 1000)
+    },
+    stopGetPeso () {
+      clearInterval(this.interval)
     }
   },
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + 0, 'programaciones')
+    this.globalGetForSelect('api/productos/todosconimpuestos', 'productos')
   },
   computed: {
+  },
+  watch: {
+  },
+  filters: {
+  },
+  mounted () {
   }
 }
 </script>
 
 <style>
+    .div-focus:focus{
+      outline: none;
+    }
+    .text-danger{
+      color: #db2828;
+    }
+    .text-succes{
+      color: #21ba45;
+    }
     .q-table__container{
         width: 100%;
+    }
+    .my-sticky-header-table .q-table__middle{
+        max-height: 200px;
+    }
+    .my-sticky-header-table thead tr th{
+      position: sticky;
+      z-index: 1
+    }
+
+    .my-sticky-header-table thead tr:first-child th{
+      top: 0
+    }
+    /* this is when the loading indicator appears */
+    .my-sticky-header-table.q-table--loading thead tr:last-child th{
+      top: 100px
+    }
+    .v-money{
+      padding: 17px;
+      border: none;
+      border-bottom: 1px solid rgba(0,0,0,0.24);
+      width: 100%;
+    }
+    .v-money:focus{
+      outline: none;
+      border-bottom: 1px solid #027be3;
+    }
+    .v-money-label{
+      color: rgba(0,0,0,0.6);
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 400;
+      letter-spacing: 0.00937em;
+      position: absolute;
+      top: 16px;
     }
 </style>
