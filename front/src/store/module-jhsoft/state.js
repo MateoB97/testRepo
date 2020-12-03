@@ -1,11 +1,12 @@
 export default {
   // url: 'http://localhost/fusionback/public/',
-  url: 'http://192.168.1.100/sgc/back/public/',
+  // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://192.168.1.169/sgc/back/public/',
   // url: 'http://192.168.1.82/sgc/back/public/',
   // url: 'http://desktop-caermcs/sgc/back/public/',
   // url: 'http://fusion.test/'
+  url: 'http://localhost/sgc/back/public/',
   tipo_licencia: 3,
   facturacion: true,
   lotes: false,
