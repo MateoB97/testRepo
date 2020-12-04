@@ -1,8 +1,6 @@
 <template>
   <div class="div-focus" tabindex="0" @keyup.35="openedAddPago = true" @keyup.36="() => $refs.scan.focus()" @keyup.45="openedAddProductoMethod">
     <q-page padding>
-        <AddProductoManual :openedAddProducto="openedAddProducto" />
-
         <div class="row">
         <div class="row q-col-gutter-md col-md-4">
             <div class="row col-12">
@@ -55,7 +53,11 @@
               </div>
               <div class="col-12">
                 <div class="col-12 w-100 q-mt-sm">
-                  <q-btn class="btn-naranja w-100" icon-right="add" v-on:click="openedAddProductoMethod" label="Agregar Producto" />
+                  <AddProductoManual
+                    :withPrice = 0
+                    :listadoPrecios = []
+                    @addProducto='addProductFromComponent'
+                  />
                   <q-btn class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
                 </div>
               </div>
@@ -138,7 +140,7 @@ export default {
       columns: [
         { name: 'producto_id', required: true, label: 'Producto id', align: 'left', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 80px' },
         { name: 'producto', required: true, label: 'Producto', align: 'left', field: 'producto', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'cantidad', required: true, label: 'Peso Despacho', align: 'right', field: 'cantidad', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cantidad', required: true, label: 'Peso antes de Marinacion', align: 'right', field: 'cantidad', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'acciones', required: true, label: 'Acciones', align: 'right', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       itemsCounter: 1,
@@ -219,6 +221,9 @@ export default {
     },
     stopGetPeso () {
       clearInterval(this.interval)
+    },
+    addProductFromComponent (newProduct) {
+      this.dataResumen.push(newProduct)
     }
   },
   created: function () {
