@@ -10,8 +10,20 @@
         <q-layout view="Lhh lpR fff" container style="height: 400px; max-width: 800px" class="bg-white">
         <q-page-container>
         <q-page padding>
-            <h3>Agregar Producto</h3>
-            <div class="overflow-hidden">
+            <h3>{{ titleSumaResta }}</h3>
+             <q-btn-toggle
+              v-model="sumaRestaToggle"
+              spread
+              no-caps
+              :toggle-color="toggleColor"
+              color="white"
+              text-color="black"
+              :options="[
+                {label: 'Agregar', value: 'add'},
+                {label: 'Restar', value: 'subtract'}
+              ]"
+            />
+            <div class="overflow-hidden q-mt-md">
             <div class="row q-col-gutter-sm">
                 <div  class="col-1">
                 <q-input v-model="codigo_producto" label="Cod." readonly>
@@ -61,14 +73,17 @@
                   <money v-model="precio_producto" v-bind="money" class="v-money"></money>
                 </div>
             </div>
+            <div class="row q-mt-md">
+              <p>Ultimo movimiento: {{ ultimoMovimiento }}</p>
+            </div>
             </div>
         <q-btn class="q-mt-md"
-            color="primary"
-            label="Guardar"
+            :color="toggleColor"
+            :label="textBtn"
             @click="addProducto"
         />
         <q-btn class="q-mt-md q-ml-sm"
-            color="negative"
+            color="warning"
             @click="closeAddProducto"
             label="Cancelar"
         />
@@ -100,12 +115,14 @@ export default {
         precision: 0,
         masked: false
       },
+      sumaRestaToggle: 'add',
       alert: false,
       dialog: false,
       isVisible: false,
       maximizedToggle: true,
       producto_selected: null,
       precio_producto: 0,
+      ultimoMovimiento: 'Sin movimientos',
       productos: [],
       options: {
         productos: this.productos
@@ -155,6 +172,7 @@ export default {
           app.$q.notify({ color: 'negative', message: 'Se debe seleccionar un cliente o un despacho para cargar el listado de precios.' })
         } else {
           var newProduct = {}
+          var typeUnit = null
           newProduct = {
             id: app.itemsCounter,
             producto: app.producto_selected.nombre,
@@ -169,8 +187,16 @@ export default {
           }
           if (parseInt(app.producto_selected.unidades) === 1) {
             newProduct.cantidad = app.temp.cantidad
+            typeUnit = 'Kilos'
           } else {
             newProduct.cantidad = app.temp.cantidad_unid
+            typeUnit = 'Unidades'
+          }
+          if (app.sumaRestaToggle === 'add') {
+            app.ultimoMovimiento = 'Se agregaron ' + newProduct.cantidad + ' ' + typeUnit + ' de ' + newProduct.producto
+          } else {
+            newProduct.cantidad = -parseInt(newProduct.cantidad)
+            app.ultimoMovimiento = 'Se restaron ' + newProduct.cantidad + ' ' + typeUnit + ' de ' + newProduct.producto
           }
           app.isVisible = false
           app.$emit('addProducto', newProduct)
@@ -190,6 +216,27 @@ export default {
         return this.producto_selected.codigo
       } else {
         return null
+      }
+    },
+    toggleColor: function () {
+      if (this.sumaRestaToggle === 'add') {
+        return 'positive'
+      } else {
+        return 'negative'
+      }
+    },
+    titleSumaResta: function () {
+      if (this.sumaRestaToggle === 'add') {
+        return 'Agregar Peso Producto'
+      } else {
+        return 'Restar Peso Producto'
+      }
+    },
+    textBtn: function () {
+      if (this.sumaRestaToggle === 'add') {
+        return 'Agregar'
+      } else {
+        return 'Restar'
       }
     }
   },

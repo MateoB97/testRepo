@@ -22,6 +22,7 @@
                 input-debounce="0"
                 :options="options.programaciones"
                 @filter="filterProgramaciones"
+                @input="selectedProgramacion"
                 >
                 <template v-slot:option="scope">
                 <q-item
@@ -58,7 +59,7 @@
                     :listadoPrecios = []
                     @addProducto='addProductFromComponent'
                   />
-                  <q-btn class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
+                  <q-btn class="q-mt-md btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
                 </div>
               </div>
             </div>
@@ -88,10 +89,6 @@
                         <q-td key="producto_id" :props="props"><q-checkbox v-model="selected" :val="props.row.producto_id" /></q-td>
                         <q-td key="producto" :props="props">{{ props.row.producto }}</q-td>
                         <q-td key="cantidad" :props="props">{{ parseFloat(props.row.cantidad).toFixed(3) }}</q-td>
-                        <q-td key="acciones" :props="props">
-                          <q-btn class="q-ml-xs" icon="edit" @click="ingresarPeso(props.row.producto_id)" color="warning"></q-btn>
-                          <q-btn class="q-ml-xs" icon="delete" @click="eliminarPeso(props.row.producto_id)" color="negative"></q-btn>
-                        </q-td>
                       </q-tr>
                     </template>
                   </q-table>
@@ -117,7 +114,7 @@ export default {
   params: 'doc',
   data: function () {
     return {
-      urlAPI: 'api/despachos/guardarpesodespacho',
+      urlAPI: 'api/lotes/pesomarinacion',
       storeItems: {
       },
       productos: [],
@@ -131,7 +128,7 @@ export default {
       openedAddProducto: false,
       producto_selected: null,
       temp: {
-        cantidad: null
+        cantidadResta: null
       },
       options: {
         programaciones: this.programaciones,
@@ -140,8 +137,7 @@ export default {
       columns: [
         { name: 'producto_id', required: true, label: 'Producto id', align: 'left', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 80px' },
         { name: 'producto', required: true, label: 'Producto', align: 'left', field: 'producto', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'cantidad', required: true, label: 'Peso antes de Marinacion', align: 'right', field: 'cantidad', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'acciones', required: true, label: 'Acciones', align: 'right', field: 'producto_id', sortable: true, classes: 'my-class', style: 'width: 200px' }
+        { name: 'cantidad', required: true, label: 'Peso antes de Marinacion', align: 'right', field: 'cantidad', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       itemsCounter: 1,
       dataResumen: [],
@@ -158,8 +154,8 @@ export default {
       this.storeItems = {}
     },
     preSave () {
-      this.storeItems.lineas = this.dataResumen
-      this.storeItems.sal_mercancia_id = this.storeItems.despacho.id
+      this.storeItems.productos = this.dataResumen
+      this.storeItems.programacion_id = this.storeItems.programacion.programacion_id
     },
     postEdit () {
     },
@@ -169,45 +165,17 @@ export default {
         this.options.programaciones = this.programaciones.filter(v => v.programacion_id.toLowerCase().indexOf(needle) > -1)
       })
     },
-    openedAddProductoMethod () {
-      this.openedAddProducto = true
-    },
-    closeAddProducto () {
-      this.producto_selected = null
-      this.temp.cantidad = null
-      this.openedAddProducto = false
-    },
-    eliminarSelected () {
+    selectedProgramacion () {
       var app = this
-      this.selected.forEach(function (elementSelected, j) {
-        app.dataResumen.forEach(function (element, i) {
-          if (elementSelected === element.producto_id) {
-            app.dataResumen.splice(i, 1)
-          }
-        })
+      axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesomarinacion/programacionfilter/' + parseInt(this.storeItems.programacion.programacion_id)).then(
+        function (response) {
+          app.dataResumen = response.data
+        }
+      ).catch(function (error) {
+        console.log(error)
+      }).finally(function () {
+        app.$q.loading.hide()
       })
-      this.selected = []
-    },
-    addPeso () {
-      var item = this.dataResumen.find(v => parseInt(v.producto_id) === parseInt(this.temp.producto_id))
-      item.cantidad = parseFloat(item.cantidad) + parseFloat(this.temp.cantidad)
-      this.temp.cantidad = null
-      this.temp.producto = null
-      this.temp.producto_id = null
-      this.stopGetPeso()
-      this.openedAddProducto = false
-    },
-    ingresarPeso (productoId) {
-      this.openedAddProducto = true
-      this.getPeso()
-      const item = this.dataResumen.find(v => parseFloat(v.producto_id) === parseFloat(productoId))
-      this.temp.cantidad = 0
-      this.temp.producto = item.producto
-      this.temp.producto_id = item.producto_id
-    },
-    eliminarPeso (productoId) {
-      var item = this.dataResumen.find(v => parseFloat(v.producto_id) === parseFloat(productoId))
-      item.cantidad = 0
     },
     getPeso () {
       var v = this
@@ -223,12 +191,20 @@ export default {
       clearInterval(this.interval)
     },
     addProductFromComponent (newProduct) {
-      this.dataResumen.push(newProduct)
+      let item = this.dataResumen.find(v => v.producto_codigo === newProduct.producto_codigo)
+      if (item !== undefined) {
+        item.cantidad = parseInt(item.cantidad) + parseInt(newProduct.cantidad)
+        if (item.cantidad < 1) {
+          var index = this.dataResumen.findIndex(v => v.producto_codigo === newProduct.producto_codigo)
+          this.dataResumen.splice(index, 1)
+        }
+      } else {
+        this.dataResumen.push(newProduct)
+      }
     }
   },
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + 0, 'programaciones')
-    this.globalGetForSelect('api/productos/todosconimpuestos', 'productos')
   },
   computed: {
   },
