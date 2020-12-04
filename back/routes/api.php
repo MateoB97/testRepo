@@ -72,6 +72,9 @@ Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){
 	Route::apiResource('pesoplanta', 'LotPesoPlantaController');
 	Route::get('pesoplanta/lotefilter/{idlote}', 'LotPesoPlantaController@GetData');
 	Route::get('pesoplanta/deletebylote/{idlote}', 'LotPesoPlantaController@DeleteByLote');
+	// peso marinacion
+	Route::apiResource('pesomarinacion', 'LotMarinacionController');
+	Route::get('pesomarinacion/programacionfilter/{idlote}', 'LotMarinacionController@GetData');
 	// programaciones
 	Route::get('programaciones/abiertas/{producto_empacado}', 'LotProgramacionController@programacionLotesAbiertos');
 	Route::get('programaciones/abiertasporgrupo/{id}/{producto_empacado}', 'LotProgramacionController@programacionLotesAbiertosPorGrupo');
