@@ -34,6 +34,7 @@ class FacPivotFormaRecibo extends Model
             ->join('fac_recibos_caja','fac_recibos_caja.id', '=', 'fac_pivot_forma_recibo.fac_recibo_id')
             ->where('fac_pivot_forma_recibo.fac_formas_pago_id', $formapago)
             ->where('fac_recibos_caja.gen_cuadre_caja_id', $cuadre)
+            ->where('fac_recibos_caja.estado', '!=', 0)
             ->get();
     }
 
