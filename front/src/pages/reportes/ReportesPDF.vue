@@ -268,7 +268,7 @@
                 <q-page padding>
                   <div class="overflow-hidden">
                     <div class="row q-col-gutter-sm">
-                      <div class="col-6">
+                      <!-- <div class="col-6">
                           <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
                             <template v-slot:append>
                               <q-icon name="event" class="cursor-pointer">
@@ -278,8 +278,8 @@
                               </q-icon>
                             </template>
                           </q-input>
-                      </div>
-                      <div class="col-6">
+                      </div> -->
+                      <!-- <div class="col-6">
                           <q-input label="Fecha de Final" v-model="datos.fecha_final" mask="date" :rules="['date']">
                             <template v-slot:append>
                               <q-icon name="event" class="cursor-pointer">
@@ -289,7 +289,7 @@
                               </q-icon>
                             </template>
                           </q-input>
-                      </div>
+                      </div> -->
                     </div>
                     <div class="row q-col-gutter-sm">
                       <div class="col-12">
@@ -297,7 +297,7 @@
                       </div>
                     </div>
                     <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final + '/'+ datos.tercero_id + '/' + sucursal">
+                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + datos.tercero_id + '/' + sucursal">
                         <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
                         <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/imprescioncxc'"><q-btn class="q-ml-xs" color="primary">CXC - POS</q-btn> </a>
                       </a>
@@ -422,7 +422,43 @@
             </q-layout>
           </q-dialog>
         <!-- FIN MODAL MOVIMIENTOS X FECHA DETALLES - GRUPO - TIPO DOC - SUCURSAL -  CON FILTROS CUSTOM -->
-
+        <!-- INICIO MODAL RELACION TIQUETE - FACTURA -->
+            <q-dialog v-model="modales.filtrotiquetefactura" full-width >
+            <q-layout view="Lhh lpR fff" container style="height: 57vh; max-width: 50vw" class="bg-white">
+              <q-header class="bg-primary">
+                <q-toolbar>
+                  <q-btn flat v-close-popup round dense icon="close" />
+                </q-toolbar>
+              </q-header>
+              <q-page-container>
+                <q-page padding>
+                  <div class="overflow-hidden">
+                    <div class="row q-col-gutter-sm">
+                      <div class="col-6">
+                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
+                            <template v-slot:append>
+                              <q-icon name="event" class="cursor-pointer">
+                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
+                                </q-popup-proxy>
+                              </q-icon>
+                            </template>
+                          </q-input>
+                      </div>
+                    </div>
+                    <div class="row q-col-gutter-sm">
+                    </div>
+                    <div class="row q-mt-md text-center">
+                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial ">
+                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
+                      </a>
+                    </div>
+                  </div>
+                </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- FIN MODAL RELACION TIQUETE - FACTURA -->
         <div class="overflow-hidden">
             <div v-if="this.$store.state.jhsoft.tipo_licencia !== 1" class="row q-col-gutter-md">
                 <div class="col-12 q-mt-md"><h4 style="margin:0px">Cartera</h4></div>
@@ -469,8 +505,11 @@
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" />
                 </div>
                 <div class="col-4">
-                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
+                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaTiqueteFactura(8), datos.fecha_inicial = null" label="Relación Tiquete-Factura" />
                 </div>
+                <!-- <div class="col-4">
+                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
+                </div> -->
             </div>
         </div>
     </q-page>
@@ -516,7 +555,7 @@ export default {
         'api/facturacion/informes/movimientosporfechaportercero/',
         'api/reportesgenerados/reportes/saldosencartera/',
         'api/reportesgenerados/reportes/movimientosporfecha/',
-        'api/reportesgenerados/reportes/testing/'
+        'api/reportesgenerados/reportes/relaciontiquetefactura/'
       ],
       ruta_fecha_activa: null,
       modales: {
@@ -527,7 +566,8 @@ export default {
         filtrofechatercero: false,
         filtrocxccustom: false,
         filtromovscustom: false,
-        filtromovsdetailscustom: false
+        filtromovsdetailscustom: false,
+        filtrotiquetefactura: false
       }
     }
   },
@@ -574,6 +614,10 @@ export default {
     activarRutaMovsDetailsCustom (ruta) {
       this.ruta_fecha_activa = this.rutas_fechas[ruta]
       this.modales.filtromovsdetailscustom = true
+    },
+    activarRutaTiqueteFactura (ruta) {
+      this.ruta_fecha_activa = this.rutas_fechas[ruta]
+      this.modales.filtrotiquetefactura = true
     }
   },
   created: function () {

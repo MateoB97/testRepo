@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    
+
     public function register(Request $request)
     {
         $v = Validator::make($request->all(), [
@@ -38,6 +38,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // dd($request);
         $user = User::where('email','=', $request->email)->get();
 
         if ($user[0]->activo == 1) {
