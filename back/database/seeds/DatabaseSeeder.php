@@ -722,7 +722,7 @@ class DatabaseSeeder extends Seeder
                 113 => 'VIOTA',
                 114 => 'YACOPI',
                 115 => 'ZIPACON',
-                116 => 'ZIPAQUIRA',
+                116 => 'ZIPAQUIRA'
             ),
             15 => array(
                 1 => 'BARRANCO MINA',
@@ -1492,7 +1492,7 @@ class DatabaseSeeder extends Seeder
             'consec_inicio' => 1,
             'com_tipo_compras_id' => 1
         ]);
-        
+
         // PRODUCTOS
 
         $unidades = [
@@ -1516,7 +1516,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $subgrupos = 
+        $subgrupos =
             [['BOLSAS','1']];
 
 
@@ -1526,7 +1526,7 @@ class DatabaseSeeder extends Seeder
                 'prodGrupo_id' => $item[1]
             ]);
         }
-        
+
         $productos = [['500','BOLSAS','1','1','1']];
 
         foreach ($productos as $item) {

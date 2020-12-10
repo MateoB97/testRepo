@@ -334,8 +334,14 @@ Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
 });
 
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
-    Route::get('/reportes/testing', 'ReportesGeneradosController@getProductGroups');
-    Route::get('/reportes/saldosencartera/{fecha_inicial}/{fecha_final}/{tercero_id}/{sucursal_id}', 'ReportesGeneradosController@saldosCarteraCxCCustom');
+
+    Route::get('/reportes/test', 'ReportesGeneradosController@testArray');
+    Route::get('/reportes/compilejrxml', 'ReportesGeneradosController@compileJrXml');
+    Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
+    Route::get('/reportes/saldocartera', 'ReportesGeneradosController@reportSaldoCartera');
+
+    Route::get('/reportes/saldosencartera/{tercero_id}/{sucursal_id}', 'ReportesGeneradosController@saldosCarteraCxCCustom');
+
     Route::get('/reportes/movimientosporfecha/{fecha_inicial}/{fecha_final}/{tercero_id}/{sucursal_id}', 'ReportesGeneradosController@movimientosPorFechaCustom');
 });
 
