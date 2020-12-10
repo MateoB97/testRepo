@@ -1,5 +1,5 @@
 export default {
-  // url: 'http://localhost/fusionback/public/',
+  // url: 'http://localhost/fusionbackV1/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://192.168.1.169/sgc/back/public/',

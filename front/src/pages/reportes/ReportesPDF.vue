@@ -268,7 +268,7 @@
                 <q-page padding>
                   <div class="overflow-hidden">
                     <div class="row q-col-gutter-sm">
-                      <div class="col-6">
+                      <!-- <div class="col-6">
                           <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
                             <template v-slot:append>
                               <q-icon name="event" class="cursor-pointer">
@@ -278,8 +278,8 @@
                               </q-icon>
                             </template>
                           </q-input>
-                      </div>
-                      <div class="col-6">
+                      </div> -->
+                      <!-- <div class="col-6">
                           <q-input label="Fecha de Final" v-model="datos.fecha_final" mask="date" :rules="['date']">
                             <template v-slot:append>
                               <q-icon name="event" class="cursor-pointer">
@@ -289,7 +289,7 @@
                               </q-icon>
                             </template>
                           </q-input>
-                      </div>
+                      </div> -->
                     </div>
                     <div class="row q-col-gutter-sm">
                       <div class="col-12">
@@ -297,7 +297,7 @@
                       </div>
                     </div>
                     <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final + '/'+ datos.tercero_id + '/' + sucursal">
+                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + datos.tercero_id + '/' + sucursal">
                         <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
                         <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/imprescioncxc'"><q-btn class="q-ml-xs" color="primary">CXC - POS</q-btn> </a>
                       </a>

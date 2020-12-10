@@ -33,7 +33,7 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.169/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://localhost/fusionback/public/api'
+  // Vue.axios.defaults.baseURL = 'http://localhost/fusionbackV1/public/api'
   Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 
   axios.interceptors.request.use(function (config) {

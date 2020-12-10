@@ -104,8 +104,9 @@ class ReportesGenerados extends Model
             // ->when($tipodoc, function ($query, $tipodoc) {
             //     return $query->where('fac_tipo_doc.id', $tipodoc);
             // })
-            ->orderBy('terceros.documento','asc')
-            ->orderBy('tercero_sucursales.id','asc')
+            // ->orderBy('terceros.documento','asc')
+            // ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('fac_movimientos.fecha_facturacion', 'asc')
             ->get();
     }
 
@@ -146,8 +147,9 @@ class ReportesGenerados extends Model
             ->when($sucursal_id, function ($query, $sucursal_id) {
                 return $query->where('tercero_sucursales.id', $sucursal_id);
             })
-            ->orderBy('terceros.documento','asc')
-            ->orderBy('tercero_sucursales.id','asc')
+            // ->orderBy('terceros.documento','asc')
+            // ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('fac_movimientos.fecha_facturacion', 'asc')
             ->get();
     }
 
@@ -185,8 +187,9 @@ class ReportesGenerados extends Model
             ->when($sucursal_id, function ($query, $sucursal_id) {
                 return $query->where('tercero_sucursales.id', $sucursal_id);
             })
-            ->orderBy('terceros.documento','asc')
-            ->orderBy('tercero_sucursales.id','asc')
+            // ->orderBy('terceros.documento','asc')
+            // ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('fac_recibos_caja.fecha_recibo','asc')
             ->get();
     }
 
