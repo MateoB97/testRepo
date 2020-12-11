@@ -1,57 +1,6 @@
 <template>
   <div>
     <q-page padding>
-        <!-- inicio popup Saldos en cartera x cliente -->
-          <q-dialog v-model="modales.openedCXCxtercero" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
-            <q-layout view="Lhh lpR fff" container style="height: 30vh; max-width: 50vw" class="bg-white">
-              <q-header class="bg-primary">
-                <q-toolbar>
-                  <q-btn flat v-close-popup round dense icon="close" />
-                </q-toolbar>
-              </q-header>
-
-              <q-page-container>
-                <q-page padding>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <q-select
-                          v-model="datos.tercero_id"
-                          use-input
-                          hide-selected
-                          fill-input
-                          option-label="nombre"
-                          label="Tercero"
-                          option-disable="inactive"
-                          option-value="id"
-                          input-debounce="0"
-                          emit-value
-                          map-options
-                          :options="options.terceros"
-                          @filter="filterTerceros"
-                        >
-                          <template v-slot:no-option>
-                            <q-item>
-                              <q-item-section class="text-grey">
-                                No results
-                              </q-item-section>
-                            </q-item>
-                          </template>
-                        </q-select>
-                      </div>
-                    </div>
-                    <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/informes/saldoencarteraxcliente/'+ datos.tercero_id +'?token='+ $store.state.jhsoft.token">
-                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
-                      </a>
-                    </div>
-                  </div>
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- fin popup Saldos en cartera x cliente  -->
-
         <!-- inicio popup CXP X CLIENTE -->
           <q-dialog v-model="modales.openedCXPxtercero" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
             <q-layout view="Lhh lpR fff" container style="height: 30vh; max-width: 50vw" class="bg-white">
@@ -256,214 +205,19 @@
           </q-dialog>
         <!-- fin popup filtro por fecha  -->
 
-        <!-- INICIO MODAL SALDOSCARTERA CON FILTROS CUSTOM -->
-          <q-dialog v-model="modales.filtrocxccustom" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
-            <q-layout view="Lhh lpR fff" container style="height: 40vh; max-width: 50vw" class="bg-white">
-              <q-header class="bg-primary">
-                <q-toolbar>
-                  <q-btn flat v-close-popup round dense icon="close" />
-                </q-toolbar>
-              </q-header>
-              <q-page-container>
-                <q-page padding>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <!-- <div class="col-6">
-                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div> -->
-                      <!-- <div class="col-6">
-                          <q-input label="Fecha de Final" v-model="datos.fecha_final" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_final" @input="() => $refs.qDateProxy1.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div> -->
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" @tercero_id="assingTerceroID" columnas='col-12' labelTercero='Tercero'/>
-                      </div>
-                    </div>
-                    <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + datos.tercero_id + '/' + sucursal">
-                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
-                        <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/imprescioncxc'"><q-btn class="q-ml-xs" color="primary">CXC - POS</q-btn> </a>
-                      </a>
-                    </div>
-                  </div>
-
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- FIN MODAL SALDOSCARTERA CON FILTROS CUSTOM -->
-
-        <!-- INICIO MODAL MOVIMIENTOS X FECHA - TERCERO - SUCURSAL -  CON FILTROS CUSTOM -->
-            <q-dialog v-model="modales.filtromovscustom" full-width >
-            <q-layout view="Lhh lpR fff" container style="height: 40vh; max-width: 50vw" class="bg-white">
-              <q-header class="bg-primary">
-                <q-toolbar>
-                  <q-btn flat v-close-popup round dense icon="close" />
-                </q-toolbar>
-              </q-header>
-              <q-page-container>
-                <q-page padding>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-6">
-                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
-                      <div class="col-6">
-                          <q-input label="Fecha de Final" v-model="datos.fecha_final" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_final" @input="() => $refs.qDateProxy1.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" @tercero_id="assingTerceroID" columnas='col-12' labelTercero='Tercero'/>
-                      </div>
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                    </div>
-                    <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final + '/'+ datos.tercero_id + '/' + sucursal">
-                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
-                      </a>
-                      <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/impresionmovsporfecha/' + fecha_inicial + '/' + fecha_final">
-                        <q-btn class="q-ml-xs" icon="local_printshop" color="primary">Generar POS</q-btn>
-                      </a>
-                    </div>
-                  </div>
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- FIN MODAL MOVIMIENTOS X FECHA CON FILTROS CUSTOM -->
-
-        <!-- INICIO MODAL MOVIMIENTOS X FECHA DETALLES - GRUPO - TIPO DOC - SUCURSAL -  CON FILTROS CUSTOM -->
-            <q-dialog v-model="modales.filtromovsdetailscustom" full-width >
-            <q-layout view="Lhh lpR fff" container style="height: 57vh; max-width: 50vw" class="bg-white">
-              <q-header class="bg-primary">
-                <q-toolbar>
-                  <q-btn flat v-close-popup round dense icon="close" />
-                </q-toolbar>
-              </q-header>
-              <q-page-container>
-                <q-page padding>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-6">
-                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
-                      <div class="col-6">
-                          <q-input label="Fecha de Final" v-model="datos.fecha_final" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_final" @input="() => $refs.qDateProxy1.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Tercero'/>
-                        <SelectGrupoProducto float='left'  />
-                        <SelectTipoDoc float='right'  />
-                      </div>
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                    </div>
-                    <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final + '/' + sucursal">
-                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
-                      </a>
-                    </div>
-                  </div>
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- FIN MODAL MOVIMIENTOS X FECHA DETALLES - GRUPO - TIPO DOC - SUCURSAL -  CON FILTROS CUSTOM -->
-        <!-- INICIO MODAL RELACION TIQUETE - FACTURA -->
-            <q-dialog v-model="modales.filtrotiquetefactura" full-width >
-            <q-layout view="Lhh lpR fff" container style="height: 57vh; max-width: 50vw" class="bg-white">
-              <q-header class="bg-primary">
-                <q-toolbar>
-                  <q-btn flat v-close-popup round dense icon="close" />
-                </q-toolbar>
-              </q-header>
-              <q-page-container>
-                <q-page padding>
-                  <div class="overflow-hidden">
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-6">
-                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
-                    </div>
-                    <div class="row q-col-gutter-sm">
-                    </div>
-                    <div class="row q-mt-md text-center">
-                      <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial ">
-                        <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
-                      </a>
-                    </div>
-                  </div>
-                </q-page>
-              </q-page-container>
-            </q-layout>
-          </q-dialog>
-        <!-- FIN MODAL RELACION TIQUETE - FACTURA -->
         <div class="overflow-hidden">
             <div v-if="this.$store.state.jhsoft.tipo_licencia !== 1" class="row q-col-gutter-md">
                 <div class="col-12 q-mt-md"><h4 style="margin:0px">Cartera</h4></div>
                   <div class="col-4">
-                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaCxcCustom(6), datos.fecha_inicial = null, datos.fecha_final = null" label="CXC" />
+                    <GlobalFiltersComponent
+                      titleBtn="CXC"
+                      url="api/reportesgenerados/reportes/saldosencartera"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="true"
+                      :datesFilter="true"
+                      :gruposFilter="true"
+                      :dateUnique="0"
+                    />
                   </div>
                 <div class="col-4">
                     <a target="_blank" :href="$store.state.jhsoft.url+'api/compras/informes/cuentasporpagar'+'?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs w-100" color="primary">CXP</q-btn> </a>
@@ -505,7 +259,12 @@
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" />
                 </div>
                 <div class="col-4">
-                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaTiqueteFactura(8), datos.fecha_inicial = null" label="Relación Tiquete-Factura" />
+                  <GlobalFiltersComponent
+                    titleBtn="Relacion Tiquete Factura"
+                    url="api/reportesgenerados/reportes/relaciontiquetefactura"
+                    :datesFilter="true"
+                    :dateUnique="1"
+                  />
                 </div>
                 <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
@@ -519,16 +278,14 @@
 <script>
 import { globalFunctions } from 'boot/mixins.js'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
-import SelectGrupoProducto from 'components/reportes/SelectGrupoProducto.vue'
-import SelectTipoDoc from 'components/reportes/SelectTipoDoc.vue'
+import GlobalFiltersComponent from 'components/filters/globalFiltersComponent.vue'
 const axios = require('axios')
 
 export default {
   name: 'RepCarteraTotal',
   components: {
     SelectTerceroSucursal,
-    SelectGrupoProducto,
-    SelectTipoDoc
+    GlobalFiltersComponent
   },
   data: function () {
     return {
@@ -618,6 +375,9 @@ export default {
     activarRutaTiqueteFactura (ruta) {
       this.ruta_fecha_activa = this.rutas_fechas[ruta]
       this.modales.filtrotiquetefactura = true
+    },
+    setDates (val) {
+      console.log(val)
     }
   },
   created: function () {

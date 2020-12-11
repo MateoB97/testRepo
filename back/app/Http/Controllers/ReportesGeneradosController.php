@@ -54,6 +54,86 @@ use PHPJasper\PHPJasper;
 
 class ReportesGeneradosController extends Controller
 {
+
+        public static function executeJasper ($input,$params ){
+            
+            $jdbc_dir = base_path().'\resources\jasper\sqldriver';
+
+            $host = env('DB_HOST','.');
+            $instance = explode('\\', $host)[1];
+
+            $options = [
+                'format' => ['pdf'],
+                'locale' => 'en',
+                'params' => $params,
+                'db_connection' => [
+                    'driver' => 'generic',
+                    'host' => env('DB_HOST','.'),
+                    'port' => '1433',
+                    'database' => env('DB_DATABASE','sgc'),
+                    'username' => env('DB_USERNAME','sa'),
+                    'password' => env('DB_PASSWORD','sa'),
+                    'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
+                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance,
+                    'jdbc_dir' => $jdbc_dir
+                ]
+            ];
+
+            $input = base_path().'\resources\jasper\templates\dist\\'.$input.'.jasper';
+            $output = base_path().'\resources\jasper\templates\dist\\'.microtime();
+            
+            $jasper = new PHPJasper;
+            $jasper->process(
+                $input,
+                $output,
+                $options
+            )->execute();
+
+            header("Content-type: application/pdf");
+            $od = readfile($output.'.'.$options['format'][0]);
+            unlink($output.'.'.$options['format'][0]);
+            dd($od);
+        }
+
+        // public static function buildJasperOptions ($keys,$paramsGet){
+
+        //     $params = [];
+
+        //     foreach ($paramsGet as $index => $value) {
+        //         if ($value == 'null') {
+        //             $value = null;
+        //         }
+
+        //         if ($value != null) {
+        //             $params[$keys[$index]] = $value;
+        //         }
+        //     }
+            
+        //     $jdbc_dir = base_path().'\resources\jasper\sqldriver';
+
+        //     $host = env('DB_HOST','.');
+        //     $instance = explode('\\', $host)[1];
+
+        //     $jasperOptions = [
+        //         'format' => ['pdf'],
+        //         'locale' => 'en',
+        //         'params' => $params,
+        //         'db_connection' => [
+        //             'driver' => 'generic',
+        //             'host' => env('DB_HOST','.'),
+        //             'port' => '1433',
+        //             'database' => env('DB_DATABASE','sgc'),
+        //             'username' => env('DB_USERNAME','sa'),
+        //             'password' => env('DB_PASSWORD','sa'),
+        //             'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
+        //             'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance,
+        //             'jdbc_dir' => $jdbc_dir
+        //         ]
+        //     ];
+
+        //     return $jasperOptions;
+        // }
+
         public function movimientosPorFechaCustomExcel($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id) {
 
             return Excel::download(new MovimientosExport($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id), 'invoices.xlsx');
@@ -176,94 +256,19 @@ class ReportesGeneradosController extends Controller
         }
 
         public function reporteTiqueteFactura(){
-            // dd(input);
-            $fecha_inicial = '2020-09-08';
-            $fileName = 'TicketInvoice-'.date('dmy');
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\TicketInvoice.jasper';//Relativa
-            $output = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\\'.$fileName; // Relativa
-            $jdbc_dir = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\bin\jasperstarter\jdbc';
-            $options = [
-                'format' => ['pdf'],
-                'locale' => 'en',
-                'params' => ['fecha_inicial' =>$fecha_inicial],
-                'db_connection' => [
-                    'driver' => 'generic',
-                    'host' => 'localhost',
-                    'port' => '1433',
-                    'database' => 'SgcSevilla',
-                    'username' => 'sa',
-                    'password' => 'Admin1036',
-                    'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/SgcSevilla',
-                    'jdbc_dir' => $jdbc_dir
-                ]
-            ];
-            $jasper = new PHPJasper;
-            $jasper->process(
-                $input,
-                $output,
-                $options
-            )->execute();
-            // sleep(1);
-            // shell_exec('start "" /max "C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\TicketInvoice.pdf"');
+
+            $params = $_GET;
+            $input = 'TicketInvoice';
+            self::executeJasper($input, $params);
+
         }
 
-        public function saldosCarteraCxCCustom($tercero_id, $sucursal_id){
+        public function saldosCarteraCxCCustom(){
 
-            $fileName =  str_replace(':','-', 'SaldosCartera-'.date("Y-m-d H:i:s"));
-            $tercero_id = $tercero_id == "null" ? null : $tercero_id;
-            $sucursal_id = $sucursal_id == "null" ? null : $sucursal_id;
-            $params = [];
-            if($tercero_id != null && $sucursal_id != null){
-                $params = array(
-                    'tercero_id'=> $tercero_id,
-                    'sucursal_id' => $sucursal_id
-                );
-            }else if($tercero_id != null && $sucursal_id  == null){
-                $params = array(
-                    'tercero_id'=> $tercero_id
-                );
-            }else if($tercero_id == null && $sucursal_id  != null){
-                $params = array(
-                    'sucursal_id'=> $sucursal_id
-                );
-            }
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jasper';//Relativa
-            $output = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\\'.$fileName; // Relativa
-            $jdbc_dir = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\bin\jasperstarter\jdbc';
-            // dd($params);
-            $options = [
-                'format' => ['pdf'],
-                'locale' => 'en',
-                'params' => $params
-                ,'db_connection' => [
-                    'driver' => 'generic',
-                    'host' => 'localhost',
-                    'port' => '1433',
-                    'database' => 'sgcfull',
-                    'username' => 'sa',
-                    'password' => 'Admin1036',
-                    'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/sgcfull',
-                    'jdbc_dir' => $jdbc_dir
-                ]
-            ];
-            $jasper = new PHPJasper;
-            $x = $jasper->process(
-                $input,
-                $output,
-                $options
-            )->execute();
-                // )->output();
-                // print_r($x);
-        }
+            $params = $_GET;
+            $input = 'reportcxc';
+            self::executeJasper($input, $params);
 
-        public function openReportPdf($filaName){
-            $server = preg_replace('/([\\\])/', '${1}${1}', "\\192.168.1.82");
-            $filepath = $server."\Users\servidor\Documents\Informes\\".$filaName;
-            // echo   " \\192.168.1.82\Users\servidor\Documents\Informes".$file;
-            header("Content-type: application/pdf");
-            readfile($filepath);
         }
 
         public function movimientosPorFechaJasper($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id, $tipo_documento){
