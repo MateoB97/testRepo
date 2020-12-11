@@ -434,17 +434,7 @@
                 <q-page padding>
                   <div class="overflow-hidden">
                     <div class="row q-col-gutter-sm">
-                      <div class="col-6">
-                          <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
-                            <template v-slot:append>
-                              <q-icon name="event" class="cursor-pointer">
-                                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                                  <q-date v-model="datos.fecha_inicial" @input="() => $refs.qDateProxy.hide()" />
-                                </q-popup-proxy>
-                              </q-icon>
-                            </template>
-                          </q-input>
-                      </div>
+                      <DateFilterComponent :dateUnique="0" @setDates="setDates" />
                     </div>
                     <div class="row q-col-gutter-sm">
                     </div>
@@ -521,6 +511,7 @@ import { globalFunctions } from 'boot/mixins.js'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
 import SelectGrupoProducto from 'components/reportes/SelectGrupoProducto.vue'
 import SelectTipoDoc from 'components/reportes/SelectTipoDoc.vue'
+import DateFilterComponent from 'components/filters/dataFilterComponent.vue'
 const axios = require('axios')
 
 export default {
@@ -528,7 +519,8 @@ export default {
   components: {
     SelectTerceroSucursal,
     SelectGrupoProducto,
-    SelectTipoDoc
+    SelectTipoDoc,
+    DateFilterComponent
   },
   data: function () {
     return {
@@ -618,6 +610,9 @@ export default {
     activarRutaTiqueteFactura (ruta) {
       this.ruta_fecha_activa = this.rutas_fechas[ruta]
       this.modales.filtrotiquetefactura = true
+    },
+    setDates (val) {
+      console.log(val)
     }
   },
   created: function () {

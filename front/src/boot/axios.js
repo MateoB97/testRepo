@@ -28,9 +28,9 @@ export default ({ Vue }) => {
     registerData: { url: 'auth/register', method: 'POST', redirect: '/' },
     refreshData: { url: 'auth/refresh', method: 'GET', enabled: true, interval: 5 }
   })
-  Vue.axios.defaults.baseURL = 'http://fusion.test/api'
+  // Vue.axios.defaults.baseURL = 'http://fusion.test/api'
   // Vue.axios.defaults.baseURL = 'http://desktop-caermcs/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
+  Vue.axios.defaults.baseURL = 'http://192.168.1.8/sgcdev/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.169/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
