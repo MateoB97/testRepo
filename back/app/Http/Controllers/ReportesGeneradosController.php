@@ -55,19 +55,7 @@ use PHPJasper\PHPJasper;
 class ReportesGeneradosController extends Controller
 {
 
-        public static function executeJasper ($input,$keys,$paramsGet ){
-
-            $params = [];
-
-            foreach ($paramsGet as $index => $value) {
-                if ($value == 'null') {
-                    $value = null;
-                }
-
-                if ($value != null) {
-                    $params[$keys[$index]] = $value;
-                }
-            }
+        public static function executeJasper ($input,$params ){
             
             $jdbc_dir = base_path().'\resources\jasper\sqldriver';
 
@@ -267,25 +255,19 @@ class ReportesGeneradosController extends Controller
             $jasper->compile($input)->execute();
         }
 
-        public function reporteTiqueteFactura($fecha_ini){
+        public function reporteTiqueteFactura(){
 
-            $keyParams = ['fecha_inicial'];
-            $paramsGet = func_get_args();
-
+            $params = $_GET;
             $input = 'TicketInvoice';
-            
-            self::executeJasper($input, $keyParams, $paramsGet);
+            self::executeJasper($input, $params);
 
         }
 
-        public function saldosCarteraCxCCustom($tercero_id, $sucursal_id){
+        public function saldosCarteraCxCCustom(){
 
-            $keyParams = ['tercero_id', 'sucursal_id'];
-            $paramsGet = func_get_args();
-
+            $params = $_GET;
             $input = 'reportcxc';
-            
-            self::executeJasper($input,$keyParams, $paramsGet);
+            self::executeJasper($input, $params);
 
         }
 

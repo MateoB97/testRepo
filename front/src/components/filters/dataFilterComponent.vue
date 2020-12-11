@@ -1,6 +1,5 @@
 <template>
-  <div>
-   <div class="row q-col-gutter-sm">
+   <div class="row col-12 q-col-gutter-sm">
       <div class="col-6">
           <q-input label="Fecha de Inicial" v-model="datos.fecha_inicial" mask="date" :rules="['date']">
             <template v-slot:append>
@@ -24,7 +23,6 @@
           </q-input>
       </div>
     </div>
-  </div>
 </template>
 <script>
 
@@ -45,11 +43,7 @@ export default {
   methods: {
     datesInput (value) {
       this.$refs[value].hide()
-      if (this.dateUnique === 1) {
-        this.$emit('setDates', this.datos.fecha_inicial)
-      } else {
-        this.$emit('setDates', this.datos)
-      }
+      this.$emit('setDates', this.datos)
     }
   }
 }
