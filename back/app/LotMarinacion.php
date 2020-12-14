@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class LotMarinacion extends Model
 {
@@ -40,6 +41,18 @@ class LotMarinacion extends Model
     {
     	// belongsTo(RelatedModel, foreignKey = lotProgramacion_id, keyOnRelatedModel = id)
     	return $this->belongsTo(LotProgramacion::class);
+    }
+
+    public static function productosPorProgramacion($programacionId){
+    return DB::table('lot_marinaciones')
+            ->select('lot_marinaciones.id As id',
+                    'productos.nombre As producto',
+                    'productos.id As producto_id',
+                    'productos.codigo As producto_codigo',
+                    'lot_marinaciones.cantidad As cantidad')
+            ->join('productos', 'productos.id', '=', 'lot_marinaciones.producto_id')
+            ->where('lot_marinaciones.lotProgramacion_id', '=', $programacionId)
+            ->get();
     }
 
     public function getDateFormat()

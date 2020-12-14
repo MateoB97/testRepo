@@ -68,27 +68,27 @@
                 </div>
                 <div class="col">
                   <q-select
-                        v-model="storeItems.fac_tipo_doc_id"
-                        use-input
-                        autofocus
-                        hide-selected
-                        fill-input
-                        option-value="id"
-                        option-label="nombre"
-                        label="Factura Relacionada"
-                        option-disable="inactive"
-                        input-debounce="0"
-                        :options="options.facturas"
-                        @filter="filterFacturas"
-                    >
-                        <template v-slot:no-option>
-                        <q-item>
-                            <q-item-section class="text-grey">
-                            No results
-                            </q-item-section>
-                        </q-item>
-                        </template>
-                    </q-select>
+                    v-model="storeItems.fac_tipo_doc_id"
+                    use-input
+                    autofocus
+                    hide-selected
+                    fill-input
+                    option-value="id"
+                    option-label="nombre"
+                    label="Factura Relacionada"
+                    option-disable="inactive"
+                    input-debounce="0"
+                    :options="options.facturas"
+                    @filter="filterFacturas"
+                  >
+                    <template v-slot:no-option>
+                      <q-item>
+                          <q-item-section class="text-grey">
+                          No results
+                          </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
                 </div>
             </div>
             <div class="row q-col-gutter-md q-mt-xs gutter-x-sm gutter-y-l">
