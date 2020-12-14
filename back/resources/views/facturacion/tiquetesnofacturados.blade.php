@@ -105,7 +105,7 @@
 			@foreach ($etiqueta as $key => $mov)
 				@if ($key == 0)
 					<tr>
-						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }} @if ($mov['bascula']) - bascula: {{ $mov['bascula'] }} @endif </strong></td>
+						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }}  </strong></td>
 					</tr>
 					@php
     					$totalCounter = intval($mov['total']);
@@ -116,7 +116,7 @@
 						<td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.') }}</strong></td>
 					</tr>
 				 	<tr>
-						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }}  @if ($mov['bascula']) - bascula: {{ $mov['bascula'] }} @endif </strong></td>
+						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }} </strong></td>
 					</tr>
 					@php
     					$totalCounter = intval($mov['total']);

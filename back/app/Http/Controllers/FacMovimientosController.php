@@ -988,16 +988,13 @@ class FacMovimientosController extends Controller
                 $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
                 $etiqueta .= ' ';
                 $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
-                $etiqueta .= ' ';
-                $etiqueta .= 'X';
-                $etiqueta .= ' ';
-                $etiqueta .= '$';
+                $etiqueta .= ' X $';
                 $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
                 $etiqueta .= ' ';    //22
                 if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
                     $etiqueta .= 'Desc ';
                     $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
-                    $etiqueta .= str_pad('%', $caractPorlinea - 29, " ", STR_PAD_RIGHT);
+                    $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
                 } else {
                     $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
                 }
