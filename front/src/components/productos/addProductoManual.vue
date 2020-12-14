@@ -155,6 +155,7 @@ export default {
       clearInterval(this.interval)
     },
     addProducto () {
+      console.log(this.listadoPrecios)
       var app = this
       var cantValidate = null
       if (parseInt(this.producto_selected.unidades) === 1) {
@@ -246,6 +247,17 @@ export default {
     }
   },
   watch: {
+    producto_selected: {
+      deep: true,
+      handler () {
+        var app = this
+        // console.log(this.producto_selected)
+        if (this.producto_selected) {
+          const objectPrecio = this.listadoPrecios.find(v => v.producto_id === this.producto_selected.id)
+          app.precio_producto = objectPrecio.precio
+        }
+      }
+    }
   }
 }
 </script>
