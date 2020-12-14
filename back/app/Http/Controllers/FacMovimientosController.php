@@ -2107,160 +2107,22 @@ class FacMovimientosController extends Controller
 
     public function tiquetesNoFacturadosPDF($fecha)
     {
-
         $empresa = GenEmpresa::find(1);
 
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-        $arrayTotal = array();
-        $arrayItem = array();
-        $arrayLines = array();
-        $totalGnal = 0;
-        $totalTiquete = 0;
+        if ($empresa->tipo_escaner == 2) {
+            
+            $arrayLines = $this->marquesPDF($fecha);
 
-        $dia = substr($fecha, 0,2);
+        } else  {
 
-        $mes = intval(substr($fecha, 3,2));
-
-        if ($mes == 10 ) {
-            $mes = 'A';
-        } else if ($mes == 11) {
-            $mes = 'B';
-        } else if ($mes == 12) {
-            $mes = 'C';
+            $arrayLines = $this->epelsaDibalPDF($fecha);
         }
 
-        if ($empresa->tipo_escaner == 1) {
-            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
-        } else if ($empresa->tipo_escaner == 4) {
-            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
-        }
+        $data = ['etiqueta' => $arrayLines];
 
+        $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
 
-
-        $tiqueteAnterior = 0;
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-
-            $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
-
-            while (($buffer = fgets($handle)) !== false) {
-
-                if ($empresa->tipo_escaner == 1) {
-                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
-                } else if ($empresa->tipo_escaner == 4) {
-                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
-                }
-
-                // if ((strpos($buffer, '-') === false )){
-                //     array_push($arrayTotal, $arrayItem);
-                // } else {
-                //     array_pop($arrayTotal);
-                // }
-
-                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
-                                            ->where('num_linea_tiquete', $arrayItem[4])
-                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-                if ( count($list) < 1) {
-
-                    if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
-                        $vendedor = $v->nombre;
-                    } else {
-                        $vendedor = $arrayItem[5];
-                    }
-
-                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-
-                    if ($arrayItem[1] < 1) {
-                        $arrayItem[1] = 1;
-                    }
-
-                    if ($arrayItem[1] < 100) {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
-                    } else {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
-                        $arrayItem[1] = $arrayItem[1]/1000;
-                    }
-
-                    // linea 1
-                    if ($producto) {
-
-                        $total = intval($arrayItem[2]);
-                        $totalGnal = $totalGnal + $total;
-
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' => $producto->codigo,
-                            'producto' => strtoupper($producto->nombre),
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
-                            'precio' => $precioUnit
-                        ));
-
-                    } else {
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' =>  $arrayItem[0],
-                            'producto' => 'PRODUCTO NO EXISTENTE',
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => '',
-                            'precio' => ''
-                        ));
-                    }
-
-                    if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
-                        array_pop($arrayLines);
-                        array_pop($arrayLines);
-                    }
-                }
-            }
-
-            $data = ['etiqueta' => $arrayLines];
-
-            $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
-
-            return $pdf->stream();
-        } else {
-            return 'El archivo para la fecha especificada no existe';
-        }
-    }
-
-    public function guardarTempMarques(Request $request, $fecha){
-
-        $last = TempMarques::all();
-
-        if (count($last) > 0) {
-            foreach ($last as $item) {
-                $item->delete();
-            }
-        }
-
-
-        foreach ($request->data as $item) {
-            $newItem = new TempMarques($item);
-            $newItem->save();
-        }
-
-        return 'done';
+        return $pdf->stream();
 
     }
 
@@ -2491,5 +2353,243 @@ class FacMovimientosController extends Controller
 
         return $http;
         
+    }
+
+
+    public function marquesPDF($fecha)
+    {
+
+        $fechaArray = explode('-', $fecha);
+
+        $fecha = $fechaArray[2].'-'.$fechaArray[1].'-'.$fechaArray[0];
+
+        $arrayTotal = array();
+        $arrayItem = array();
+        $arrayLines = array();
+        $totalGnal = 0;
+        $totalTiquete = 0;
+
+        $marquesData = GenEmpresa::find(1)->ruta_ip_marques;
+
+        $basculas = explode('&', $marquesData);
+
+        foreach ($basculas as $bascula) {
+            $ip = explode('-', $bascula)[0];
+            $puesto = explode('-', $bascula)[1];
+
+            $tiquetesFacturados = $this->tiquetesDiaBascula($puesto, $fecha);
+
+            $primerTiquete = $tiquetesFacturados->first()->num_tiquete;
+
+            $primerTiquete = intval($primerTiquete) - 20;
+
+            for ($i=0; $i < 5; $i++) {
+
+                $primer = $primerTiquete + ($i * 100);
+
+                $url = 'http://' .$ip. '/year/documentos?seek={"tipo_doc":1,"posto":'.$puesto. ',"numero":' .$primer. '}&limit=100';
+
+                $tiquetesBascula = http_get($url);
+
+                foreach ($tiquetesBascula as $tiqueteBasc) {
+                    
+                    if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
+
+                        $tiqFacts = array_column($tiquetesFacturados->toArray(), 'num_tiquete');
+                        
+                        // $tiq = array_search(strval($tiqueteBasc['numero']), $tiqFacts);
+
+                        $tiq = in_array($tiqueteBasc['numero'], $tiqFacts, false);
+
+                        if ($tiq == false) {
+
+                            if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
+                                $vendedor = $v->nombre;
+                            } else {
+                                $vendedor = $tiqueteBasc['num_vendedor'];
+                            }
+
+                            $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
+
+                            $lineasTiquete = http_get($url);
+
+                            foreach ($lineasTiquete as $key => $linea) {
+
+                                if ($tiqueteBasc['numero'] == $linea['numero']){
+
+                                    $producto = Producto::where('codigo', intval($linea['codigo']))->get()->first();
+
+                                    $total = intval($linea['valor']);
+
+                                    // linea 1
+                                    if ($producto) {
+
+                                        $total = intval($linea['valor']);
+                                        $totalGnal = $totalGnal + $total;
+
+                                        array_push($arrayLines, array(
+                                            'tiquete' => $tiqueteBasc['numero'],
+                                            'vendedor' => $vendedor,
+                                            'linea_tiquete'=> $key + 1,
+                                            'codigo' => $producto->codigo,
+                                            'producto' => strtoupper($producto->nombre),
+                                            'total' => $total,
+                                            'cantidad' => $linea['quantidade'],
+                                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
+                                            'precio' => $linea['preco_unit']
+                                        ));
+
+                                    } else {
+                                        array_push($arrayLines, array(
+                                            'tiquete' => $tiqueteBasc['numero'],
+                                            'vendedor' => $vendedor,
+                                            'linea_tiquete'=> $key + 1,
+                                            'codigo' =>  $linea['codigo'],
+                                            'producto' => 'PRODUCTO NO EXISTENTE',
+                                            'total' => $total,
+                                            'cantidad' => $linea['quantidade'],
+                                            'unidades' => '',
+                                            'precio' => $linea['preco_unit']
+                                        ));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $arrayLines;
+    }
+
+    public function epelsaDibalPDF($fecha)
+    {
+        
+        $empresa = GenEmpresa::find(1);
+
+        $fechaIni = date('d/m/Y', strtotime($fecha));
+        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
+        $arrayTotal = array();
+        $arrayItem = array();
+        $arrayLines = array();
+        $totalGnal = 0;
+        $totalTiquete = 0;
+
+        $dia = substr($fecha, 0,2);
+
+        $mes = intval(substr($fecha, 3,2));
+
+        if ($mes == 10 ) {
+            $mes = 'A';
+        } else if ($mes == 11) {
+            $mes = 'B';
+        } else if ($mes == 12) {
+            $mes = 'C';
+        }
+
+        if ($empresa->tipo_escaner == 1) {
+            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
+        } else if ($empresa->tipo_escaner == 4) {
+            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
+        }
+
+        $tiqueteAnterior = 0;
+
+        $handle = @fopen($val, "r");
+
+        if ($handle) {
+
+            $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
+
+            while (($buffer = fgets($handle)) !== false) {
+
+                if ($empresa->tipo_escaner == 1) {
+                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
+                                    intval(substr($buffer, 16, 6)), // cantidad
+                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
+                                    intval(substr($buffer, 3, 4)), // numero tiquete
+                                    intval(substr($buffer, 7, 3)), // linea tiquete
+                                    intval(substr($buffer, 31, 2)));// vendedor
+                } else if ($empresa->tipo_escaner == 4) {
+                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
+                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
+                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
+                                    intval(substr($buffer, 0, 4)), // numero tiquete
+                                    intval(substr($buffer, 4, 3)), // linea tiquete
+                                    intval(substr($buffer, 11, 4)));// vendedor
+                }
+
+                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
+                                            ->where('num_linea_tiquete', $arrayItem[4])
+                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+
+                if ( count($list) < 1) {
+
+                    if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
+                        $vendedor = $v->nombre;
+                    } else {
+                        $vendedor = $arrayItem[5];
+                    }
+
+                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
+
+                    if ($arrayItem[1] < 1) {
+                        $arrayItem[1] = 1;
+                    }
+
+                    if ($arrayItem[1] < 100) {
+                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
+                    } else {
+                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
+                        $arrayItem[1] = $arrayItem[1]/1000;
+                    }
+
+                    // linea 1
+                    if ($producto) {
+
+                        $total = intval($arrayItem[2]);
+                        $totalGnal = $totalGnal + $total;
+
+                        array_push($arrayLines, array(
+                            'tiquete' => $arrayItem[3],
+                            'vendedor' => $vendedor,
+                            'linea_tiquete'=> $arrayItem[4],
+                            'codigo' => $producto->codigo,
+                            'producto' => strtoupper($producto->nombre),
+                            'total' => $total,
+                            'cantidad' => $arrayItem[1],
+                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
+                            'precio' => $precioUnit
+                        ));
+
+                    } else {
+                        array_push($arrayLines, array(
+                            'tiquete' => $arrayItem[3],
+                            'vendedor' => $vendedor,
+                            'linea_tiquete'=> $arrayItem[4],
+                            'codigo' =>  $arrayItem[0],
+                            'producto' => 'PRODUCTO NO EXISTENTE',
+                            'total' => $total,
+                            'cantidad' => $arrayItem[1],
+                            'unidades' => '',
+                            'precio' => ''
+                        ));
+                    }
+
+                    if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
+                        array_pop($arrayLines);
+                        array_pop($arrayLines);
+                    }
+                }
+            }
+
+            return $arrayLines;
+
+        } else {
+
+            return 'El archivo para la fecha especificada no existe';
+        }
+
     }
 }

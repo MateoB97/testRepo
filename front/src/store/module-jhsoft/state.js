@@ -1,8 +1,8 @@
 export default {
   // url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
-  url: 'http://192.168.1.8/sgcdev/back/public/',
-  // url: 'http://192.168.1.169/sgc/back/public/',
+  // url: 'http://192.168.1.8/sgcdev/back/public/',
+  url: 'http://192.168.1.82/sgcpruebas/back/public/',
   // url: 'http://192.168.1.82/sgc/back/public/',
   // url: 'http://desktop-caermcs/sgc/back/public/',
   // url: 'http://fusion.test/',

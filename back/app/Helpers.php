@@ -123,4 +123,24 @@ if (! function_exists('current_user')) {
         return $body;
     }
 
+    function http_get($url){
+
+        $ch = curl_init();
+
+        $curlConfig = [
+            CURLOPT_URL            => $url,
+            CURLOPT_CUSTOMREQUEST  => "GET",
+            CURLOPT_RETURNTRANSFER => true
+        ];
+
+        curl_setopt_array($ch, $curlConfig);
+
+        $response = curl_exec($ch);
+
+        $response = json_decode($response, true);
+        curl_close($ch);
+
+        return $response;
+    }
+
 }

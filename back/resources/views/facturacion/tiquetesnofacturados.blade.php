@@ -102,6 +102,10 @@
 		</thead>
 		<tbody>
 
+			@php
+				$totalCounter = 0;
+				$granTotal = 0;
+			@endphp
 			@foreach ($etiqueta as $key => $mov)
 				@if ($key == 0)
 					<tr>
@@ -109,7 +113,9 @@
 					</tr>
 					@php
     					$totalCounter = intval($mov['total']);
+    					$granTotal = intval($mov['total']);
 					@endphp
+
 				@elseif ( $mov['tiquete'] != $etiqueta[$key -1]['tiquete'])
 					<tr>
 						<td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
@@ -120,10 +126,13 @@
 					</tr>
 					@php
     					$totalCounter = intval($mov['total']);
+    					$granTotal += intval($mov['total']);
 					@endphp
+
 				@else
 					@php
     					$totalCounter += intval($mov['total']);
+    					$granTotal += intval($mov['total']);
 					@endphp
 				@endif
 				<tr>
@@ -139,6 +148,10 @@
 			<tr>
 				<td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
 				<td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.')  }}</strong></td>
+			</tr>
+			<tr>
+				<td colspan="6" rowspan="" headers=""><strong>Total Tiquetes No Facturados:</strong></td>
+				<td style="text-align: right"><strong>$ {{ number_format($granTotal, 0, ',', '.')  }}</strong></td>
 			</tr>
 		</tbody>
 	</table>
