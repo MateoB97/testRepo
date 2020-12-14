@@ -49,6 +49,7 @@ use App\SoenacRegimen;
 use App\SoenacResponsabilidad;
 use App\SoenacTipoDocumento;
 use App\SoenacTipoOrg;
+use Hamcrest\Type\IsString;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPJasper\PHPJasper;
 
@@ -56,11 +57,11 @@ class ReportesGeneradosController extends Controller
 {
 
         public static function executeJasper ($input,$params ){
-            
+
             $jdbc_dir = base_path().'\resources\jasper\sqldriver';
 
             $host = env('DB_HOST','.');
-            $instance = explode('\\', $host)[1];
+            // $instance = explode('\\', $host)[1];
 
             $options = [
                 'format' => ['pdf'],
@@ -74,14 +75,15 @@ class ReportesGeneradosController extends Controller
                     'username' => env('DB_USERNAME','sa'),
                     'password' => env('DB_PASSWORD','sa'),
                     'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance,
+                    // 'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance,
+                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc'),
                     'jdbc_dir' => $jdbc_dir
                 ]
             ];
 
             $input = base_path().'\resources\jasper\templates\dist\\'.$input.'.jasper';
             $output = base_path().'\resources\jasper\templates\dist\\'.microtime();
-            
+
             $jasper = new PHPJasper;
             $jasper->process(
                 $input,
@@ -108,7 +110,7 @@ class ReportesGeneradosController extends Controller
         //             $params[$keys[$index]] = $value;
         //         }
         //     }
-            
+
         //     $jdbc_dir = base_path().'\resources\jasper\sqldriver';
 
         //     $host = env('DB_HOST','.');
@@ -250,7 +252,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFechaTercero.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -271,41 +273,26 @@ class ReportesGeneradosController extends Controller
 
         }
 
-        public function movimientosPorFechaJasper($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id, $tipo_documento){
-
-            $fileName =  str_replace(':','-', 'MovsPorFecha-'.date("Y-m-d H:i:s"));
-
-
-            $fecha_inicial = $fecha_inicial == "null" ? null : $fecha_inicial;
-            $fecha_final = $fecha_final == "null" ? null : $fecha_final;
-            $tercero_id = $tercero_id == "null" ? null : $tercero_id;
-            $sucursal_id = $sucursal_id == "null" ? null : $sucursal_id;
-
-            $params = [];
-            if($fecha_inicial != null){
-                $params['fecha_inicial'] = $fecha_inicial;
+        public function movimientosPorFecha(){
+            // dd($_GET);
+            $params = $_GET;
+            if((isset($params['fecha_inicial']) && isset($params['fecha_final']) && isset($params['tercero_id'])) && !isset($params['sucursal_id']) ){
+                $input = 'MovimientosPorFechaTercero';
+            }else{
+                $input = 'MovimientosPorFecha';
             }
-            if($fecha_final != null){
-                $params['fecha_final'] = $fecha_final;
-            }
-            if($tercero_id != null){
-                $params['tercero_id'] = $tercero_id;
-            }
-            if($sucursal_id != null){
-                $params['sucursal_id'] = $sucursal_id;
-            }
-            if($tipo_documento != null){
-                $params['tipo_documento'] = $tipo_documento;
-            }
-
+            self::executeJasper($input, $params);
         }
 
-        public function testArray(){
-            $data = array();
-            $number = 111;
-            $vowel = 'a';
-            $data['Numero'] = $number;
-            $data['Letra'] = $vowel;
-            dd($data);
+        public function movimientosPorFechaGrupo(){
+            dd($_GET);
+            $params = $_GET;
+            $input = 'DetallesMoviemientosPorFecha';
+            self::executeJasper($input, $params);
         }
+
+        public function impuestosFacturas(){
+            $data =
+        }
+
     }

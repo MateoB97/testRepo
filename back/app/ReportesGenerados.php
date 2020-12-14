@@ -7,60 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportesGenerados extends Model
 {
-    public static function todosConTipoSucursalGrupoTipoCustom(){
-    return DB::table('fac_movimientos')
-    ->select(DB::raw('fac_movimientos.id As id,
-                fac_movimientos.consecutivo As consecutivo,
-                fac_movimientos.subtotal as subtotal,
-                fac_movimientos.descuento as descuento,
-                fac_movimientos.ivatotal as ivatotal,
-                fac_movimientos.total as total,
-                fac_movimientos.saldo as saldo,
-                fac_movimientos.estado as estado,
-                fac_movimientos.fecha_facturacion as fecha_facturacion,
-                fac_movimientos.fecha_vencimiento as fecha_vencimiento,
-                fac_movimientos.cufe as cufe,
-                tercero_sucursales.nombre as sucursal,
-                tercero_sucursales.email as email,
-                terceros.nombre as tercero,
-                fac_tipo_doc.nombre as tipo,
-                users.name as usuario,
-                fac_tipo_doc.naturaleza,
-                fac_movimientos.estado_fe as estado_fe,
-                fac_tipo_doc.soenac_tipo_doc_api_id as soenac_tipo_doc,
-                isnull(a.notescount, 0 ) as notescount,
-                isnull(b.ReceipsCount, 0 ) as ReceipsCount'))
-        ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
-        ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
-        ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
-        ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
-        ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
-        ->leftJoin(DB::raw('(select
-                            cp.id  AS IDPrincipal,
-                                COUNT(distinct cs.fac_mov_secundario) AS notescount
-                        from fac_movimientos d
-                        inner join fac_cruce cs on d.id = cs.fac_mov_secundario
-                        inner join fac_movimientos cp on cs.fac_mov_principal = cp.id
-                        group by cp.id ) a') ,
-        function($join)
-        {
-        $join->on('fac_movimientos.id', '=', 'a.IDPrincipal');
-        })
-        ->leftJoin(DB::raw('(select
-                            f.id as IDPrincipal,
-                            COUNT(distinct rc.id) as ReceipsCount
-                        from fac_recibos_caja rc
-                        inner join fac_pivot_rec_mov rcp on rc.id = rcp.fac_recibo_id
-                        inner join fac_movimientos f on f.id = rcp.fac_mov_id
-                        group by f.id) b') ,
-        function($join)
-        {
-        $join->on('fac_movimientos.id', '=', 'b.IDPrincipal');
-        })
-        ->orderBy('fac_movimientos.id','desc')
-        ->get()
-        ->take(20);
-    }
+
 
     public static function reporteVentasPorFecha($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id){
         return DB::table('fac_movimientos')
@@ -276,4 +223,90 @@ class ReportesGenerados extends Model
                 ->orderBy('tercero_sucursales.id','asc')
                 ->get();
     }
+
+    public static function impuestosFactura(){
+        return DB::table('fac_movimientos')
+        ->select(DB::raw('fac_movimientos.id As id,
+                    fac_movimientos.consecutivo As consecutivo,
+                    fac_movimientos.subtotal as subtotal,
+                    fac_movimientos.descuento as descuento,
+                    fac_movimientos.ivatotal as ivatotal,
+                    fac_movimientos.total as total,
+                    fac_movimientos.saldo as saldo,
+                    fac_movimientos.estado as estado,
+                    fac_movimientos.fecha_facturacion as fecha_facturacion,
+                    fac_movimientos.fecha_vencimiento as fecha_vencimiento,
+                    fac_movimientos.cufe as cufe,
+                    tercero_sucursales.nombre as sucursal,
+                    tercero_sucursales.email as email,
+                    terceros.nombre as tercero,
+                    fac_tipo_doc.nombre as tipo,
+                    users.name as usuario,
+                    fac_tipo_doc.naturaleza,
+                    fac_movimientos.estado_fe as estado_fe,
+                    fac_tipo_doc.soenac_tipo_doc_api_id as soenac_tipo_doc,
+                    isnull(a.notescount, 0 ) as notescount,
+                    isnull(b.ReceipsCount, 0 ) as ReceipsCount'))
+            ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
+            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+            ->join('fac_pivot_mov_productos','fac_pivot_mov_productos.id')
+            //inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+            ->get()
+            ->take(20);
+
+    }
+    public static function todosConTipoSucursalGrupoTipoCustom(){
+        return DB::table('fac_movimientos')
+        ->select(DB::raw('fac_movimientos.id As id,
+                    fac_movimientos.consecutivo As consecutivo,
+                    fac_movimientos.subtotal as subtotal,
+                    fac_movimientos.descuento as descuento,
+                    fac_movimientos.ivatotal as ivatotal,
+                    fac_movimientos.total as total,
+                    fac_movimientos.saldo as saldo,
+                    fac_movimientos.estado as estado,
+                    fac_movimientos.fecha_facturacion as fecha_facturacion,
+                    fac_movimientos.fecha_vencimiento as fecha_vencimiento,
+                    fac_movimientos.cufe as cufe,
+                    tercero_sucursales.nombre as sucursal,
+                    tercero_sucursales.email as email,
+                    terceros.nombre as tercero,
+                    fac_tipo_doc.nombre as tipo,
+                    users.name as usuario,
+                    fac_tipo_doc.naturaleza,
+                    fac_movimientos.estado_fe as estado_fe,
+                    fac_tipo_doc.soenac_tipo_doc_api_id as soenac_tipo_doc,
+                    isnull(a.notescount, 0 ) as notescount,
+                    isnull(b.ReceipsCount, 0 ) as ReceipsCount'))
+            ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
+            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+            ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
+            ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
+            ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
+            ->leftJoin(DB::raw('(select
+                                cp.id  AS IDPrincipal,
+                                    COUNT(distinct cs.fac_mov_secundario) AS notescount
+                            from fac_movimientos d
+                            inner join fac_cruce cs on d.id = cs.fac_mov_secundario
+                            inner join fac_movimientos cp on cs.fac_mov_principal = cp.id
+                            group by cp.id ) a') ,
+            function($join)
+            {
+            $join->on('fac_movimientos.id', '=', 'a.IDPrincipal');
+            })
+            ->leftJoin(DB::raw('(select
+                                f.id as IDPrincipal,
+                                COUNT(distinct rc.id) as ReceipsCount
+                            from fac_recibos_caja rc
+                            inner join fac_pivot_rec_mov rcp on rc.id = rcp.fac_recibo_id
+                            inner join fac_movimientos f on f.id = rcp.fac_mov_id
+                            group by f.id) b') ,
+            function($join)
+            {
+            $join->on('fac_movimientos.id', '=', 'b.IDPrincipal');
+            })
+            ->orderBy('fac_movimientos.id','desc')
+            ->get()
+            ->take(20);
+        }
 }

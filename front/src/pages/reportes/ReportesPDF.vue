@@ -256,7 +256,28 @@
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(3), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimiento Forma Pago x Fecha" />
                 </div>
                 <div class="col-4">
-                    <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" />
+                  <GlobalFiltersComponent
+                      titleBtn="Movimientos x Fecha"
+                      url="api/reportesgenerados/reportes/movimientosporfecha"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimientos x Fecha Detalles"
+                      url="api/reportesgenerados/reportes/movimientosporfechadetalles"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="true"
+                      :datesFilter="true"
+                      :gruposFilter="true"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent
