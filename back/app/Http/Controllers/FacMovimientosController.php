@@ -2395,27 +2395,24 @@ class FacMovimientosController extends Controller
                     
                     if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
 
-                        $tiqFacts = array_column($tiquetesFacturados->toArray(), 'num_tiquete');
-                        
-                        // $tiq = array_search(strval($tiqueteBasc['numero']), $tiqFacts);
 
-                        $tiq = in_array($tiqueteBasc['numero'], $tiqFacts, false);
+                        $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
 
-                        if ($tiq == false) {
+                        $lineasTiquete = http_get($url);
 
-                            if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
-                                $vendedor = $v->nombre;
-                            } else {
-                                $vendedor = $tiqueteBasc['num_vendedor'];
-                            }
+                        foreach ($lineasTiquete as $key => $linea) {
 
-                            $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
+                            if ($tiqueteBasc['numero'] == $linea['numero']) {
 
-                            $lineasTiquete = http_get($url);
+                                $lineaFacturada = $tiquetesFacturados->where('num_tiquete', $linea['numero'])->where('num_linea_tiquete', $linea['linha_f'])->all();
 
-                            foreach ($lineasTiquete as $key => $linea) {
+                                if (count($lineaFacturada) < 1) {
 
-                                if ($tiqueteBasc['numero'] == $linea['numero']){
+                                    if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
+                                        $vendedor = $v->nombre;
+                                    } else {
+                                        $vendedor = $tiqueteBasc['num_vendedor'];
+                                    }
 
                                     $producto = Producto::where('codigo', intval($linea['codigo']))->get()->first();
 
@@ -2455,7 +2452,7 @@ class FacMovimientosController extends Controller
                                 }
                             }
                         }
-                    }
+                    } 
                 }
             }
         }
