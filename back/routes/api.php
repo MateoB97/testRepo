@@ -335,10 +335,9 @@ Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
 
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
 
-    Route::get('/reportes/example', 'ReportesGeneradosController@example');
     Route::get('/reportes/compilejrxml', 'ReportesGeneradosController@compileJrXml');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
-    Route::get('/reportes/saldocartera', 'ReportesGeneradosController@reportSaldoCartera');
+    Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
 	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
 	Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
 });

@@ -211,12 +211,8 @@
                   <div class="col-4">
                     <GlobalFiltersComponent
                       titleBtn="CXC"
-                      url="api/reportesgenerados/reportes/saldosencartera"
+                      url="api/reportesgenerados/reportes/saldocartera"
                       :tercerosFilter="true"
-                      :tipoDocFilter="true"
-                      :datesFilter="true"
-                      :gruposFilter="true"
-                      :dateUnique="0"
                     />
                   </div>
                 <div class="col-4">
@@ -270,7 +266,7 @@
                 <div class="col-4">
                   <GlobalFiltersComponent
                       titleBtn="Movimientos x Fecha Detalles"
-                      url="api/reportesgenerados/reportes/movimientosporfechadetalles"
+                      url="api/reportesgenerados/reportes/movimientosporfechagrupo"
                       :tercerosFilter="true"
                       :tipoDocFilter="true"
                       :datesFilter="true"
