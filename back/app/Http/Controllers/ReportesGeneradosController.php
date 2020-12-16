@@ -81,7 +81,7 @@ class ReportesGeneradosController extends Controller
                     'username' => env('DB_USERNAME','sa'),
                     'password' => env('DB_PASSWORD','sa'),
                     'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => $jdbc_url,
+                    'jdbc_url' => $jdbc_url;
                     'jdbc_dir' => $jdbc_dir
                 ]
             ];

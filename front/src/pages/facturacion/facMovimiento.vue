@@ -1153,6 +1153,7 @@ export default {
     this.globalGetForSelect('api/productos/grupos/estado/activos', 'grupos')
     this.globalGetForSelect('api/generales/vendedores', 'vendedores')
     this.globalGetForSelect('api/generales/empresa', 'empresa')
+    this.globalGetForSelect('api/productos/todosconimpuestos', 'productosImpuestos')
     this.fechasHoy()
   },
   computed: {
@@ -1204,6 +1205,16 @@ export default {
     }
   },
   watch: {
+    descuentoGnal: {
+      deep: true,
+      handler () {
+        var app = this
+        this.dataResumen.forEach(function (element, i) {
+          element.descporcentaje = parseInt(app.descuentoGnal)
+          element.desc = ((element.precio) * (element.descporcentaje / 100)).toFixed(2)
+        })
+      }
+    },
     dataResumen: {
       deep: true,
       handler () {
