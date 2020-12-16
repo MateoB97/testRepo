@@ -60,7 +60,13 @@ class ReportesGeneradosController extends Controller
             $jdbc_dir = base_path().'\resources\jasper\sqldriver';
 
             $host = env('DB_HOST','.');
-            $instance = explode('\\', $host)[1];
+            $instance = explode('\\', $host);
+
+            if (count($instance) > 1) {
+                $jdbc_url = 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance[1];
+            } else {
+                $jdbc_url = 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc');
+            }
 
             $options = [
                 'format' => ['pdf'],
@@ -74,7 +80,7 @@ class ReportesGeneradosController extends Controller
                     'username' => env('DB_USERNAME','sa'),
                     'password' => env('DB_PASSWORD','sa'),
                     'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => 'jdbc:jtds:sqlserver://localhost/'.env('DB_DATABASE','sgc').';instance='.$instance,
+                    'jdbc_url' => $jdbc_url;
                     'jdbc_dir' => $jdbc_dir
                 ]
             ];
