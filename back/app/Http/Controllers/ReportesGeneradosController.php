@@ -52,6 +52,8 @@ use App\SoenacTipoOrg;
 use Hamcrest\Type\IsString;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPJasper\PHPJasper;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ReportesGeneradosController extends Controller
 {
@@ -71,7 +73,7 @@ class ReportesGeneradosController extends Controller
 
             $options = [
                 'format' => ['pdf'],
-                'locale' => 'en',
+                'locale' => 'es',
                 'params' => $params,
                 'db_connection' => [
                     'driver' => 'generic',
@@ -81,7 +83,7 @@ class ReportesGeneradosController extends Controller
                     'username' => env('DB_USERNAME','sa'),
                     'password' => env('DB_PASSWORD','sa'),
                     'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
-                    'jdbc_url' => $jdbc_url;
+                    'jdbc_url' => $jdbc_url,
                     'jdbc_dir' => $jdbc_dir
                 ]
             ];
@@ -112,7 +114,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFecha.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -149,5 +151,22 @@ class ReportesGeneradosController extends Controller
             $params = $_GET;
             $input = 'DetallesMoviemientosPorFecha';
             self::executeJasper($input, $params);
+        }
+
+        public function testing(){
+            $fecha_inicial = '22-08-2020';
+            $fecha_final = '22-08-2020';
+            $rows = Collect();
+            $sumsVentasServicios = ['Ventas','Servicios'];
+            $rows = ReportesGenerados::selectViewAccount($fecha_inicial, $fecha_final);
+            dd($rows);
+            // $rows = DB::select("select * from AccountantView where fecha_facturacion = '$fecha_inicial' order by consecutivo");
+            // dd($rows);
+            foreach($rows as $row){
+                dd($row);
+            //     // foreach($row as $data){
+            //     //     dd($data);
+            //     // }
+            }
         }
     }
