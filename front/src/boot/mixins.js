@@ -319,10 +319,6 @@ export const globalFunctions = {
             lineasAmountTotal = lineasAmountTotal + parseFloat(objeto.line_extension_amount)
             lineas.push(objeto)
           })
-          var nota = ''
-          if (response.data.movimiento.nota) {
-            nota = response.data.movimiento.nota
-          }
           var FactElect = {
             'number': response.data.movimiento.consecutivo,
             'resolution_id': parseInt(response.data.tipoDoc.resolucion_soenac_id),
@@ -345,8 +341,10 @@ export const globalFunctions = {
               'charge_total_amount': '0.00',
               'payable_amount': parseFloat(lineasAmountTotal + ivaTotal + restaBolsa).toFixed(2)
             },
-            'invoice_lines': lineas,
-            'notes': nota
+            'invoice_lines': lineas
+          }
+          if (response.data.movimiento.nota) {
+            FactElect.notes = [ { 'text': response.data.movimiento.nota } ]
           }
           // Nota credito
           if (parseInt(response.data.tipoDoc.soenac_tipo_doc_api_id) === 5) {
