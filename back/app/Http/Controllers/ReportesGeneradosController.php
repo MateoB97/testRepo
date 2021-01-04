@@ -114,7 +114,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFecha.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -138,11 +138,11 @@ class ReportesGeneradosController extends Controller
         public function movimientosPorFecha(){
             // dd($_GET);
             $params = $_GET;
-            if((isset($params['fecha_inicial']) && isset($params['fecha_final']) && isset($params['tercero_id'])) && !isset($params['sucursal_id']) ){
-                $input = 'MovimientosPorFechaTercero';
-            }else{
-                $input = 'MovimientosPorFecha';
-            }
+            // if((isset($params['fecha_inicial']) && isset($params['fecha_final']) && isset($params['tercero_id'])) && !isset($params['sucursal_id']) ){
+            //     $input = 'MovimientosPorFechaTercero';
+            // }else{
+            $input = 'MovimientosPorFecha';
+            // }
             self::executeJasper($input, $params);
         }
 
@@ -154,11 +154,11 @@ class ReportesGeneradosController extends Controller
         }
 
         public function testing(){
-            $fecha_inicial = '22-08-2020';
-            $fecha_final = '22-08-2020';
+            $fecha_inicial2 = '22-08-2020';
+            $fecha_final2 = '22-08-2020';
             $rows = Collect();
             $sumsVentasServicios = ['Ventas','Servicios'];
-            $rows = ReportesGenerados::selectViewAccount($fecha_inicial, $fecha_final);
+            $rows = ReportesGenerados::selectViewAccount($fecha_inicial2, $fecha_final2);
             dd($rows);
             // $rows = DB::select("select * from AccountantView where fecha_facturacion = '$fecha_inicial' order by consecutivo");
             // dd($rows);
