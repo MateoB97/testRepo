@@ -265,7 +265,7 @@ export default {
     async getPorLote (id) {
       this.$q.loading.show()
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.lote_id)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.lote_id + '/0')
         this.programaciones = data.data
       } catch (error) {
         this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar las programaciones!' })
@@ -280,7 +280,7 @@ export default {
     }
   },
   created: function () {
-    this.globalGetForSelect('api/lotes/programaciones/abiertas', 'programaciones')
+    this.globalGetForSelect('api/lotes/programaciones/abiertas/0', 'programaciones')
     this.globalGetForSelect('api/productos/grupos', 'grupos')
     this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')

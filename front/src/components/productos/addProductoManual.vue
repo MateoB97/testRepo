@@ -13,6 +13,7 @@
             <h3>{{ titleSumaResta }}</h3>
              <q-btn-toggle
               v-model="sumaRestaToggle"
+              v-if="withSubstrac != 0"
               spread
               no-caps
               :toggle-color="toggleColor"
@@ -103,7 +104,7 @@ export default {
   components: {
     Money
   },
-  props: ['openedAddProducto', 'withPrice', 'listadoPrecios'],
+  props: ['openedAddProducto', 'withPrice', 'listadoPrecios', 'withSubstrac'],
   name: 'AddProductoManual',
   data () {
     return {
@@ -124,6 +125,7 @@ export default {
       precio_producto: 0,
       ultimoMovimiento: 'Sin movimientos',
       productos: [],
+      itemsCounter: 0,
       options: {
         productos: this.productos
       },
@@ -155,7 +157,6 @@ export default {
       clearInterval(this.interval)
     },
     addProducto () {
-      console.log(this.listadoPrecios)
       var app = this
       var cantValidate = null
       if (parseInt(this.producto_selected.unidades) === 1) {
@@ -166,7 +167,7 @@ export default {
       if (cantValidate === null || parseFloat(cantValidate) === 0) {
         app.$q.notify({ color: 'negative', message: 'La cantidad debe ser diferente de 0.' })
         app.$refs.cantidad.focus()
-      } else if (parseInt(app.precio_producto) === 0 && app.withPrice === 1) {
+      } else if (parseInt(app.precio_producto) === 0 && parseInt(app.withPrice) === 1) {
         app.$q.notify({ color: 'negative', message: 'El precio debe ser diferente de 0.' })
       } else {
         if (app.listadoPrecios.length === 0 && app.withPrice === 1) {
@@ -196,7 +197,7 @@ export default {
           if (app.sumaRestaToggle === 'add') {
             app.ultimoMovimiento = 'Se agregaron ' + newProduct.cantidad + ' ' + typeUnit + ' de ' + newProduct.producto
           } else {
-            newProduct.cantidad = -parseInt(newProduct.cantidad)
+            newProduct.cantidad = -parseFloat(newProduct.cantidad)
             app.ultimoMovimiento = 'Se restaron ' + newProduct.cantidad + ' ' + typeUnit + ' de ' + newProduct.producto
           }
           app.isVisible = false
@@ -252,7 +253,7 @@ export default {
       handler () {
         var app = this
         // console.log(this.producto_selected)
-        if (this.producto_selected) {
+        if (this.producto_selected && this.listadoPrecios.length > 0) {
           const objectPrecio = this.listadoPrecios.find(v => v.producto_id === this.producto_selected.id)
           app.precio_producto = objectPrecio.precio
         }

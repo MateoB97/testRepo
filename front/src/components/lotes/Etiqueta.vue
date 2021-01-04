@@ -207,7 +207,8 @@ export default {
     async getPesoData () {
       try {
         let data = await axios.get(this.datos.bascula)
-        this.storeItems.cantidad = data.data.substr(7, 7)
+        this.storeItems.cantidad = data.data.substr(8, 7)
+        // this.storeItems.cantidad = data.data.substr(7, 7)
         // this.storeItems.cantidad = data.data.substr(12, 2).split('').reverse().join('') + '.' + data.data.substr(8, 3).split('').reverse().join('')
       } catch (error) {
       } finally {
