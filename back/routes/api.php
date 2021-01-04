@@ -272,9 +272,9 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 	Route::get('/movimientos/verificartiquetedibal/{tiquete}', 'FacMovimientosController@verificarTiqueteDibal');
 	Route::get('/movimientos/verificartiquetemarques/{tiquete}/{puesto}/{fecha}', 'FacMovimientosController@verificarTiqueteMarques');
 	Route::get('/tiquetenofacturados/{fecha}', 'FacMovimientosController@tiquetesNoFacturados');
+	Route::get('/tiquetenofacturadosmarques/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosMarques');
 	Route::get('/tiquetenofacturadospdf/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosPDF');
 	Route::get('/tiquetenofacturadosmarquespdf/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosMarquesPDF');
-	Route::post('/guardartempmarques/{fecha}', 'FacMovimientosController@guardarTempMarques');
 
 	Route::get('/facturacionelectronica/eliminardatoshabilitacion', 'FacMovimientosController@eliminarDatosHabilitacion');
 	Route::get('/datafacturacionelectronica/{id}', 'FacMovimientosController@dataFacturaElectronica');
