@@ -552,7 +552,6 @@ class FacMovimientosController extends Controller
         }
     }
 
-
     public function store(Request $request)
     {
 
@@ -725,8 +724,6 @@ class FacMovimientosController extends Controller
         } else {
             return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
         }
-
-
     }
 
     public function update(Request $request, $id)
@@ -796,7 +793,6 @@ class FacMovimientosController extends Controller
         } else {
             return 'No se puede modificar el tipo de documento, Debe ser anulado.';
         }
-
     }
 
     public function editarFactura ($tipodoc_id, $consecmov) {
@@ -1228,7 +1224,6 @@ class FacMovimientosController extends Controller
             }
 
         }
-
     }
 
     public function saldosEnCartera()
@@ -1244,7 +1239,6 @@ class FacMovimientosController extends Controller
 
         return $pdf->stream();
     }
-
 
     public function saldosEnCarteraT80()
     {
@@ -1321,7 +1315,6 @@ class FacMovimientosController extends Controller
         $printer->feed(1);
         $printer->cut();
         $printer->close();
-
     }
 
     public function saldosEnCarteraxTercero($tercero_id)
@@ -1728,7 +1721,6 @@ class FacMovimientosController extends Controller
         return $pdf->stream();
     }
 
-
     public function recaudoPorFecha($fechaIni, $fechaFin)
     {
 
@@ -2105,6 +2097,158 @@ class FacMovimientosController extends Controller
         }
     }
 
+    public function tiquetesNoFacturadosMarques($fecha)
+    {
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+
+        $empresa = GenEmpresa::find(1);
+        $fechaIni = date('d/m/Y', strtotime($fecha));
+
+        $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+        $etiqueta .= str_pad('TIQUETES NO FACTURADOS', 48, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+        $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
+        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+
+        $fechaArray = explode('-', $fecha);
+
+        $fecha = $fechaArray[2].'-'.$fechaArray[1].'-'.$fechaArray[0];
+
+        $arrayTotal = array();
+        $arrayItem = array();
+        $arrayLines = array();
+        $totalGnal = 0;
+        $totalTiquete = 0;
+
+        $marquesData = GenEmpresa::find(1)->ruta_ip_marques;
+
+        $basculas = explode('&', $marquesData);
+
+        foreach ($basculas as $bascula) {
+            $ip = explode('-', $bascula)[0];
+            $puesto = explode('-', $bascula)[1];
+
+            $tiquetesFacturados = $this->tiquetesDiaBascula($puesto, $fecha);
+
+            $primerTiquete = $tiquetesFacturados->first()->num_tiquete;
+
+            $primerTiquete = intval($primerTiquete) - 20;
+
+            for ($i=0; $i < 5; $i++) {
+
+                $primer = $primerTiquete + ($i * 100);
+
+                $url = 'http://' .$ip. '/year/documentos?seek={"tipo_doc":1,"posto":'.$puesto. ',"numero":' .$primer. '}&limit=100';
+
+                $tiquetesBascula = http_get($url);
+
+                foreach ($tiquetesBascula as $tiqueteBasc) {
+                    
+                    if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
+
+
+                        $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
+
+                        $lineasTiquete = http_get($url);
+
+                        foreach ($lineasTiquete as $key => $linea) {
+
+                            if ($tiqueteBasc['numero'] == $linea['numero']) {
+
+                                $lineaFacturada = $tiquetesFacturados->where('num_tiquete', $linea['numero'])->where('num_linea_tiquete', $linea['linha_f'])->all();
+
+                                if (count($lineaFacturada) < 1) {
+
+                                    if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
+                                        $vendedor = $v->nombre;
+                                    } else {
+                                        $vendedor = $tiqueteBasc['num_vendedor'];
+                                    }
+
+                                    $producto = Producto::where('codigo', intval($linea['codigo']))->get()->first();
+
+                                    $total = intval($linea['valor']);
+
+                                    // linea 1
+                                    if ($producto) {
+
+                                        if (intval($tiqueteAnterior) != intval($tiqueteBasc['numero'])) {
+                                            $etiqueta .= str_pad(' Tiq. # : '.$tiqueteBasc['numero'].' - '.eliminar_acentos(str_replace('ñ', 'N',substr($vendedor,0, 30))).' ', 48, "-", STR_PAD_BOTH);
+                                            $tiqueteAnterior = $tiqueteBasc['numero'];
+                                        }
+
+                                        $total = intval($linea['valor']);
+                                        $totalGnal = $totalGnal + $total;
+
+                                        $etiqueta .= str_pad($producto->codigo, 3, "0", STR_PAD_LEFT);
+                                        $etiqueta .= ' ';
+                                        $nombre = strtoupper($producto->nombre);
+                                        $nombre = str_replace('ñ', 'N', $nombre);
+                                        $etiqueta .= str_pad(substr($nombre, 0, 28), 29, " ", STR_PAD_RIGHT);
+                                        $etiqueta .= ' ';
+                                        $etiqueta .= str_pad(number_format($total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+                                        $etiqueta .= ' |';
+                                        $etiqueta .= str_pad('', 2, " ", STR_PAD_LEFT);
+                                        // linea 2
+                                        $etiqueta .= '    ';
+                                        $etiqueta .= str_pad(number_format($linea['quantidade'], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
+                                        $etiqueta .= ' ';
+                                        $etiqueta .= GenUnidades::find($producto->gen_unidades_id)->abrev_pos;
+                                        $etiqueta .= ' ';
+                                        $etiqueta .= 'X';
+                                        $etiqueta .= ' ';
+                                        $etiqueta .= '$';
+                                        $etiqueta.= str_pad(number_format( $linea['preco_unit'], 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+                                        $etiqueta .= ' ';    //22
+                                        $etiqueta .= '                   ';
+
+                                        array_push($arrayLines, array(
+                                            'tiquete' => $tiqueteBasc['numero'],
+                                            'vendedor' => $vendedor,
+                                            'linea_tiquete'=> $key + 1,
+                                            'codigo' => $producto->codigo,
+                                            'producto' => strtoupper($producto->nombre),
+                                            'total' => $total,
+                                            'cantidad' => $linea['quantidade'],
+                                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
+                                            'precio' => $linea['preco_unit']
+                                        ));
+
+                                    } else {
+                                        $etiqueta .= str_pad('El codigo '. $linea['codigo']. 'no existe', 48, " ", STR_PAD_RIGHT);
+                                    }
+                                }
+                            }
+                        }
+                    } 
+                }
+            }
+        }
+
+        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+        $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
+        $etiqueta .= 'Total No Facturado:';
+        $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
+
+        $printer->text($etiqueta);
+        $printer->feed(2);
+        $printer->cut();
+        $printer->pulse();
+        $printer->close();
+
+        return 'done';
+    }
+
     public function tiquetesNoFacturadosPDF($fecha)
     {
         $empresa = GenEmpresa::find(1);
@@ -2121,18 +2265,6 @@ class FacMovimientosController extends Controller
         $data = ['etiqueta' => $arrayLines];
 
         $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
-
-        return $pdf->stream();
-
-    }
-
-    public function tiquetesNoFacturadosMarquesPDF(Request $request, $fecha)
-    {
-        $etiqueta = TempMarques::orderBy('bascula')->get();
-
-        $data = ['etiqueta' => $etiqueta];
-
-        $pdf = PDF::loadView('facturacion.nofacturadosmarques', $data);
 
         return $pdf->stream();
     }
@@ -2351,10 +2483,8 @@ class FacMovimientosController extends Controller
 
         $http = http_post($request->url, $request->body);
 
-        return $http;
-        
+        return $http;        
     }
-
 
     public function marquesPDF($fecha)
     {
@@ -2587,6 +2717,5 @@ class FacMovimientosController extends Controller
 
             return 'El archivo para la fecha especificada no existe';
         }
-
     }
 }
