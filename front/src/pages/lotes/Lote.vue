@@ -1053,7 +1053,7 @@ export default {
       }
     },
     getProgramacionesLiquidar (id) {
-      this.globalGetForSelect('api/lotes/programaciones/abiertasporlote/' + id, 'programacionesPorLote')
+      this.globalGetForSelect('api/lotes/programaciones/abiertasporlote/' + id + '/null', 'programacionesPorLote')
       this.OpenedLiquidarProgramaciones = true
     },
     preliquidacion (id) {
