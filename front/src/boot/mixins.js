@@ -343,6 +343,9 @@ export const globalFunctions = {
             },
             'invoice_lines': lineas
           }
+          if (response.data.movimiento.nota) {
+            FactElect.notes = [ { 'text': response.data.movimiento.nota } ]
+          }
           // Nota credito
           if (parseInt(response.data.tipoDoc.soenac_tipo_doc_api_id) === 5) {
             url = 'https://supercarnes-jh.apifacturacionelectronica.xyz/api/ubl2.1/credit-note'
