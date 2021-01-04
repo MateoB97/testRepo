@@ -31,7 +31,8 @@ export default {
   data () {
     return {
       consecToGo: null,
-      movActualId: null
+      movActualId: null,
+      itemsCounter: 1
     }
   },
   mixins: [globalFunctions],
@@ -91,11 +92,12 @@ export default {
     },
     loadFactura () {
       var app = this
+      app.itemsCounter = 1
       app.updateMode = true
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/editarfactura/' + app.$route.params.id + '/' + app.$route.params.consecmov).then(
         function (response2) {
+          console.log('datos')
           if (response2.data.lineas) {
-            app.movActualId = response2.data.mov.id
             // cargar productos
             response2.data.lineas.forEach(function (element, j) {
               var newProduct = {
@@ -114,7 +116,7 @@ export default {
                 puesto_tiquete: element.puesto_tiquete
               }
               app.$emit('insertLine', newProduct)
-              console.log('add product')
+              app.itemsCounter += 1
             })
             app.movActualId = response2.data.mov.id
             // cargar tercero
@@ -124,7 +126,9 @@ export default {
             app.$q.notify({ color: 'negative', message: response2.data })
           }
         }
-      )
+      ).catch((error) => {
+        console.log(error)
+      })
     }
   },
   computed: {

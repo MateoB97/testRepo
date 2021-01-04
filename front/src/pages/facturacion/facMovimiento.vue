@@ -256,6 +256,7 @@
                 <div v-if="tipoDoc.naturaleza != 0" class="col-12">
                   <AddProductoManual
                     withPrice=1
+                    withSubstrac=0
                     :listadoPrecios="listadoPrecios"
                     @addProducto='addProductFromComponent'
                   />
@@ -596,16 +597,18 @@ export default {
       this.openedAddProducto = false
     },
     addProductFromComponent (newProduct) {
-      let item = this.dataResumen.find(v => v.producto_codigo === newProduct.producto_codigo)
-      if (item !== undefined) {
-        item.cantidad = parseInt(item.cantidad) + parseInt(newProduct.cantidad)
-        if (item.cantidad < 1) {
-          var index = this.dataResumen.findIndex(v => v.producto_codigo === newProduct.producto_codigo)
-          this.dataResumen.splice(index, 1)
-        }
-      } else {
-        this.dataResumen.push(newProduct)
-      }
+      // let item = this.dataResumen.find(v => v.producto_codigo === newProduct.producto_codigo)
+      // if (item !== undefined) {
+      //   item.cantidad = parseFloat(item.cantidad) + parseFloat(newProduct.cantidad)
+      //   if (item.cantidad < 1) {
+      //     var index = this.dataResumen.findIndex(v => v.producto_codigo === newProduct.producto_codigo)
+      //     this.dataResumen.splice(index, 1)
+      //   }
+      // } else {
+      //   this.dataResumen.push(newProduct)
+      // }
+      this.dataResumen.push(newProduct)
+      this.numLineas += 1
     },
     ivaUnitRow (row) {
       return ((Math.round(row.precio) - row.desc) * (row.iva / 100))
@@ -983,7 +986,6 @@ export default {
                             // console.log(element.numero)
                             if (parseInt(element.numero) === parseInt(app.num_tiquete.substr(6, 6))) {
                               const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
-                              console.log(productoImpuesto)
                               if (productoImpuesto !== undefined) {
                                 var newProduct = {
                                   id: app.itemsCounter,
@@ -1001,7 +1003,6 @@ export default {
                                   puesto_tiquete: element.posto,
                                   num_linea_tiquete: element.linha_f
                                 }
-                                console.log(newProduct)
                                 app.dataResumen.push(newProduct)
                                 vendedor = 1
                                 app.itemsCounter = app.itemsCounter + 1
@@ -1064,6 +1065,9 @@ export default {
             }
           } else {
             app.numLineas = 0
+            app.updateMode = true
+            app.dataResumen = []
+            app.movActualId = app.$route.params.consecmov
           }
           app.$q.loading.hide()
         }
@@ -1118,6 +1122,7 @@ export default {
     },
     setFactDataFromNav (item) {
       var app = this
+      app.movActualId = item.mov.id
       app.sucursal = item.sucursal
       app.storeItems.fecha_facturacion = item.mov.fecha_facturacion
       app.storeItems.fecha_vencimiento = item.mov.fecha_vencimiento
@@ -1271,6 +1276,7 @@ export default {
     this.verificarTipoDoc()
     var app = this
     if (app.$route.params.consecmov !== 'nuevo') {
+      app.verTabla = false
       app.dataResumen = []
       app.numLineas = 0
       app.updateMode = true
@@ -1304,6 +1310,7 @@ export default {
             app.$router.push({ name: 'movimientos', params: { id: app.$route.params.id, consecmov: 'nuevo' } })
             app.$q.notify({ color: 'negative', message: response2.data })
           }
+          app.verTabla = true
         }
       )
     }

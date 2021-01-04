@@ -33,6 +33,7 @@ class LotProgramacionController extends Controller
 
     public function programacionPorId($id, $producto_empacado)
     {
+        $producto_empacado = ($producto_empacado == 'null') ? false : $producto_empacado;
         $list = LotProgramacion::conLoteAbiertoPorId($id, $producto_empacado); 
         return $list;
     }
