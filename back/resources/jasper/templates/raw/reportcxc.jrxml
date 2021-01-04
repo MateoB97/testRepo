@@ -83,10 +83,10 @@
 	<variable name="saldo1" class="java.lang.Long" resetType="Group" resetGroup="GSucursal" calculation="Sum">
 		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
 	</variable>
-	<variable name="total2" class="java.lang.Long" resetType="Group" resetGroup="GSucursal" calculation="Sum">
+	<variable name="total2" class="java.lang.Long" resetType="Group" resetGroup="GTercero" calculation="Sum">
 		<variableExpression><![CDATA[$F{total}]]></variableExpression>
 	</variable>
-	<variable name="saldo2" class="java.lang.Long" resetType="Group" resetGroup="GSucursal" calculation="Sum">
+	<variable name="saldo2" class="java.lang.Long" resetType="Group" resetGroup="GTercero" calculation="Sum">
 		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
 	</variable>
 	<group name="GTercero">
@@ -96,7 +96,7 @@
 				<frame>
 					<reportElement mode="Opaque" x="0" y="0" width="750" height="15" backcolor="#9C9C9C" uuid="5fb3b47b-a754-4022-81fe-11411a19c5c6"/>
 					<textField>
-						<reportElement mode="Transparent" x="3" y="0" width="265" height="15" uuid="997d46f2-8f18-4a0d-95f4-c25ab8beac7e">
+						<reportElement mode="Transparent" x="120" y="0" width="265" height="15" uuid="997d46f2-8f18-4a0d-95f4-c25ab8beac7e">
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
 						<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -105,7 +105,7 @@
 						<textFieldExpression><![CDATA[$F{tercero}.toUpperCase()]]></textFieldExpression>
 					</textField>
 					<textField>
-						<reportElement x="270" y="0" width="114" height="15" uuid="d343b1d5-bf48-4b62-aaf7-17fcf7b030fc">
+						<reportElement x="3" y="0" width="114" height="15" uuid="d343b1d5-bf48-4b62-aaf7-17fcf7b030fc">
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
 						<textElement verticalAlignment="Middle">
@@ -122,24 +122,6 @@
 					<reportElement mode="Opaque" x="0" y="0" width="750" height="15" backcolor="#9C9C9C" uuid="60952077-9299-4408-9f9d-b380c437d3b2">
 						<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					</reportElement>
-					<textField>
-						<reportElement x="424" y="0" width="100" height="15" uuid="58cbffd7-23c7-47d6-a84c-93c2af789b85">
-							<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
-							<font size="11" isBold="true"/>
-						</textElement>
-						<textFieldExpression><![CDATA[$V{total2}]]></textFieldExpression>
-					</textField>
-					<textField>
-						<reportElement x="650" y="0" width="100" height="15" uuid="12f2a334-ba5d-482f-83d5-be06499e1dd0">
-							<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
-							<font size="11" isBold="true"/>
-						</textElement>
-						<textFieldExpression><![CDATA[$V{saldo2}]]></textFieldExpression>
-					</textField>
 					<staticText>
 						<reportElement x="2" y="0" width="150" height="15" uuid="cae3d21f-3160-474e-bcba-183115899df1">
 							<property name="com.jaspersoft.studio.unit.y" value="px"/>
@@ -150,13 +132,35 @@
 						</textElement>
 						<text><![CDATA[Total Tercero:]]></text>
 					</staticText>
-					<textField>
-						<reportElement x="540" y="0" width="100" height="15" uuid="97a69d6f-dfdb-44c6-a02d-edec69024cac">
+					<textField pattern="$#,##0.##;¤-#,##0.##">
+						<reportElement x="423" y="0" width="100" height="15" uuid="6bf93847-70c0-4b4d-9142-e30fde85b784">
 							<property name="com.jaspersoft.studio.unit.x" value="px"/>
 							<property name="com.jaspersoft.studio.unit.y" value="px"/>
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
+						<textElement textAlignment="Right" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{total2}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.##;¤-#,##0.##">
+						<reportElement x="650" y="0" width="100" height="15" uuid="d4f5536a-9a58-4dbc-92e3-d4228b704ac6">
+							<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Right">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{saldo2}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.##;¤-#,##0.##">
+						<reportElement x="540" y="0" width="100" height="15" uuid="344485e0-52a0-45d8-8480-d33da8d68e51">
+							<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font size="11" isBold="true"/>
 						</textElement>
 						<textFieldExpression><![CDATA[$V{total2} - $V{saldo2}]]></textFieldExpression>
@@ -206,20 +210,20 @@
 			<band height="15">
 				<frame>
 					<reportElement mode="Opaque" x="0" y="0" width="750" height="15" backcolor="#CFCFCF" uuid="90cea70b-f843-4120-b85b-ea70143a2caa"/>
-					<textField>
+					<textField pattern="$#,##0.##;¤-#,##0.##">
 						<reportElement x="423" y="0" width="100" height="15" uuid="32320686-e4ed-4ca3-a054-efe60c26c584">
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
+						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font size="11" isBold="true"/>
 						</textElement>
 						<textFieldExpression><![CDATA[$V{total1}]]></textFieldExpression>
 					</textField>
-					<textField>
+					<textField pattern="$#,##0.##;¤-#,##0.##">
 						<reportElement x="650" y="0" width="100" height="15" uuid="1b85a8e2-0b84-42ca-beac-df2ef0702006">
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
+						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font size="11" isBold="true"/>
 						</textElement>
 						<textFieldExpression><![CDATA[$V{saldo1}]]></textFieldExpression>
@@ -234,12 +238,12 @@
 						</textElement>
 						<text><![CDATA[Total Sucursal:]]></text>
 					</staticText>
-					<textField>
+					<textField pattern="$#,##0.##;¤-#,##0.##">
 						<reportElement x="540" y="0" width="100" height="15" uuid="30180cf6-ac2b-467d-a5e9-547b1d54d173">
 							<property name="com.jaspersoft.studio.unit.x" value="px"/>
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						</reportElement>
-						<textElement textAlignment="Center" verticalAlignment="Middle">
+						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font size="11" isBold="true"/>
 						</textElement>
 						<textFieldExpression><![CDATA[$V{total1} - $V{saldo1}]]></textFieldExpression>
@@ -310,11 +314,12 @@
 					<text><![CDATA[Fecha Ven]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="423" y="0" width="63" height="17" uuid="cc6b68c5-61f8-41fc-94ed-8be9efcdcb4c">
+					<reportElement x="423" y="0" width="98" height="17" uuid="cc6b68c5-61f8-41fc-94ed-8be9efcdcb4c">
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					</reportElement>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
+					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="12"/>
 					</textElement>
 					<text><![CDATA[Total($)]]></text>
@@ -330,7 +335,9 @@
 					<text><![CDATA[Saldo($)]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="520" y="0" width="100" height="17" uuid="ea6e3d8f-cc32-472d-a1af-53911e40a270"/>
+					<reportElement x="530" y="0" width="100" height="17" uuid="ea6e3d8f-cc32-472d-a1af-53911e40a270">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font size="12"/>
 					</textElement>
@@ -388,28 +395,28 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{fecha_vencimiento}]]></textFieldExpression>
 				</textField>
-				<textField>
+				<textField pattern="$#,##0.##;¤-#,##0.##">
 					<reportElement x="423" y="0" width="100" height="15" uuid="bee83d0d-c1ca-4a3b-903f-22ab36823932">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="0af15808-e48b-4c1f-9aff-795f2f206041"/>
 					</reportElement>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
+					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="10"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
 				</textField>
-				<textField>
+				<textField pattern="$#,##0.##;¤-#,##0.##">
 					<reportElement x="650" y="0" width="100" height="15" uuid="c2e5f77e-f714-4a8a-a139-28c4ec5ac456">
 						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="237cf7c5-7093-473b-bf29-38bc4bb19693"/>
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
 					</reportElement>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
+					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="10"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
 				</textField>
-				<textField>
+				<textField pattern="$#,##0.##;¤-#,##0.##">
 					<reportElement x="540" y="0" width="100" height="15" uuid="b5f9cabc-781e-4960-9865-6905b8a29000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
+					<textElement textAlignment="Right" verticalAlignment="Middle">
 						<font size="10"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{total} - $F{saldo}]]></textFieldExpression>

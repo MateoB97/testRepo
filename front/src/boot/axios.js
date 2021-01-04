@@ -22,7 +22,7 @@ export default ({ Vue }) => {
     },
     http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
     router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
-    tokenDefaultName: 'sgcpruebas_jwt_token',
+    tokenDefaultName: 'sgc_jwt_token',
     notFoundRedirect: false,
     rolesVar: 'role',
     registerData: { url: 'auth/register', method: 'POST', redirect: '/' },
@@ -30,10 +30,11 @@ export default ({ Vue }) => {
   })
   // Vue.axios.defaults.baseURL = 'http://fusion.test/api'
   // Vue.axios.defaults.baseURL = 'http://desktop-caermcs/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.8/sgcdev/back/public/api'
-  Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgcpruebas/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
+  Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgc/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 
   axios.interceptors.request.use(function (config) {
     return config

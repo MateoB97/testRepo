@@ -104,23 +104,23 @@ if (! function_exists('current_user')) {
     function http_post($url, $body){
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, TRUE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-		$header = substr($response, 0, $header_size);
-		$body = substr($response, $header_size);
+		$curlConfig = [
+	        CURLOPT_URL            => $url,
+	        CURLOPT_CUSTOMREQUEST  => "POST",
+	        CURLOPT_RETURNTRANSFER => true,
+	        CURLOPT_HTTPHEADER => TRUE,
+	        CURLOPT_HTTPHEADER => array('Content-Type:application/json', 'Accept:application/json'),
+	        CURLOPT_POSTFIELDS => json_encode($body)
+	    ];
+
+	    curl_setopt_array($ch, $curlConfig);
+
+	    $response = curl_exec($ch);
 
 		curl_close($ch);
 
-        return $body;
+        return $response;
     }
 
     function http_get($url){
