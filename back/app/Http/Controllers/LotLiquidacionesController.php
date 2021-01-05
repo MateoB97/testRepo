@@ -102,7 +102,7 @@ class LotLiquidacionesController extends Controller
 
     	$kilosCarneProm = $kilosCarne / $programacion->num_animales;
 
-    	$costoTotal = ($liquidacion->costoPrecio*$liquidacion->ppe) + ($liquidacion->costoSacrificio*$programacion->num_animales) + ($liquidacion->costoDesposte*$programacion->num_animales) + ($liquidacion->costoTransporte*$programacion->num_animales) + ($liquidacion->costoEmpaque*$kilosVacio);
+    	$costoTotal = ($liquidacion->costoPrecio*$liquidacion->ppe) + ($liquidacion->costoSacrificio*$programacion->num_animales) + ($liquidacion->costoDesposte*$programacion->num_animales) + ($liquidacion->costoTransporte*$programacion->num_animales) + ($liquidacion->costoEmpaque*$kilosVacio) + ($liquidacion->costoTransportePlantaPunto*$programacion->num_animales);
 
         $data = [
         	'programacion' => $programacion,
