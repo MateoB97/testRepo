@@ -224,6 +224,9 @@ class ReportesGenerados extends Model
                 ->get();
     }
 
+    public static function selectViewAccount($fecha_inicial, $fecha_final){
+        return DB::select("select * from AccountantView where fecha_facturacion between '$fecha_inicial' and '$fecha_final' order by consecutivo");
+    }
     public static function impuestosFactura(){
         return DB::table('fac_movimientos')
         ->select(DB::raw('fac_movimientos.id As id,
@@ -249,11 +252,13 @@ class ReportesGenerados extends Model
                     isnull(b.ReceipsCount, 0 ) as ReceipsCount'))
             ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
             ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
-            ->join('fac_pivot_mov_productos','fac_pivot_mov_productos.id')
-            //inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+            ->join('fac_pivot_mov_productos','fac_pivot_mov_productos.fac_mov_id', '=', 'fac_movimientos.id')
+            ->join('productos','productos.id', '=', 'fac_pivot_mov_productos.producto_id')
+            ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
+            ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
+            // inner join prod_subgrupos sp on p.prod_subgrupo_id = sp.id
             ->get()
             ->take(20);
-
     }
     public static function todosConTipoSucursalGrupoTipoCustom(){
         return DB::table('fac_movimientos')
@@ -309,4 +314,5 @@ class ReportesGenerados extends Model
             ->get()
             ->take(20);
         }
+
 }

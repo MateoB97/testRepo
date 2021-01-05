@@ -48,7 +48,13 @@ export default {
     generar () {
       var app = this
       if (app.fecha !== null) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/tiquetenofacturados/' + app.fecha.substring(8, 10) + '-' + app.fecha.substring(5, 7) + '-' + app.fecha.substring(0, 4)).then(
+        var url
+        if (parseInt(app.empresa.tipo_escaner) === 2) {
+          url = 'tiquetenofacturadosmarques'
+        } else {
+          url = 'tiquetenofacturados'
+        }
+        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/' + url + '/' + app.fecha.substring(8, 10) + '-' + app.fecha.substring(5, 7) + '-' + app.fecha.substring(0, 4)).then(
           function (response) {
             if (response.data === 'done') {
               app.$q.notify({ color: 'positive', message: 'Reporte Impreso.' })

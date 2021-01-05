@@ -175,10 +175,14 @@ class InventariosController extends Controller
                 ^LL0639
                 ^LS0
                 ".$proceso."
-                ^FT199,82^A0N,25,24^FH\^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS
-                ^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
-                ^FT401,120^A0N,28,28^FH\^FD".$data->registro_sanitario."^FS
-                ^FO1,135^GB798,0,3^FS
+                ^FT199,82^A0N,25,24^FH\^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS";
+
+        if ($marinado) {
+            $etiqueta .= "^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
+            ^FT401,120^A0N,28,28^FH\^FD".$data->registro_sanitario."^FS";
+        }
+                
+        $etiqueta .= "^FO1,135^GB798,0,3^FS
                 ^FT72,239^A0N,39,38^FH\^FD".strtoupper($data->producto)."^FS
                 ^FT543,239^A0N,39,38^FH\^FD".$data->peso."^FS
                 ^FT650,240^A0N,39,38^FH\^FDKg^FS
