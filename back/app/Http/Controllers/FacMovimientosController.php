@@ -1849,11 +1849,11 @@ class FacMovimientosController extends Controller
                 $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
                                     intval(substr($buffer, 16, 6)), // cantidad
                                     intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
+                                    intval(substr($buffer, 2, 5)), // numero tiquete
                                     intval(substr($buffer, 7, 3)), // linea tiquete
                                     intval(substr($buffer, 31, 2)));// vendedor
 
-                if (( (intval(substr($buffer, 3, 4)) == $tiquete)) && (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas)) ){
+                if (( (intval(substr($buffer, 2, 5)) == $tiquete)) && (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas)) ){
                     array_push($arrayTotal, $arrayItem);
                 }
             }
