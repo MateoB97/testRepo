@@ -90,41 +90,46 @@ export default {
         console.log(error)
       })
     },
+    responseLoadFactura (response2) {
+      var app = this
+      if (response2) {
+        if (response2.data.lineas) {
+          // cargar productos
+          response2.data.lineas.forEach(function (element, j) {
+            var newProduct = {
+              id: app.itemsCounter,
+              producto: element.producto_nombre,
+              producto_id: element.producto_id,
+              producto_codigo: element.producto_codigo,
+              cantidad: element.cantidad,
+              precio: element.precio,
+              iva: element.impuesto,
+              gen_iva_id: element.gen_iva_id,
+              desc: ((element.precio) * (element.descporcentaje / 100)).toFixed(2),
+              descporcentaje: element.descporcentaje,
+              num_tiquete: element.num_tiquete,
+              num_linea_tiquete: element.num_linea_tiquete,
+              puesto_tiquete: element.puesto_tiquete
+            }
+            app.$emit('insertLine', newProduct)
+            app.itemsCounter += 1
+          })
+          app.movActualId = response2.data.mov.id
+          // cargar tercero
+          app.$emit('setFactData', response2.data)
+        } else {
+          app.$router.push({ name: 'movimientos', params: { id: app.$route.params.id, consecmov: 'nuevo' } })
+          app.$q.notify({ color: 'negative', message: response2.data })
+        }
+      }
+    },
     loadFactura () {
       var app = this
       app.itemsCounter = 1
       app.updateMode = true
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/editarfactura/' + app.$route.params.id + '/' + app.$route.params.consecmov).then(
         function (response2) {
-          console.log('datos')
-          if (response2.data.lineas) {
-            // cargar productos
-            response2.data.lineas.forEach(function (element, j) {
-              var newProduct = {
-                id: app.itemsCounter,
-                producto: element.producto_nombre,
-                producto_id: element.producto_id,
-                producto_codigo: element.producto_codigo,
-                cantidad: element.cantidad,
-                precio: element.precio,
-                iva: element.impuesto,
-                gen_iva_id: element.gen_iva_id,
-                desc: ((element.precio) * (element.descporcentaje / 100)).toFixed(2),
-                descporcentaje: element.descporcentaje,
-                num_tiquete: element.num_tiquete,
-                num_linea_tiquete: element.num_linea_tiquete,
-                puesto_tiquete: element.puesto_tiquete
-              }
-              app.$emit('insertLine', newProduct)
-              app.itemsCounter += 1
-            })
-            app.movActualId = response2.data.mov.id
-            // cargar tercero
-            app.$emit('setFactData', response2.data)
-          } else {
-            app.$router.push({ name: 'movimientos', params: { id: app.$route.params.id, consecmov: 'nuevo' } })
-            app.$q.notify({ color: 'negative', message: response2.data })
-          }
+          app.responseLoadFactura(response2)
         }
       ).catch((error) => {
         console.log(error)

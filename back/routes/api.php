@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/clear-cache', function() {
+Route::get('/refresh-cache', function() {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('config:cache');
-    return "Cache is cleared";
+    return "Cache is refreshed";
 });
 
 Route::get('/backupsql', function() {
