@@ -45,7 +45,7 @@ class FacPivotMovProducto extends Model
                 'fac_pivot_mov_productos.puesto_tiquete',
                 'productos.nombre as producto_nombre',
                 'productos.id as producto_id',
-                'productos.codigo as producto_codigo',
+                'productos.codigo as producto_codigo'
             )
             ->join('productos', 'fac_pivot_mov_productos.producto_id', '=', 'productos.id')
             ->where('fac_pivot_mov_productos.fac_mov_id','=', $id)

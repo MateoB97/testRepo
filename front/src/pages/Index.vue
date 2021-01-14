@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <!-- <img id="logo-ppal" alt="Quasar logo" src="~assets/logo-supercarnes.png"> -->
+    <img id="logo-ppal" alt="Quasar logo" src="~assets/logo.png">
   </q-page>
 </template>
 
@@ -14,6 +14,6 @@ export default {
 </script>
 <style>
   #logo-ppal{
-    max-width: 600px;
+    max-width: 100vw;
   }
 </style>

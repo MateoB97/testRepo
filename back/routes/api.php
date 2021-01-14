@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/clear-cache', function() {
+Route::get('/refresh-cache', function() {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
     Artisan::call('config:cache');
-    return "Cache is cleared";
+    return "Cache is refreshed";
 });
 
 Route::get('/backupsql', function() {
@@ -203,7 +203,7 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 	Route::get('/sucursales/tercerofilter/{id}', 'TerceroSucursalController@terceroFilter');
 });
 
-Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
+Route::group(['prefix' => 'inventario'], function(){
 	Route::apiResource('items', 'InventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
 	Route::delete('produccion/{id}', 'InventariosController@destroy');
@@ -284,7 +284,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 
 });
 
-Route::group(['prefix' => 'compras', 'middleware' => 'auth'], function(){
+Route::group(['prefix' => 'compras'], function(){
 	Route::apiResource('tipos', 'ComTipoComprasController');
 	Route::apiResource('tiposcomproegreso', 'ComTipoComproEgresosController');
 	Route::apiResource('items', 'ComComprasController');
@@ -314,7 +314,7 @@ Route::group(['prefix' => 'compras', 'middleware' => 'auth'], function(){
 	Route::get('/informes/pagosporfecha/{fechaini}/{fechafin}', 'ComComprasController@pagosPorFecha');
 });
 
-Route::group(['prefix' => 'ordenes', 'middleware' => 'auth'], function(){
+Route::group(['prefix' => 'ordenes'], function(){
 	Route::apiResource('tipos', 'OrdTipoOrdenesController');
 	Route::apiResource('items', 'OrdOrdenesController');
 	Route::get('/imprimir/{id}', 'OrdOrdenesController@generatePDF');
