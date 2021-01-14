@@ -1,18 +1,14 @@
 <template>
-    <div class="container">
+    <div class="container main-login">
       <div class="column q-pa-md row items-center q-gutter-md">
         <q-card class="my-card">
           <q-card-section>
-            <div>
-              <!-- <img id="logo" alt="Quasar logo" src="~assets/logo-supercarnes.png"> -->
-              <h3 class="titulo-login">SGC</h3>
-            </div>
             <div class="alert alert-danger" v-if="has_error">
                 <p style="color: red">Error, Imposible conectar con estas credenciales.</p>
             </div>
             <form autocomplete="off" @submit.prevent="login" method="post">
                 <div class="form-group">
-                    <q-input type="text" required v-model="email" label="E-mail"/>
+                    <q-input type="text" required v-model="email" label="Usuario"/>
                 </div>
                 <div class="form-group">
                     <q-input type="password" required v-model="password" label="Contraseña"/>
@@ -69,6 +65,13 @@ export default {
   .my-card {
     width: 100%
     max-width: 500px
+  }
+  .main-login{
+    background-image: url("~assets/logo.png")
+    background-size: contain;
+    background-repeat: no-repeat
+    min-height: 100vh
+    background-position-x: center
   }
   .titulo-login {
     padding: 0px

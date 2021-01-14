@@ -126,7 +126,7 @@
               </div>
               <!-- // -->
               <!-- inicio datos solo para facturas -->
-              <div class="col-6" v-if="tipoDoc.naturaleza === '1'">
+              <div class="col-6" v-if="parseInt(tipoDoc.naturaleza) === 1">
                 <q-input label="Fecha de Vencimiento" v-model="storeItems.fecha_vencimiento" class="date-field" mask="date" :rules="['date']">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
@@ -137,10 +137,10 @@
                   </template>
                 </q-input>
               </div>
-              <div  v-if="tipoDoc.naturaleza === '1' || tipoDoc.naturaleza === '4'" class="col-6">
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input v-model="descuentoGnal" label="Descuento General (%)"/>
               </div>
-              <div  v-if="tipoDoc.naturaleza === '1' || tipoDoc.naturaleza === '4'" class="col-6">
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-select
                   class="w-100"
                   v-model="storeItems.gen_vendedor_id"
@@ -165,14 +165,14 @@
                   </template>
                 </q-select>
               </div>
-              <div  v-if="tipoDoc.naturaleza === '1' || tipoDoc.naturaleza === '4'" class="col-6">
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input v-if="empresa.tipo_escaner == 1" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteDibal" label="Escanear..."   />
                 <q-input v-if="empresa.tipo_escaner == 2" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteMarques" label="Escanear..."  />
                 <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras" label="Escanear..."  />
                 <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa" label="Escanear..."  />
                 <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho" label="Escanear..." />
               </div>
-              <div  v-if="tipoDoc.naturaleza === '1' || tipoDoc.naturaleza === '4'" class="col-6">
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input filled v-model="orden" ref="scan" v-on:keyup.enter="buscarLineasOrden" label="Orden..." />
               </div>
               <div  v-if="empresa.fact_grupo" class="col-12">
@@ -203,7 +203,7 @@
               <!-- Fin datos solo para facturas -->
               <!-- // -->
             </div>
-            <div v-if="tipoDoc.naturaleza === '4'" class="row col-12 q-col-gutter-sm q-mt-sm">
+            <div v-if="parseInt(tipoDoc.naturaleza) === 4" class="row col-12 q-col-gutter-sm q-mt-sm">
                 <div class="col-6 box-resumen-pagos">
                   <p>Resumen de pagos</p>
                     <div v-for="pago in pagos" :key="pago.id" class="row">
@@ -245,10 +245,10 @@
                   <div class="col-12">
                     <span style="font-size:28px">Total: $ {{ total | toMoney }}</span>
                   </div>
-                  <div class="col-12" v-if="tipoDoc.naturaleza === '4'">
+                  <div class="col-12" v-if="parseInt(tipoDoc.naturaleza) === 4">
                     <span style="font-size:28px">Pago: $ {{ totalAbono | toMoney }}</span>
                   </div>
-                  <div :class="classDevolucion" v-if="tipoDoc.naturaleza === '4'" class="col-12">
+                  <div :class="classDevolucion" v-if="parseInt(tipoDoc.naturaleza) === 4" class="col-12">
                     <span style="font-size:28px"> Cambio: $ {{ totalAbono - total | toMoney }} </span>
                   </div>
               </div>
@@ -479,7 +479,7 @@ export default {
         this.callback = callback
         this.openedPrintFactura = true
       }
-      if (this.tipoDoc.naturaleza === '4') {
+      if (parseInt(this.tipoDoc.naturaleza) === 4) {
         if (this.valueToggle) {
           this.printPOS(callback[1], 0)
         }
@@ -499,7 +499,7 @@ export default {
       this.$refs.scan.focus()
     },
     preSave () {
-      if (this.tipoDoc.naturaleza === '1' || this.tipoDoc.naturaleza === '4') {
+      if (parseInt(this.tipoDoc.naturaleza) === 1 || parseInt(this.tipoDoc.naturaleza) === 4) {
         this.storeItems.lineas = this.dataResumen
         this.storeItems.cliente_id = this.sucursal
         if (this.storeItems.gen_vendedor_id) {
@@ -513,7 +513,7 @@ export default {
         this.storeItems.descuento = parseInt(this.descuento)
         this.storeItems.ivatotal = parseInt(this.ivatotal)
         this.storeItems.fac_tipo_doc_id = this.tipoDoc.id
-        if (this.tipoDoc.naturaleza === '4') {
+        if (parseInt(this.tipoDoc.naturaleza) === 4) {
           this.storeItems.pagos = this.pagos
           this.storeItems.devuelta = parseInt(this.totalAbono - this.total)
         }
@@ -1049,14 +1049,14 @@ export default {
             app.updateMode = false
             app.movActualId = null
             app.numLineas = 0
-            if (response.data.naturaleza === '0') {
+            if (parseInt(response.data.naturaleza) === 0) {
               axios.get(app.$store.state.jhsoft.url + 'api/facturacion/movrelacionado/' + response.data.id + '/items').then(
                 function (response1) {
                   app.movimientos = response1.data
                   app.viewTerceros = false
                 }
               )
-            } else if (response.data.naturaleza === '4') {
+            } else if (parseInt(response.data.naturaleza) === 4) {
               app.getTerceroPOS()
               app.prepareFormaspago()
               app.viewTerceros = true
@@ -1250,7 +1250,7 @@ export default {
               app.listadoPrecios = response.data
             }
           )
-          if (app.tipoDoc.naturaleza === '2' || app.tipoDoc.naturaleza === '3') {
+          if (parseInt(app.tipoDoc.naturaleza) === 2 || parseInt(app.tipoDoc.naturaleza) === 3) {
             axios.get(this.$store.state.jhsoft.url + 'api/facturacion/movimientos/filtro/facturaspendientesparanotas/' + this.sucursal + '/' + app.tipoDoc.id).then(
               function (response) {
                 app.movimientos = response.data
