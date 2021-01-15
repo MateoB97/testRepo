@@ -85,7 +85,7 @@ class GenCuadreCajaController extends Controller
        } else {
             $cuadre->total_egresos = 0;
        }
-       
+
 
        $v = $cuadre->save();
 
@@ -116,12 +116,12 @@ class GenCuadreCajaController extends Controller
                    $nuevoPivotMov->devolucion_total = $sumatoriaDev->total;
                    $nuevoPivotMov->devolucion_iva = $sumatoriaDev->ivatotal;
                    $nuevoPivotMov->devolucion_subtotal = $sumatoriaDev->subtotal;
-                   $nuevoPivotMov->devolucion_descuento = $sumatoriaDev->descuento;                   
+                   $nuevoPivotMov->devolucion_descuento = $sumatoriaDev->descuento;
                 } else {
                    $nuevoPivotMov->devolucion_total = 0;
                    $nuevoPivotMov->devolucion_iva = 0;
                    $nuevoPivotMov->devolucion_subtotal = 0;
-                   $nuevoPivotMov->devolucion_descuento = 0;     
+                   $nuevoPivotMov->devolucion_descuento = 0;
                 }
 
                 $nuevoPivotMov->gen_cuadre_caja_id = $cuadre->id;
@@ -267,7 +267,7 @@ class GenCuadreCajaController extends Controller
             $ingreso = GenPivotCuadreFormapago::sumCuadrePorForma($id, $forma->id)->first();
 
             if (!is_null($ingreso->valor)) {
-              
+
               $etiqueta .= str_pad($forma->nombre, $caracLinea-18, ".", STR_PAD_RIGHT) . str_pad( number_format($ingreso->valor, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
 
               $totalIngresos += $ingreso->valor;
@@ -337,7 +337,7 @@ class GenCuadreCajaController extends Controller
         $etiqueta .= str_pad( number_format($cuadre->monto_cierre - ($ingresosEfectivoTotal - $cuadre->total_egresos), 0, ',', '.'), $caracLinea- 10, " ", STR_PAD_LEFT);
 
 
-            
+
 
         $printer->text($etiqueta);
         $printer->feed(2);
@@ -384,8 +384,10 @@ class GenCuadreCajaController extends Controller
               array_push($ingresos, [$forma->nombre, $ingreso->valor]);
 
               $totalIngresos += $ingreso->valor;
+            }else{
+                array_push($ingresos, [$forma->nombre, 0]);
             }
-            
+
         }
 
         $recibos = GenPivotCuadreFormapago::sumCuadreRecibos($id)->first();

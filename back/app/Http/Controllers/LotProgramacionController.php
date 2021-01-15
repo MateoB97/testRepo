@@ -21,26 +21,25 @@ class LotProgramacionController extends Controller
     public function programacionLotesAbiertos($producto_empacado)
     {
         $list = LotProgramacion::todosConLoteAbierto($producto_empacado);
-        
         return $list;
     }
 
     public function programacionLotesAbiertosPorGrupo($id, $producto_empacado)
     {
-        $list = LotProgramacion::todosConLoteAbiertoPorGrupo($id, $producto_empacado); 
+        $list = LotProgramacion::todosConLoteAbiertoPorGrupo($id, $producto_empacado);
         return $list;
     }
 
     public function programacionPorId($id, $producto_empacado)
     {
         $producto_empacado = ($producto_empacado == 'null') ? false : $producto_empacado;
-        $list = LotProgramacion::conLoteAbiertoPorId($id, $producto_empacado); 
+        $list = LotProgramacion::conLoteAbiertoPorId($id, $producto_empacado);
         return $list;
     }
 
     public function pesosPorProgramacion($id)
     {
-        $list = LotPesosProgramacion::where('lotProgramacion_id',$id)->get(); 
+        $list = LotPesosProgramacion::where('lotProgramacion_id',$id)->get();
         return $list;
     }
 
@@ -57,7 +56,7 @@ class LotProgramacionController extends Controller
             return 'No puede guardar el peso, la programación ya se encuentra liquidada.';
         }
 
-        
+
     }
 
     public function deletePesoProgramacion($id)
