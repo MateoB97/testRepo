@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -94,7 +94,7 @@
 </style>
 </head>
 <body>
-	@php 
+	@php
 		$ventasTotal = 0;
 		$ingresosTotales = 0;
         $ingresosEfectivoTotal = 0;
@@ -118,7 +118,6 @@
         <span> {{str_pad('', $caracLinea, "-", STR_PAD_RIGHT)}} </span>
         <span> {{str_pad('VENTAS', $caracLinea, " ", STR_PAD_BOTH)}} </span>
         <span> {{str_pad('', $caracLinea, "-", STR_PAD_RIGHT)}} </span>
-
         @foreach ($ventas as $venta)
         	<span> {{str_pad('- '.$venta->tipodoc, $caracLinea, " ", STR_PAD_RIGHT)}} </span>
             <span> {{str_pad('-- Total', $caracLinea-18, ".", STR_PAD_RIGHT) . str_pad( number_format($venta->total, 0, ',', '.'), 18, ".", STR_PAD_LEFT)}} </span>
@@ -160,9 +159,9 @@
         		$egresos = App\EgreEgreso::where('egre_tipo_egreso_id',$tipo->id)->where('gen_cuadre_caja_id', $cuadre->id)->get();
         	@endphp
 
-        	@if (count($egresos) > 0) 
+        	@if (count($egresos) > 0)
 
-        		@php 
+        		@php
         			$total = 0;
         		@endphp
 
@@ -172,7 +171,7 @@
 
                 @foreach ($egresos as $egreso)
 
-                	@php 
+                	@php
 	        			$total = intval($egreso->valor) + $total;
 	        		@endphp
 

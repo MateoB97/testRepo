@@ -88,7 +88,7 @@ class InventariosController extends Controller
         $validateProgramacion = LotProgramacion::find($request->prog_lotes_id);
         $lote = Lote::find($validateProgramacion->lote_id);
 
-        if ($validateProgramacion->estado != 2) { 
+        if ($validateProgramacion->estado != 2) {
             if (count(ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get()) > 0 || $lote->producto_empacado) {
 
                 $item = new Inventario($request->all());
@@ -131,7 +131,7 @@ class InventariosController extends Controller
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
 
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora)); 
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         $printer->setJustification(Printer::JUSTIFY_CENTER);
@@ -181,7 +181,7 @@ class InventariosController extends Controller
             $etiqueta .= "^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
             ^FT401,120^A0N,28,28^FH\^FD".$data->registro_sanitario."^FS";
         }
-                
+
         $etiqueta .= "^FO1,135^GB798,0,3^FS
                 ^FT72,239^A0N,39,38^FH\^FD".strtoupper($data->producto)."^FS
                 ^FT543,239^A0N,39,38^FH\^FD".$data->peso."^FS
@@ -208,7 +208,7 @@ class InventariosController extends Controller
                 ^FT399,440^A0N,20,19^FH\^FD(Emulsificador), fosfato de sodio 450 ^FS
                 ^FT399,464^A0N,20,19^FH\^FD(Estabilizante), fosfato tricalcico E341 ^FS
                 ^FT399,488^A0N,20,19^FH\^FD(Estabilizante) menor al 1%.^FS";
-        } 
+        }
 
         if ($lote->producto_empacado) {
             $etiqueta .= "^FT231,467^A0N,25,24^FH\^FD".$data->fecha_vencimiento."^FS";
@@ -218,7 +218,7 @@ class InventariosController extends Controller
                     ^FT232,434^A0N,25,24^FH\^FD".$data->fecha_empaque."^FS
                     ^FT231,467^A0N,25,24^FH\^FD".$data->fecha_vencimiento."^FS";
         }
-                
+
         $etiqueta .= "^BY4,3,68^FT263,571^BCN,,Y,N
                 ^FD>:".$item->id."^FS
                 ^FT33,295^A0N,25,24^FH\^FDMarca:^FS
@@ -242,7 +242,7 @@ class InventariosController extends Controller
     public function show($id)
     {
         $model = Inventario::find($id);
-        
+
         $model->producto_id = $model->producto;
         $model->prodSubgrupo_id = $model->producto->prodSubgrupo;
         $model->prodGrupo_id = $model->producto->prodSubgrupo->prodGrupo;
@@ -297,7 +297,6 @@ class InventariosController extends Controller
 
             $val2 = $prod_terminado->delete();
             $val1 = $model->delete();
-            
 
             if ($val1 && $val2) {
                 return 'done';
@@ -323,7 +322,7 @@ class InventariosController extends Controller
         $data_registro_sanitario = $producto->prodSubgrupo->prodGrupo->registro_sanitario;
 
         $data_fecha_empaque = Carbon::now()->toDateString();
-        
+
         $programacion = LotProgramacion::find($request->prog_lotes_id);
 
         $data_fecha_desposte = $programacion->fecha_desposte;
@@ -337,7 +336,7 @@ class InventariosController extends Controller
 
         $data_fecha_vencimiento = Carbon::parse($data_fecha_sacrificio)->addDays($dias_vencimiento[0]->dias_vencimiento)->toDateString();
 
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($request->impresora)); 
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($request->impresora));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         $printer->setJustification(Printer::JUSTIFY_CENTER);
@@ -358,7 +357,7 @@ class InventariosController extends Controller
             if ($almaRefrigerado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^FS"; }
             if ($almaCongelado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE CONGELADO A -18\F8C ^FS"; }
 
-            if ($request->marinado) { 
+            if ($request->marinado) {
                 $textoMarinado = "^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
                                   ^FT401,120^A0N,28,28^FH\^FD".$data_registro_sanitario."^FS";
                 $tituloMarinado = " MARINADA";
@@ -374,7 +373,7 @@ class InventariosController extends Controller
                 $ingredientesMarinado = "";
             }
 
-            $titulo = "CARNE DE ".strtoupper($data_grupo).$tituloMarinado; 
+            $titulo = "CARNE DE ".strtoupper($data_grupo).$tituloMarinado;
 
             $etiqueta = "CT~~CD,~CC^~CT~
                 ^XA~TA000~JSN^LT0^MNW^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD15^JUS^LRN^CI0^XZ
@@ -406,8 +405,6 @@ class InventariosController extends Controller
                 ^FT109,401^A0N,28,28^FH\^FD".$data_lote."^FS
                 ^FT254,183^A0N,28,28^FH\^FD".$titulo."^FS
                 ^PQ1,0,1,Y^XZ";
-
-
             $printer->text($etiqueta);
 
             /*
@@ -424,7 +421,7 @@ class InventariosController extends Controller
     }
 
     public function reimprimir (Request $request) {
-        
+
         $item = Inventario::find($request->etiqueta);
 
         $this->imprimirEtiqueta($request->impresora, $item);
@@ -446,7 +443,7 @@ class InventariosController extends Controller
 
     public function dividir(Request $request)
     {
-            
+
 
         $validacion = SalPivotInventSalida::where('inventario_id',$request->canasta)->get();
 
@@ -495,7 +492,7 @@ class InventariosController extends Controller
             $prod2 = ProductoTerminado::find($prodTerminado2->id);
             $prod2->created_at = $prodTerminadoExistente->created_at;
             $prod2->save();
-            
+
             $prodTerminadoExistente->delete();
             $existente->delete();
 
@@ -550,9 +547,11 @@ class InventariosController extends Controller
 
         $data = ['itemsSumatoria' => $itemsSumatoria, 'lote' => $idlote];
         $pdf = PDF::loadView('informes.totalProductosLote', $data);
-  
+
         // return view('certificados.pdf');
 
         return $pdf->stream();
     }
+
+
 }
