@@ -114,7 +114,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFecha.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -149,24 +149,7 @@ class ReportesGeneradosController extends Controller
         public function movimientosPorFechaGrupo(){
             // dd($_GET);
             $params = $_GET;
-            $input = 'DetallesMoviemientosPorFecha';
+            $input = 'DetallesMovimientosPorFecha';
             self::executeJasper($input, $params);
-        }
-
-        public function testing(){
-            $fecha_inicial2 = '22-08-2020';
-            $fecha_final2 = '22-08-2020';
-            $rows = Collect();
-            $sumsVentasServicios = ['Ventas','Servicios'];
-            $rows = ReportesGenerados::selectViewAccount($fecha_inicial2, $fecha_final2);
-            dd($rows);
-            // $rows = DB::select("select * from AccountantView where fecha_facturacion = '$fecha_inicial' order by consecutivo");
-            // dd($rows);
-            foreach($rows as $row){
-                dd($row);
-            //     // foreach($row as $data){
-            //     //     dd($data);
-            //     // }
-            }
         }
     }

@@ -203,7 +203,7 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 	Route::get('/sucursales/tercerofilter/{id}', 'TerceroSucursalController@terceroFilter');
 });
 
-Route::group(['prefix' => 'inventario'], function(){
+Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
 	Route::apiResource('items', 'InventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
 	Route::delete('produccion/{id}', 'InventariosController@destroy');

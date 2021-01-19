@@ -306,8 +306,14 @@
                         <q-td key="precioDescuento" :props="props">{{ (props.row.precio - props.row.desc) | toMoney  }}</q-td>
                         <q-td key="iva" :props="props">
                           {{ props.row.iva }}
-                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="props.row.iva" title="iva" buttons>
-                            <q-input type="number" v-model="props.row.iva" dense autofocus />
+                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="props.row.iva" @hide="setIva(props.row.id)" title="iva" buttons>
+                            <q-select
+                              label="Seleccione impuestos"
+                              v-model="temp.iva"
+                              :options="impuestos"
+                              option-value="id"
+                              option-label="nombre"
+                            />
                           </q-popup-edit>
                         </q-td>
                         <q-td key="ivapesosunit" :props="props">{{ ivaUnitRow(props.row) | toMoney }}</q-td>
@@ -433,7 +439,8 @@ export default {
       temp: {
         cantidad: null,
         precioLinea: 0,
-        cantidad_unid: null
+        cantidad_unid: null,
+        iva: null
       },
       sucursal: null,
       columns: [
@@ -662,6 +669,22 @@ export default {
       this.dataResumen[index].desc = ((this.dataResumen[index].precio) * (this.dataResumen[index].descporcentaje / 100)).toFixed(2)
       this.verTabla = true
       // console.log(this.dataResumen[index])
+    },
+    setIva (v) {
+      if (this.temp.iva !== null) {
+        this.verTabla = false
+        var index
+        this.dataResumen.forEach(function (element, i) {
+          if (v === element.id) {
+            index = i
+          }
+        })
+        this.dataResumen[index].iva = parseInt(this.temp.iva.valor_porcentaje)
+        this.dataResumen[index].gen_iva_id = this.temp.iva.id
+        this.temp.iva = null
+        this.verTabla = true
+        console.log(this.dataResumen[index])
+      }
     },
     eliminarSelected () {
       var app = this
@@ -1159,6 +1182,7 @@ export default {
     this.globalGetForSelect('api/generales/vendedores', 'vendedores')
     this.globalGetForSelect('api/generales/empresa', 'empresa')
     this.globalGetForSelect('api/productos/todosconimpuestos', 'productosImpuestos')
+    this.globalGetForSelect('api/generales/iva', 'impuestos')
     this.fechasHoy()
   },
   computed: {
