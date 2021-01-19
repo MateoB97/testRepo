@@ -313,6 +313,7 @@ class ReportesGenerados extends Model
             ->orderBy('fac_movimientos.id','desc')
             ->get()
             ->take(20);
-        }
+    }
+
 
 }
