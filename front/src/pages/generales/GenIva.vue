@@ -15,6 +15,12 @@
                     <q-input type="number" v-model="storeItems.soenac_iva_api_id" label="id Fact Electronica"/>
                 </div>
                 <div class="col-3">
+                    <q-input type="number" v-model="storeItems.cuenta_contable_venta" label="Cuenta Cont. Venta"/>
+                </div>
+                <div class="col-3">
+                    <q-input type="number" v-model="storeItems.cuenta_contable_iva" label="Cuenta Cont. IVA"/>
+                </div>
+                <div class="col-3">
                     <q-btn v-if="!showForUpdate" color="primary" v-on:click="globalValidate('guardar')" label="Guardar" />
                     <q-btn v-if="showForUpdate" color="primary" v-on:click="globalValidate('guardar-edicion', storeItems.id)" label="Guardar Edición" />
                 </div>
@@ -76,6 +82,9 @@ export default {
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'nombre', required: true, label: 'Nombre', align: 'left', field: 'nombre', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'valor_porcentaje', required: true, label: '%', align: 'left', field: 'valor_porcentaje', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'soenac_iva_api_id', required: true, label: 'Soenac API id', align: 'left', field: 'soenac_iva_api_id', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cuenta_contable_venta', required: true, label: 'Cuenta cont. Venta', align: 'left', field: 'cuenta_contable_venta', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cuenta_contable_iva', required: true, label: 'Cuenta cont. IVA', align: 'left', field: 'cuenta_contable_iva', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       visibleColumns: ['id', 'nombre', 'tipo', 'actions'],

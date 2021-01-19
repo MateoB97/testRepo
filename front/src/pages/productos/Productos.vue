@@ -163,7 +163,7 @@
                 </div>
             </div>
             <div v-if="showProducto" class="row q-col-gutter-sm q-mt-sm">
-                <div v-if="showProducto" class="col-6">
+                <div v-if="showProducto" class="col-4">
                     <q-input v-model="storeItems.nombre" label="Nombre del producto"/>
                 </div>
                 <div class="col-2">
@@ -180,6 +180,9 @@
                 </div>
                 <div class="col-2" v-if="showProducto && (this.$store.state.jhsoft.tipo_licencia === 4 || this.$store.state.jhsoft.tipo_licencia === 5)" >
                     <q-input v-model="storeItems.unid_por_animal" label="Unid por animal"/>
+                </div>
+                <div class="col-2">
+                    <q-input type="number" v-model="storeItems.cuenta_contable_venta" label="Cuenta Cont. Venta"/>
                 </div>
             </div>
             <div v-if="showProducto" class="row q-col-gutter-sm q-mt-sm">
