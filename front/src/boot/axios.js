@@ -31,8 +31,19 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://fusion.test/api'
   // Vue.axios.defaults.baseURL = 'http://desktop-caermcs/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://sgc.estebangonzalez.xyz/back//api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.7/sgcdev/back/public/api'
-  Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
+  fetch('statics/data.json')
+    .then(function (response) {
+      return response.json()
+    })
+    .then(function (data) {
+      localStorage.sgc_ip = data.ip
+      Vue.axios.defaults.baseURL = 'http://' + data.ip + '/back/public/api'
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
+  // Vue.axios.defaults.baseURL = 'http://' + resp + '/sgcdev/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 

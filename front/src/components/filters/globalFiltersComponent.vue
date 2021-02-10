@@ -52,7 +52,7 @@
 import { globalFunctions } from 'boot/mixins.js'
 import DateFilterComponent from 'components/filters/dataFilterComponent.vue'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
-import SelectGrupoProducto from 'components/filters/SelectGrupoProducto.vue'
+import SelectGrupoProducto from 'components/filters/MultiSelectGrupoProducto.vue'
 import SelectTipoDoc from 'components/filters/SelectTipoDoc.vue'
 
 export default {
