@@ -182,7 +182,38 @@
                     <q-input v-model="storeItems.unid_por_animal" label="Unid por animal"/>
                 </div>
                 <div class="col-2">
-                    <q-input type="number" v-model="storeItems.cuenta_contable_venta" label="Cuenta Cont. Venta"/>
+                  <q-select
+                    v-model="storeItems.cuenta_contable_venta_id"
+                    use-input
+                    autofocus
+                    hide-selected
+                    fill-input
+                    option-value="id"
+                    option-label="nombre"
+                    label="Cuenta contable"
+                    option-disable="inactive"
+                    input-debounce="0"
+                    :options="options.genpuc"
+                    @filter="filterGenpuc"
+                  >
+                      <template v-slot:no-option>
+                      <q-item>
+                          <q-item-section class="text-grey">
+                          No results
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                      <template v-slot:option="scope">
+                      <q-item
+                          v-bind="scope.itemProps"
+                          v-on="scope.itemEvents"
+                      >
+                          <q-item-section>
+                          <q-item-label v-html="scope.opt.codigo + ' - ' + scope.opt.nombre" />
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                    </q-select>
                 </div>
             </div>
             <div v-if="showProducto" class="row q-col-gutter-sm q-mt-sm">
@@ -371,6 +402,10 @@ export default {
       tableData: [],
       grupos: [],
       subgrupos: [],
+      genpuc: [],
+      options: {
+        genpuc: this.genpuc
+      },
       columns: [
         { name: 'codigo', required: true, label: 'Codigo', align: 'left', field: 'codigo', sortable: true, classes: 'my-class', style: 'width: 50px' },
         { name: 'nombre', required: true, label: 'Nombre', align: 'left', field: 'nombre', sortable: true, classes: 'my-class', style: 'width: 150px' },
@@ -399,6 +434,7 @@ export default {
           delete app.storeItems[prop]
         }
       }
+      this.storeItems.cuenta_contable_venta_id = this.genpuc.find(v => parseInt(v.id) === parseInt(this.storeItems.cuenta_contable_venta_id))
     },
     postSave () {
       this.showSubgrupos = false
@@ -417,6 +453,20 @@ export default {
       this.storeItems.prod_subgrupo_id = this.storeItems.prod_subgrupo_id.id
       this.storeItems.gen_iva_id = this.storeItems.gen_iva_id.id
       this.storeItems.gen_unidades_id = this.storeItems.gen_unidades_id.id
+      if (this.storeItems.cuenta_contable_venta_id == null) {
+        delete this.storeItems.cuenta_contable_venta_id
+      } else {
+        this.storeItems.cuenta_contable_venta_id = this.storeItems.cuenta_contable_venta_id.id
+      }
+    },
+    filterGenpuc (val, update, abort) {
+      update(() => {
+        const needle = val.toLowerCase()
+        this.options.genpuc = this.genpuc.filter(v => v.codigo.toLowerCase().indexOf(needle) > -1)
+        if (this.options.genpuc.length < 1) {
+          this.options.genpuc = this.genpuc.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
+        }
+      })
     },
     addPrecio () {
       this.storeItems.precios.push({
@@ -574,6 +624,7 @@ export default {
     this.globalGetForSelect('api/productos/listadeprecios/estado/activos', 'listaprecios')
     this.globalGetForSelect('api/productos/grupos/estado/activos', 'grupos')
     this.globalGetForSelect('api/productos/almacenamiento/estado/activos', 'almacenamientos')
+    this.globalGetForSelect('api/generales/genpuc', 'genpuc')
   },
   computed: {
 

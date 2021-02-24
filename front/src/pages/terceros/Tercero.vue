@@ -80,8 +80,6 @@
                         option-label="nombre"
                         label="Municipio"
                         option-disable="inactive"
-                        emit-value
-                        map-options
                         input-debounce="0"
                         :options="options.municipios"
                         @filter="filterMunicipios"
@@ -255,6 +253,7 @@
                         title = 'Sucursales'
                         :data="storeItems.sucursales"
                         :columns="ColumnsSucursalesUpdate"
+                        :filter="filter"
                         row-key="direccion"
                       >
                       <template slot="top-right" slot-scope="props">
@@ -298,7 +297,7 @@
                 title="Listado de Terceros"
                 :data="tableData"
                 :columns="columns"
-                :filter="filter"
+                :filter="filterTerceros"
                 :visible-columns="visibleColumns"
                 :separator="separator"
                 row-key="id"
@@ -309,7 +308,7 @@
                     <q-input
                         hide-underline
                         color="secondary"
-                        v-model="filter"
+                        v-model="filterTerceros"
                         class="col-6"
                         debounce="500"
                     >
@@ -416,7 +415,8 @@ export default {
       ],
       visibleColumns: ['id', 'nombre', 'subgrupo', 'grupo', 'actions'],
       separator: 'horizontal',
-      filter: ''
+      filter: '',
+      filterTerceros: ''
     }
   },
   mixins: [globalFunctions],
@@ -433,12 +433,10 @@ export default {
       }
     },
     preSave () {
-      console.log(this.storeItems)
       this.storeItems.soenac_tipo_org_id = this.storeItems.soenac_tipo_org_id.id
       this.storeItems.soenac_responsab_id = this.storeItems.soenac_responsab_id.id
       this.storeItems.soenac_tipo_documento_id = this.storeItems.soenac_tipo_documento_id.id
       this.storeItems.soenac_regim_id = this.storeItems.soenac_regim_id.id
-      console.log(this.storeItems)
     },
     postEdit () {
       this.storeItems.soenac_regim_id = this.regimenes.find(v => parseInt(v.id) === parseInt(this.storeItems.soenac_regim_id))
@@ -453,9 +451,9 @@ export default {
     editSucursal (id) {
       const item = this.storeItems.sucursales.find(item => item.id === id)
       this.temp = item
-      this.temp.gen_municipios_id = item.gen_municipio
-      if (item.gen_municipio) {
-        this.datos.departamento_id = item.gen_municipio.gen_departamento
+      this.temp.gen_municipios_id = this.municipios.find(v => v.id === parseInt(item.gen_municipios_id))
+      if (this.temp.gen_municipios_id) {
+        this.datos.departamento_id = this.departamentos.find(v => v.id === parseInt(this.temp.gen_municipios_id.departamento_id))
       }
       this.showForUpdateSucursal = true
       this.openedSucursales = true
@@ -476,11 +474,10 @@ export default {
         prod_lista_precio: this.temp.prod_lista_precio,
         prodListaPrecio_id: this.temp.prod_lista_precio.id,
         lista_de_precio: this.temp.prod_lista_precio.nombre,
-        gen_municipios_id: this.temp.gen_municipios_id,
+        gen_municipios_id: this.temp.gen_municipios_id.id,
         email: this.temp.email,
         activo: 1
       })
-      console.log(this.storeItems.sucursales)
       this.temp.direccion = null
       this.temp.nombre = null
       this.temp.telefono = null
@@ -529,7 +526,8 @@ export default {
         telefono: this.temp.telefono,
         prodListaPrecio_id: this.temp.prod_lista_precio.id,
         lista_de_precio: this.temp.prod_lista_precio.nombre,
-        gen_municipios_id: this.temp.gen_municipios_id
+        gen_municipios_id: this.temp.gen_municipios_id.id,
+        email: this.temp.email
       })
       this.sucursales_counter++
       this.temp.direccion = null
@@ -580,6 +578,7 @@ export default {
     this.globalGetItems()
     this.globalGetForSelect('api/productos/listadeprecios/estado/activos', 'listaprecios')
     this.globalGetForSelect('api/generales/departamentos', 'departamentos')
+    this.globalGetForSelect('api/generales/municipios', 'municipios')
     this.globalGetForSelect('api/generales/soenac/responsabilidades', 'responsabilidades')
     this.globalGetForSelect('api/generales/soenac/tiposdocumento', 'tiposDocu')
     this.globalGetForSelect('api/generales/soenac/tiposorganizacion', 'tiposOrganizacion')

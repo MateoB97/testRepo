@@ -299,10 +299,8 @@ class FacMovimientosController extends Controller
         $tipos_doc = FacPivotTipoDocTipoRec::where('fac_tipo_rec_id', $tipo_rec_id)->get();
 
         foreach ($tipos_doc as $tipo_doc) {
-            array_push($tipos, $tipo_doc->fac_tipo_doc_id);
+            array_push($tipos, intval($tipo_doc->fac_tipo_doc_id));
         }
-
-        // return $tipos;
 
         $index = FacMovimiento::facturasPendientesPorSucursalYTipo($sucursal_id, $tipos);
 

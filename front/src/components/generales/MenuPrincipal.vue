@@ -192,6 +192,7 @@
               <q-card-section>
                 <router-link to="/generales/impuestos" class="menuItem">Crear Impuesto</router-link>
                 <router-link to="/generales/iva" class="menuItem">Crear IVA</router-link>
+                <router-link to="/generales/puc" class="menuItem">Crear PUC</router-link>
               </q-card-section>
             </q-card>
           </q-expansion-item>

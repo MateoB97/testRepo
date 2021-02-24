@@ -43,6 +43,6 @@ class ViewRecibosPorFecha extends Migration
      */
     public function down()
     {
-        B::statement("DROP VIEW ViewRecibosPorFecha");
+        DB::statement("DROP VIEW ViewRecibosPorFecha");
     }
 }

@@ -130,21 +130,16 @@
               </div>
           </div>
           <div class="row q-col-gutter-md q-mt-md text-right">
-            <!-- <div class="col-4">
-              <div class="col-12">
-                <q-input type="number" label="Ajuste" v-model="storeItems.ajuste"></q-input>
-              </div>
-            </div>
-            <div class="col-8">
+            <div class="col-12">
               <div style="width:100%">
                 <q-input
                   ref="observaciones"
                   v-model="storeItems.ajuste_observacion"
                   type="textarea"
-                  label="Observaciones del ajuste"
+                  label="Observaciones"
                 />
               </div>
-            </div> -->
+            </div>
             <div class="col-12">
               <q-btn class="btn-azul" v-on:click="validacion()" label="Guardar" />
             </div>
@@ -225,12 +220,12 @@ export default {
       sucursal_id: null,
       tableData: [],
       columns: [
-        { name: 'tipo', required: true, label: 'TIPO MOVIMIENTO', align: 'left', field: 'tipo', classes: 'my-class', style: 'width: 200px' },
-        { name: 'consecutivo', required: true, label: 'CONSECUTIVO', align: 'left', field: 'consecutivo', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'fecha_facturacion', required: true, label: 'FECHA FACTURACIÓN', align: 'left', field: 'fecha_facturacion', classes: 'my-class', style: 'width: 200px' },
-        { name: 'fecha_vencimiento', required: true, label: 'FECHA VENCIMIENTO', align: 'left', field: 'fecha_vencimiento', classes: 'my-class', style: 'width: 200px' },
-        { name: 'total', required: true, label: 'TOTALES', align: 'right', field: 'total', classes: 'my-class', style: 'width: 200px' },
-        { name: 'saldo', required: true, label: 'SALDO', align: 'right', field: 'saldo', classes: 'my-class', style: 'width: 200px' }
+        { name: 'tipo', required: true, label: 'TIPO MOVIMIENTO', align: 'left', field: 'tipo', sortable: false, classes: 'my-class', style: 'width: 200px' },
+        { name: 'consecutivo', required: true, label: 'CONSECUTIVO', align: 'left', field: 'consecutivo', sortable: false, classes: 'my-class', style: 'width: 200px' },
+        { name: 'fecha_facturacion', required: true, label: 'FECHA FACTURACIÓN', align: 'left', field: 'fecha_facturacion', sortable: false, classes: 'my-class', style: 'width: 200px' },
+        { name: 'fecha_vencimiento', required: true, label: 'FECHA VENCIMIENTO', align: 'left', field: 'fecha_vencimiento', sortable: false, classes: 'my-class', style: 'width: 200px' },
+        { name: 'total', required: true, label: 'TOTALES', align: 'right', field: 'total', sortable: false, classes: 'my-class', style: 'width: 200px' },
+        { name: 'saldo', required: true, label: 'SALDO', align: 'right', field: 'saldo', sortable: false, classes: 'my-class', style: 'width: 200px' }
 
       ],
       separator: 'horizontal',
@@ -360,6 +355,7 @@ export default {
       handler () {
         if (this.sucursal_id !== null) {
           var app = this
+          app.selected = []
           axios.get(this.$store.state.jhsoft.url + 'api/facturacion/movimientos/filtro/facturasporsucursalytipodoc/' + this.sucursal_id + '/' + this.$route.params.id).then(
             function (response) {
               app.facturas = response.data

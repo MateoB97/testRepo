@@ -168,6 +168,108 @@ class ReportesGeneradosController extends Controller
             self::executeJasper($input, $params);
         }
 
+        public function vistaInterfazContadoras ($fecha_ini, $fecha_fin) {
 
+            $fecha_ini = '01/11/2020';
+            $fecha_fin = '30/11/2020';
+            $fac_tipo_doc_id = 14;
+
+            $data = ReportesGenerados::reporteFacturasIva($fecha_ini,$fecha_fin,$fac_tipo_doc_id);
+
+            $dataFormated = array();
+
+            $lineFormated = array();
+
+            $consecAnterior = 0;
+            $totalConsec = 0;
+
+            $ivaConsec = array();
+
+            $fp = fopen('C:\tiquetes\reporte.csv', 'wb');
+
+            foreach ($data as $k => $line) {
+                
+                if ($consecAnterior != $line->consecutivo && $k != 0)  {
+
+                    foreach ($ivaConsec as $j => $iva) {
+
+                        $lineFormated['cuenta'] = $j;
+                        $lineFormated['comprobante'] = '';
+                        $lineFormated['fecha'] = $data[$k-1]->fecha_facturacion;
+                        $lineFormated['documento'] = '00000001';
+                        $lineFormated['documento_relacionado'] =  $data[$k-1]->prefijo.$data[$k-1]->consecutivo;
+                        $lineFormated['nit'] = $data[$k-1]->nit;
+                        $lineFormated['detalle'] = $iva['nombre'];
+                        $lineFormated['tipo'] = 2;
+                        $lineFormated['valor'] = intval($iva['valor']);
+                        $lineFormated['base'] = intval($iva['base']);
+                        $lineFormated['centro_costos'] = '';
+                        $lineFormated['trans_e'] = '';
+                        $lineFormated['plazo'] = '0';
+
+                        fputcsv($fp, $lineFormated);
+                    }
+
+                    $ivaConsec = array();
+
+                    $lineFormated['cuenta'] = '11050505';
+                    $lineFormated['comprobante'] = '';
+                    $lineFormated['fecha'] = $data[$k-1]->fecha_facturacion;
+                    $lineFormated['documento'] = '00000001';
+                    $lineFormated['documento_relacionado'] = $data[$k-1]->prefijo.$data[$k-1]->consecutivo;
+                    $lineFormated['nit'] = $data[$k-1]->nit;
+                    $lineFormated['detalle'] = 'CAJA';
+                    $lineFormated['tipo'] = 1;
+                    $lineFormated['valor'] = intval($totalConsec);
+                    $lineFormated['base'] = '0';
+                    $lineFormated['centro_costos'] = '';
+                    $lineFormated['trans_e'] = '';
+                    $lineFormated['plazo'] = '0';
+
+                    fputcsv($fp, $lineFormated);
+
+                    $totalConsec = 0;
+
+
+                } 
+
+                $consecAnterior = $line->consecutivo;
+
+                $lineFormated['cuenta'] = $line->cuenta_contable_venta;
+                $lineFormated['comprobante'] = '';
+                $lineFormated['fecha'] = $line->fecha_facturacion;
+                $lineFormated['documento'] = '00000001';
+                $lineFormated['documento_relacionado'] = $line->prefijo.$line->consecutivo;
+                $lineFormated['nit'] = $line->nit;
+                $lineFormated['detalle'] = $line->nombre_contable_venta;
+                $lineFormated['tipo'] = 2;
+                $lineFormated['valor'] = intval($line->sub);
+                $lineFormated['base'] = 0;
+                $lineFormated['centro_costos'] = '';
+                $lineFormated['trans_e'] = '';
+                $lineFormated['plazo'] = '0';
+
+                if ($line->cuenta_contable_iva){
+                    
+                    if (isset($ivaConsec[$line->cuenta_contable_iva])) {
+                        $ivaConsec[$line->cuenta_contable_iva]['valor'] += intval($line->iva);
+                        $ivaConsec[$line->cuenta_contable_iva]['base'] += intval($line->sub);
+                    } else {
+                        $ivaConsec[$line->cuenta_contable_iva]['valor'] = intval($line->iva);
+                        $ivaConsec[$line->cuenta_contable_iva]['nombre'] = $line->nombre_contable_iva;
+                        $ivaConsec[$line->cuenta_contable_iva]['base'] = intval($line->sub);
+                    }
+
+                }
+
+                $totalConsec += $line->total;
+
+                fputcsv($fp, $lineFormated);
+
+            }
+
+            fclose($fp);
+            dd($dataFormated);
+        }
 
     }
