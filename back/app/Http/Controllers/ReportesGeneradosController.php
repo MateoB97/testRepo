@@ -54,6 +54,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPJasper\PHPJasper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\GenPivotCuadreFormapago;
+use App\GenPivotCuadreTiposdoc;
 
 class ReportesGeneradosController extends Controller
 {
@@ -114,7 +116,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFecha.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -146,10 +148,26 @@ class ReportesGeneradosController extends Controller
             self::executeJasper($input, $params);
         }
 
+        public function movimientosPorFechaPorDia(){
+            $params = $_GET;
+            $input = 'MovimientosPorFechaPorDia';
+            self::executeJasper($input, $params);
+        }
+
         public function movimientosPorFechaGrupo(){
             // dd($_GET);
             $params = $_GET;
             $input = 'DetallesMovimientosPorFecha';
             self::executeJasper($input, $params);
         }
+
+        public function movimientosPorProducto(){
+            // dd($_GET);
+            $params = $_GET;
+            $input = 'MovimientosPorProducto';
+            self::executeJasper($input, $params);
+        }
+
+
+
     }

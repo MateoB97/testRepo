@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -72,7 +72,7 @@
 </head>
 <body>
 	<p>Fecha: {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
-	<h3 style="text-align:center;">CERTIFICADO DE CALIDAD</h3> 
+	<h3 style="text-align:center;">CERTIFICADO DE CALIDAD</h3>
 
 	<table class="table-info">
 		<tbody>
@@ -85,7 +85,7 @@
 					<p>{{ $empresa->direccion }}</p>
 					<p>{{ $empresa->municipio }} - {{ $empresa->departamento }}</p>
 					<p>Codigo Inscripción 002DM</p>
-			
+
 				</td>
 				<td>
 
@@ -95,7 +95,7 @@
 					<p><strong>Dirección:</strong> {{ $sucursal->direccion}}</p>
 					<p><strong>Teléfono:</strong> {{ $sucursal->telefono}}</p>
 					<p><strong>{{ $sucursal->municipio }} - {{ $sucursal->departamento }} </strong></p>
-		
+
 				</td>
 			</tr>
 		</tbody>
@@ -194,10 +194,10 @@
 			<img style="max-width: 100%" src="{{ asset('images/firma.png') }}">
 		</div>
 		<div style="width: 49%; float: right; text-align: justify;">
-			<p class="text-footer">Los animales de los cuales proviene la carne son de animales beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas(Refrigeración de 0-4ºC, Congelacion -18ºC).</p>
-			<p class="text-footer">En caso de petición, queja o reclamo te puedes comunicar al correo pqrssupercarnesjh@gmail.com.</p>
+			<p class="text-footer">Los animales de los cuales proviene la carne son beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas (Refrigeración de 0-4ºC, Congelacion -18ºC).</p>
+			<p class="text-footer">En caso de petición, queja o reclamo comuníquese al correo pqrssupercarnesjh@gmail.com.</p>
 		</div>
 	</div>
-	
+
 </body>
 </html>

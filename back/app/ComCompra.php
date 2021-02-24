@@ -110,6 +110,7 @@ class ComCompra extends Model
             ->where('com_compras.estado', 1)
             ->orderBy('terceros.documento','asc')
             ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('com_compras.fecha_compra', 'asc')
             ->get();
     }
 
@@ -139,6 +140,7 @@ class ComCompra extends Model
             ->where('terceros.id', $tercero_id)
             ->orderBy('terceros.documento','asc')
             ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('com_compras.fecha_compra', 'asc')
             ->get();
     }
 

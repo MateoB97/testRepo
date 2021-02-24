@@ -66,6 +66,7 @@ Route::group(['prefix' => 'users', 'middleware' => 'auth:api'], function(){
 });
 
 Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){
+// Route::group(['prefix' => 'lotes' , 'middleware' => 'auth'], function(){
 	Route::apiResource('marcas', 'LotMarcaController');
 	Route::apiResource('items', 'LotesController');
 	// peso planta
@@ -203,13 +204,14 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 	Route::get('/sucursales/tercerofilter/{id}', 'TerceroSucursalController@terceroFilter');
 });
 
-Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
+// Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
+    Route::group(['prefix' => 'inventario'], function(){
 	Route::apiResource('items', 'InventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
 	Route::delete('produccion/{id}', 'InventariosController@destroy');
 	Route::get('/productonprogram/{idproducto}/{idprogramacion}', 'InventariosController@GetDataExistentes');
 	Route::get('/idfilter/{id}', 'InventariosController@GetInfoSalMercancia');
-	Route::post('/etiqueta-interna', 'InventariosController@imprimirEtiquetaInterna');
+    Route::post('/etiqueta-interna', 'InventariosController@imprimirEtiquetaInterna');
 	Route::post('/reimprimir', 'InventariosController@reimprimir');
 	Route::post('/dividircanasta', 'InventariosController@dividir');
 	Route::get('/piezasimpresas/{idprogramacion}/{idproducto}', 'InventariosController@GetPiezasImpresas');
@@ -218,7 +220,7 @@ Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
 
 Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function(){
 
-	// Route::get('importar/cargarcartera', 'FacMovimientosController@importarDatos');
+	// // Route::get('importar/cargarcartera', 'FacMovimientosController@importarDatos');
 
 	Route::get('editarfactura/{tipodoc}/{consecmov}', 'FacMovimientosController@editarFactura');
 	Route::get('consultarultimo/{tipodoc}', 'FacMovimientosController@ultimoPorTipoDoc');
@@ -341,7 +343,9 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
 	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
-	Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
+    Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
+    Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
+
 });
 
 

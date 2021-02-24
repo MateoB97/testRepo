@@ -123,7 +123,7 @@ class FacMovimiento extends Model
             ->where('tercero_sucursales.id', $sucursal_id)
             ->whereIn('fac_tipo_doc.id', [$tipodoc_id])
             ->where('fac_movimientos.estado', 1)
-            ->orderBy('fac_movimientos.consecutivo','desc')
+            // ->orderBy('fac_movimientos.consecutivo','desc')
             ->get();
     }
 
