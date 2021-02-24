@@ -22,6 +22,7 @@ const routes = [
       { path: 'tipoimpuestos', component: () => import('pages/generales/GenTipoImpuesto.vue') },
       { path: 'impuestos', component: () => import('pages/generales/GenImpuesto.vue') },
       { path: 'iva', component: () => import('pages/generales/GenIva.vue') },
+      { path: 'puc', component: () => import('pages/generales/GenPuc.vue') },
       { path: 'unidades', component: () => import('pages/generales/GenUnidades.vue') },
       { path: 'generalidades', component: () => import('pages/generales/Generalidades.vue') },
       { path: 'cuadrecaja', component: () => import('pages/generales/GenCuadreCaja.vue') },

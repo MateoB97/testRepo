@@ -45,6 +45,6 @@ class ViewSaldosCartera extends Migration
      */
     public function down()
     {
-        B::statement("DROP VIEW ViewSaldosCartera");
+        DB::statement("DROP VIEW ViewSaldosCartera");
     }
 }

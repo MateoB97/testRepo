@@ -29,6 +29,6 @@ class MovsByDate extends Migration
      */
     public function down()
     {
-        B::statement("DROP VIEW MovsByDate");
+        DB::statement("DROP VIEW MovsByDate");
     }
 }

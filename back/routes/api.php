@@ -150,6 +150,7 @@ Route::group(['prefix' => 'generales'/*, 'middleware' => 'auth'*/], function(){
 	Route::get('/tipoimpuestos/estado/{id}/{cambio}', 'GenTipoImpuestoController@estado');
 
 	Route::apiResource('iva', 'GenIvaController');
+	Route::apiResource('genpuc', 'GenPucController');
 
 	Route::apiResource('unidades', 'GenUnidadesController');
 	Route::get('/unidades/estado/{id}/{cambio}', 'GenUnidadesController@estado');
@@ -342,6 +343,10 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
 	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
 	Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
+
+	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
+
+
 });
 
 

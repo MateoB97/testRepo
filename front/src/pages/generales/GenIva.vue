@@ -15,10 +15,72 @@
                     <q-input type="number" v-model="storeItems.soenac_iva_api_id" label="id Fact Electronica"/>
                 </div>
                 <div class="col-3">
-                    <q-input type="number" v-model="storeItems.cuenta_contable_venta" label="Cuenta Cont. Venta"/>
+                    <q-select
+                    v-model="storeItems.cuenta_contable_venta_id"
+                    use-input
+                    autofocus
+                    hide-selected
+                    fill-input
+                    option-value="id"
+                    option-label="nombre"
+                    label="Cuenta contable Venta"
+                    option-disable="inactive"
+                    input-debounce="0"
+                    :options="options.genpuc"
+                    @filter="filterGenpuc"
+                  >
+                      <template v-slot:no-option>
+                      <q-item>
+                          <q-item-section class="text-grey">
+                          No results
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                      <template v-slot:option="scope">
+                      <q-item
+                          v-bind="scope.itemProps"
+                          v-on="scope.itemEvents"
+                      >
+                          <q-item-section>
+                          <q-item-label v-html="scope.opt.codigo + ' - ' + scope.opt.nombre" />
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                    </q-select>
                 </div>
                 <div class="col-3">
-                    <q-input type="number" v-model="storeItems.cuenta_contable_iva" label="Cuenta Cont. IVA"/>
+                    <q-select
+                    v-model="storeItems.cuenta_contable_iva_id"
+                    use-input
+                    autofocus
+                    hide-selected
+                    fill-input
+                    option-value="id"
+                    option-label="nombre"
+                    label="Cuenta contable IVA"
+                    option-disable="inactive"
+                    input-debounce="0"
+                    :options="options.genpuc"
+                    @filter="filterGenpuc"
+                  >
+                      <template v-slot:no-option>
+                      <q-item>
+                          <q-item-section class="text-grey">
+                          No results
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                      <template v-slot:option="scope">
+                      <q-item
+                          v-bind="scope.itemProps"
+                          v-on="scope.itemEvents"
+                      >
+                          <q-item-section>
+                          <q-item-label v-html="scope.opt.codigo + ' - ' + scope.opt.nombre" />
+                          </q-item-section>
+                      </q-item>
+                      </template>
+                    </q-select>
                 </div>
                 <div class="col-3">
                     <q-btn v-if="!showForUpdate" color="primary" v-on:click="globalValidate('guardar')" label="Guardar" />
@@ -77,14 +139,18 @@ export default {
       urlAPI: 'api/generales/iva',
       tableData: [],
       tipos: [],
+      genpuc: null,
+      options: {
+        genpuc: null
+      },
       groupSelected: [],
       columns: [
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'nombre', required: true, label: 'Nombre', align: 'left', field: 'nombre', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'valor_porcentaje', required: true, label: '%', align: 'left', field: 'valor_porcentaje', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'soenac_iva_api_id', required: true, label: 'Soenac API id', align: 'left', field: 'soenac_iva_api_id', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'cuenta_contable_venta', required: true, label: 'Cuenta cont. Venta', align: 'left', field: 'cuenta_contable_venta', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'cuenta_contable_iva', required: true, label: 'Cuenta cont. IVA', align: 'left', field: 'cuenta_contable_iva', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cuenta_contable_venta', required: true, label: 'Cuenta cont. Venta', align: 'left', field: 'cuenta_contable_venta_id', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'cuenta_contable_iva', required: true, label: 'Cuenta cont. IVA', align: 'left', field: 'cuenta_contable_iva_id', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       visibleColumns: ['id', 'nombre', 'tipo', 'actions'],
@@ -102,12 +168,32 @@ export default {
     postSave () {
     },
     preSave () {
+      if (this.storeItems.cuenta_contable_venta_id == null) {
+        delete this.storeItems.cuenta_contable_venta_id
+      } else {
+        this.storeItems.cuenta_contable_venta_id = this.storeItems.cuenta_contable_venta_id.id
+      }
+      if (this.storeItems.cuenta_contable_iva_id == null) {
+        delete this.storeItems.cuenta_contable_iva_id
+      } else {
+        this.storeItems.cuenta_contable_iva_id = this.storeItems.cuenta_contable_iva_id.id
+      }
     },
     postEdit () {
+    },
+    filterGenpuc (val, update, abort) {
+      update(() => {
+        const needle = val.toLowerCase()
+        this.options.genpuc = this.genpuc.filter(v => v.codigo.toLowerCase().indexOf(needle) > -1)
+        if (this.options.genpuc.length < 1) {
+          this.options.genpuc = this.genpuc.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
+        }
+      })
     }
   },
   created: function () {
     this.globalGetItems()
+    this.globalGetForSelect('api/generales/genpuc', 'genpuc')
   },
   computed: {
   }

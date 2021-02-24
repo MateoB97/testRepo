@@ -14,8 +14,12 @@ class ChangeGenIvaTable extends Migration
     public function up()
     {
         Schema::table('gen_iva', function (Blueprint $table) {
-            $table->bigInteger('cuenta_contable_venta')->nullable();
-            $table->bigInteger('cuenta_contable_iva')->nullable();
+
+            $table->unsignedBigInteger('cuenta_contable_iva_id')->nullable();
+            $table->foreign('cuenta_contable_iva_id')->references('id')->on('gen_puc');
+
+            $table->unsignedBigInteger('cuenta_contable_venta_id')->nullable();
+            $table->foreign('cuenta_contable_venta_id')->references('id')->on('gen_puc');
         });
     }
 

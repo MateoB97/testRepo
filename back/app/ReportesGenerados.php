@@ -315,5 +315,10 @@ class ReportesGenerados extends Model
             ->take(20);
     }
 
+    // Reporte para interfaz de las contadoras
+    public static function reporteFacturasIva($fecha_inicial, $fecha_final, $fac_tipo_doc_id){
+        return DB::select("select * from AccountInterfaceView where fecha_facturacion between '$fecha_inicial' and '$fecha_final' and fac_tipo_doc_id = '$fac_tipo_doc_id' order by consecutivo");
+    }
+
 
 }

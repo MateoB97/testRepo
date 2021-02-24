@@ -3,7 +3,7 @@ export default {
   // url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://sgc.estebangonzalez.xyz/back/',
-  url: 'http://' + localStorage.sgc_ip + '/back/public/',
+  url: 'http://192.168.1.4/sgcdev/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://desktop-caermcs/sgc/back/public/',
   // url: 'http://fusion.test/',

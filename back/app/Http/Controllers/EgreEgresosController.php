@@ -83,13 +83,24 @@ class EgreEgresosController extends Controller
         $sucursal = TerceroSucursal::find($egreso->proveedor_id);
         $tercero = $sucursal->tercero;
 
+        $empresa = GenEmpresa::find(1);
+        $municipio = GenMunicipio::find($empresa->gen_municipios_id);
+        $departamento = GenDepartamento::find($municipio->departamento_id);
+
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         // $printer->setJustification(Printer::JUSTIFY_CENTER);
 
         // ENCABEZADO
-        $etiqueta = str_pad($tipoEgreso->nombre, $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad($tipoEgreso->nombre, $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad('Consecutivo: '.$egreso->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
         $etiqueta .= "Cliente: ";

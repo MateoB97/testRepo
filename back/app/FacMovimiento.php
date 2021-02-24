@@ -121,9 +121,9 @@ class FacMovimiento extends Model
             ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
             ->where('fac_tipo_doc.naturaleza', 1)
             ->where('tercero_sucursales.id', $sucursal_id)
-            ->whereIn('fac_tipo_doc.id', [$tipodoc_id])
+            ->whereIn('fac_tipo_doc.id', $tipodoc_id)
             ->where('fac_movimientos.estado', 1)
-            ->orderBy('fac_movimientos.consecutivo','desc')
+            ->orderBy('fac_movimientos.consecutivo','asc')
             ->get();
     }
 
