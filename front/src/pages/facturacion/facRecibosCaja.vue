@@ -225,12 +225,12 @@ export default {
       sucursal_id: null,
       tableData: [],
       columns: [
-        { name: 'tipo', required: true, label: 'TIPO MOVIMIENTO', align: 'left', field: 'tipo', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'tipo', required: true, label: 'TIPO MOVIMIENTO', align: 'left', field: 'tipo', classes: 'my-class', style: 'width: 200px' },
         { name: 'consecutivo', required: true, label: 'CONSECUTIVO', align: 'left', field: 'consecutivo', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'fecha_facturacion', required: true, label: 'FECHA FACTURACIÓN', align: 'left', field: 'fecha_facturacion', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'fecha_vencimiento', required: true, label: 'FECHA VENCIMIENTO', align: 'left', field: 'fecha_vencimiento', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'total', required: true, label: 'TOTALES', align: 'right', field: 'total', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'saldo', required: true, label: 'SALDO', align: 'right', field: 'saldo', sortable: true, classes: 'my-class', style: 'width: 200px' }
+        { name: 'fecha_facturacion', required: true, label: 'FECHA FACTURACIÓN', align: 'left', field: 'fecha_facturacion', classes: 'my-class', style: 'width: 200px' },
+        { name: 'fecha_vencimiento', required: true, label: 'FECHA VENCIMIENTO', align: 'left', field: 'fecha_vencimiento', classes: 'my-class', style: 'width: 200px' },
+        { name: 'total', required: true, label: 'TOTALES', align: 'right', field: 'total', classes: 'my-class', style: 'width: 200px' },
+        { name: 'saldo', required: true, label: 'SALDO', align: 'right', field: 'saldo', classes: 'my-class', style: 'width: 200px' }
 
       ],
       separator: 'horizontal',

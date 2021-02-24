@@ -230,7 +230,7 @@ class GenCuadreCajaController extends Controller
 
         foreach ($ventas  as $venta) {
             // ENCABEZADO
-            $etiqueta .= str_pad('- '.$venta->tipodoc, $caracLinea, " ", STR_PAD_RIGHT);
+            $etiqueta .= str_pad('- '.eliminar_acentos($venta->tipodoc), $caracLinea, " ", STR_PAD_RIGHT);
 
             $etiqueta .= str_pad('-- Total', $caracLinea-18, ".", STR_PAD_RIGHT);
             $etiqueta .= str_pad( number_format($venta->total, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
@@ -268,7 +268,7 @@ class GenCuadreCajaController extends Controller
 
             if (!is_null($ingreso->valor)) {
 
-              $etiqueta .= str_pad($forma->nombre, $caracLinea-18, ".", STR_PAD_RIGHT) . str_pad( number_format($ingreso->valor, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
+              $etiqueta .= str_pad(eliminar_acentos($forma->nombre), $caracLinea-18, ".", STR_PAD_RIGHT) . str_pad( number_format($ingreso->valor, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
 
               $totalIngresos += $ingreso->valor;
 
@@ -300,7 +300,7 @@ class GenCuadreCajaController extends Controller
 
                 $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
                 $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad(strtoupper($tipo->nombre), $caracLinea, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(strtoupper(eliminar_acentos($tipo->nombre)), $caracLinea, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
 
                 foreach ($egresos as $egreso) {
