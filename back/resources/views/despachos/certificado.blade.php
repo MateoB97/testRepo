@@ -71,31 +71,26 @@
 </style>
 </head>
 <body>
-	<p>Fecha: {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
-	<h3 style="text-align:center;">CERTIFICADO DE CALIDAD</h3>
-
+    <p>Fecha: {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
+    <h3 style="text-align:center;">GUIA DE TRANSPORTE</h3>
 	<table class="table-info">
 		<tbody>
-			<tr>
+            <tr>
 				<td>
-
 					<p><strong>{{ strtoupper($empresa->razon_social) }}</strong></p>
 					<p>{{ $empresa->nit }}</p>
 					<p>Tel {{ $empresa->telefono }}</p>
 					<p>{{ $empresa->direccion }}</p>
 					<p>{{ $empresa->municipio }} - {{ $empresa->departamento }}</p>
-					<p>Codigo Inscripción 002DM</p>
-
-				</td>
+					<p>Codigo Inscripción 002DM - {{str_pad($salMercancia->consecutivo, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</p>
+                </td>
 				<td>
-
 					<p> <strong>Cliente: {{ $tercero->nombre}}</strong></p>
 					<p><strong>Nit:</strong> {{ $tercero->documento}}</p>
-					<p><strong>Sucursal:</strong> {{ $sucursal->nombre}}</p>
-					<p><strong>Dirección:</strong> {{ $sucursal->direccion}}</p>
-					<p><strong>Teléfono:</strong> {{ $sucursal->telefono}}</p>
-					<p><strong>{{ $sucursal->municipio }} - {{ $sucursal->departamento }} </strong></p>
-
+					<p><strong>Sucursal:</strong> {{ $sucursal->sucursal_nombre}}</p>
+					<p><strong>Dirección:</strong> {{ $sucursal->sucursal_direccion}}</p>
+					<p><strong>Teléfono:</strong> {{ $sucursal->sucursal_telefono}}</p>
+					<p><strong>{{ $sucursal->municipio_nombre }} - {{ $sucursal->departamento_nombre }} </strong></p>
 				</td>
 			</tr>
 		</tbody>

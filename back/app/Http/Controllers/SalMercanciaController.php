@@ -13,6 +13,9 @@ use PDF;
 use App\GenEmpresa;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\TerceroSucursal;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class SalMercanciaController extends Controller
 {
@@ -42,6 +45,8 @@ class SalMercanciaController extends Controller
     public function store(Request $request)
     {
         $nuevoItem = new SalMercancia($request->all());
+        $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+        $nuevoItem->consecutivo = $lastConsect;
         $nuevoItem->save();
 
         foreach ($request->items as $item) {
@@ -139,26 +144,25 @@ class SalMercanciaController extends Controller
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-
-        $sucursal = $salMercancia->terceroSucursal;
-        if ($sucursal->genMunicipio) {
-            $sucursal->municipio  = $sucursal->genMunicipio->nombre;
-            $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
-        }
+        // $sucursal = $salMercancia->terceroSucursal;
+        $sucursal = TerceroSucursal::getDataSucursal($salMercancia->terceroSucursal_id)->first();
+        // dd($sucursal);
+        // dd($sucurzal);
+        // if ($sucursal->genMunicipio) {
+        //     $sucursal->municipio  = $sucursal->genMunicipio->nombre;
+        //     $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
+        // }
 
         $tercero = $salMercancia->terceroSucursal->tercero;
 
         $items = SalPivotInventSalida::GetDataCertificado($id);
-
         $itemsSumatoria = array();
         $flag = 0;
         $totalCanastas = 0;
         $totalKilos = 0;
-
         foreach ($items as $element) {
 
             $flag = 0;
-
             $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
             $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
             $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
@@ -166,10 +170,8 @@ class SalMercanciaController extends Controller
             $totalKilos += $element->peso;
 
             foreach ($itemsSumatoria  as $elementSumatoria) {
-
-                if (($element->lote == $elementSumatoria->lote) && ($element->producto_id == $elementSumatoria->producto_id)) {
+                if (($element->lote == $elementSumatoria->lote) && ($element->producto_id == $elementSumatoria->producto_id) && ($element ->almacenamiento ==  $elementSumatoria->almacenamiento)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
                     $totalCanastas += 1;
                     $flag = 1;
@@ -183,61 +185,41 @@ class SalMercanciaController extends Controller
             }
         }
 
-        // dd($itemsSumatoria);
-
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
         $pdf = PDF::loadView('despachos.certificado', $data);
-  
+
         // return view('certificados.pdf');
 
         return $pdf->stream();
 
     }
 
-    public function despachoParaFactura ($id) {
+    public function despachoParaFactura ($consec) {
 
-        $salMercancia = SalMercancia::find($id);
-
-        $sucursal = $salMercancia->terceroSucursal;
-        if ($sucursal->genMunicipio) {
-            $sucursal->municipio  = $sucursal->genMunicipio->nombre;
-            $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
-        }
-
-        $tercero = $salMercancia->terceroSucursal->tercero;
-
-        $items = SalPivotSalProducto::pesoDespachoParaFactura($id, $sucursal->prodListaPrecio_id);
-
+        $salMercancia = SalMercancia::findByCosec($consec)->first();
+        $sucursal = TerceroSucursal::getDataSucursal($salMercancia->terceroSucursal_id)->first();
+        $items = self::validarDespacho($consec, $sucursal);
         $itemsSumatoria = array();
         $flag = 0;
         $cantCanastas = 0;
-
         foreach ($items as $element) {
-
             $flag = 0;
-
             $element->peso = number_format($element->peso, 3, '.', '');
-
             foreach ($itemsSumatoria  as $elementSumatoria) {
-
                 if (($element->producto_id == $elementSumatoria->producto_id)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
+
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
 
                     $flag = 1;
                 }
             }
-
             if ($flag != 1) {
                 $element->canastas = 1;
                 array_push($itemsSumatoria, $element);
             }
         }
-
-        // dd($itemsSumatoria);
-
-        return [$itemsSumatoria, $sucursal->id];
+        return [$itemsSumatoria, $sucursal->sucursal_id];
     }
 
     public function pesoDespacho ($id) {
@@ -268,7 +250,7 @@ class SalMercanciaController extends Controller
 
                 if (($element->producto_id == $elementSumatoria->producto_id)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
+
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
 
                     $flag = 1;
@@ -293,9 +275,7 @@ class SalMercanciaController extends Controller
         } else {
             $list = SalMercancia::DateSucursalFilter($fecha_inicial,$fecha_final,$sucursal);
         }
-
         return $list;
-
     }
 
     public function GetDataResumen(Request $request,$id){
@@ -317,7 +297,7 @@ class SalMercanciaController extends Controller
 
         $productos = Inventario::productosPorLote($request->lote_id);
 
-        $flag = 0;        
+        $flag = 0;
         $arrayItems = array();
 
         foreach ($productos as $item) {
@@ -328,8 +308,10 @@ class SalMercanciaController extends Controller
         }
 
         if ( $flag == 0 ){
-            
+
             $nuevoItem = new SalMercancia($request->all());
+            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+            $nuevoItem->consecutivo = $lastConsect;
             $nuevoItem->save();
 
             foreach ($productos as $item) {
@@ -344,29 +326,18 @@ class SalMercanciaController extends Controller
                 $inv->save();
             }
 
-            return 'done';           
+            return 'done';
         } else {
             return 'los siguientes items ya han sido despachados: '.print_r($arrayItems);
         }
     }
 
-    // public function guardarPesoDespacho(Request $request){
-
-    //     $existentes = SalPivotSalProducto::where('sal_mercancia_id',$request->sal_mercancia_id)->get();
-
-    //     foreach ($existentes as $item) {
-    //         $item->delete();   
-    //     }
-
-    //     foreach ($request->lineas as $item) {
-    //         $nuevoItem = new SalPivotSalProducto($item);
-    //         $nuevoItem->sal_mercancia_id = $request->sal_mercancia_id;
-    //         $nuevoItem->save();
-    //     }
-
-    //     return 'done';
-
-    // }
-
-
+    public static function validarDespacho($consec, $sucursal){
+        $items = null;
+        $items = SalPivotSalProducto::pesoDespachoParaFactura($consec, $sucursal->prodListaPrecio_id);
+        if($items->count() == 0 ){
+            $items = SalPivotInventSalida::GetDataCertificadoByConsec($consec); //Despachos de lote completo.
+        }
+        return $items;
+    }
 }

@@ -62,7 +62,8 @@ class SalPivotInventSalida extends Model
                 'prod_grupos.nombre as grupo',
                 'producto_terminados.almacenamiento as almacenamiento',
                 'producto_terminados.dias_vencimiento as vencimiento',
-                'sal_mercancias.created_at as fecha_sal_mercancia'
+                'sal_mercancias.created_at as fecha_sal_mercancia',
+                'sal_mercancias.consecutivo as consecutivo'
             )
             ->join('inventarios', 'inventarios.id', '=', 'sal_pivot_invent_salidas.inventario_id')
             ->join('sal_mercancias', 'sal_mercancias.id', '=', 'sal_pivot_invent_salidas.salMercancia_id')
@@ -76,6 +77,29 @@ class SalPivotInventSalida extends Model
             ->orderBy('productos.nombre')
             ->get();
     }
+
+    public static function GetDataCertificadoByConsec($consec){
+        return DB::table('sal_pivot_invent_salidas')
+                ->select(
+                    'productos.id as producto_id',
+                    'productos.codigo As codigo',
+                    'inventarios.cantidad as peso',
+                    'prod_pivot_lista_productos.precio',
+                    'sal_mercancias.consecutivo'
+                )
+                ->join('inventarios', 'inventarios.id', '=', 'sal_pivot_invent_salidas.inventario_id')
+                ->join('sal_mercancias', 'sal_mercancias.id', '=', 'sal_pivot_invent_salidas.salMercancia_id')
+                ->join('productos', 'inventarios.producto_id', '=', 'productos.id')
+                ->join('prod_pivot_lista_productos', 'prod_pivot_lista_productos.producto_id', '=', 'productos.id')
+                ->join('prod_subgrupos', 'productos.prod_subgrupo_id', '=', 'prod_subgrupos.id')
+                ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
+                ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
+                ->join('lot_programaciones', 'producto_terminados.prog_lotes_id', '=', 'lot_programaciones.id')
+                ->join('lotes', 'lot_programaciones.lote_id', '=', 'lotes.id')
+                ->where('sal_mercancias.consecutivo','=', $consec)
+                ->orderBy('productos.nombre')
+                ->get();
+        }
 
     public static function despachoParaPesoDespacho($id){
     return DB::table('sal_pivot_invent_salidas')

@@ -221,7 +221,7 @@ export default {
         noProductos: false
       },
       Columns: [
-        { name: 'consecutivo', required: true, label: 'Consec', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'consecutivo', required: true, label: 'Consecutivo', align: 'left', field: 'consecutivo', sortable: true, classes: 'my-class', style: 'width: 100px' },
         { name: 'tercero', required: true, label: 'Tercero', align: 'left', field: 'tercero', sortable: true, classes: 'my-class', style: 'width: 100px' },
         { name: 'sucursal', required: true, label: 'Sucursal', align: 'left', field: 'sucursal', sortable: true, classes: 'my-class', style: 'width: 100px' },
         { name: 'fecha', required: true, label: 'Fecha', align: 'left', field: 'fecha', sortable: true, classes: 'my-class', style: 'width: 100px' },
