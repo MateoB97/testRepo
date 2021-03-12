@@ -652,6 +652,8 @@ class FacMovimientosController extends Controller
 
     public function printPOS($id, $copia){
 
+        GenEmpresa::setCaractLinea(48);
+
         $nuevoItem = FacMovimiento::find($id);
         $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
@@ -684,30 +686,29 @@ class FacMovimientosController extends Controller
                 $img = EscposImage::load("../public/images/logo1.png");
                 $printer->graphics($img);
             }
-            $etiqueta = str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-
+            $etiqueta = posLineaBlanco();
+            $etiqueta .= posHeaderEmpresa();
+            $etiqueta .= posLineaBlanco();
             // DATOS DE FACTURACION
             if ($tipoDoc->prefijo) {
-                $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= posLineaCentro("DE: ".$tipoDoc->prefijo.' '.$tipoDoc->ini_num_fac. " A ".$tipoDoc->prefijo.' '.$tipoDoc->fin_num_fac);
             } else {
-                $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= posLineaCentro("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac);
             }
-            $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VIGENCIA 18 MESES", $caractPorlinea, "-", STR_PAD_BOTH);
+
+            $array = array(
+                "N RESOLUCION: ".$tipoDoc->resolucion,
+                "FECHA: ".$tipoDoc->fec_resolucion,
+            );
+
+            $etiqueta .= posArrayCentro($array);
+            $etiqueta .= posLineaGuion();
+            $etiqueta .= posLineaBlanco();
 
             // DATOS DE LA VENTA
-            $etiqueta .= str_pad("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= posLineaCentro("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion);
+            $etiqueta .= posLineaCentro("VENDEDOR: ".GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre);
+
             if ($copia == 1) {
                 $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
             }

@@ -189,8 +189,11 @@ class ReportesGeneradosController extends Controller
 
             foreach ($data as $k => $line) {
                 
+                // cambio de consecutivo
                 if ($consecAnterior != $line->consecutivo && $k != 0)  {
 
+                    // cuando se encuentra que se va a cambiar de consecutivo
+                    // se imprimen los ivas del consecutivo anterior
                     foreach ($ivaConsec as $j => $iva) {
 
                         $lineFormated['cuenta'] = $j;
@@ -210,8 +213,10 @@ class ReportesGeneradosController extends Controller
                         fputcsv($fp, $lineFormated);
                     }
 
+                    // reiniciar ivas
                     $ivaConsec = array();
 
+                    // imprimir contraparte de caja
                     $lineFormated['cuenta'] = '11050505';
                     $lineFormated['comprobante'] = '';
                     $lineFormated['fecha'] = $data[$k-1]->fecha_facturacion;
@@ -233,8 +238,10 @@ class ReportesGeneradosController extends Controller
 
                 } 
 
+                // set consec actual como consec anterior para validacion
                 $consecAnterior = $line->consecutivo;
 
+                // print linea de factura
                 $lineFormated['cuenta'] = $line->cuenta_contable_venta;
                 $lineFormated['comprobante'] = '';
                 $lineFormated['fecha'] = $line->fecha_facturacion;
@@ -249,6 +256,7 @@ class ReportesGeneradosController extends Controller
                 $lineFormated['trans_e'] = '';
                 $lineFormated['plazo'] = '0';
 
+                // si cuenta contable 
                 if ($line->cuenta_contable_iva){
                     
                     if (isset($ivaConsec[$line->cuenta_contable_iva])) {
@@ -267,6 +275,23 @@ class ReportesGeneradosController extends Controller
                 fputcsv($fp, $lineFormated);
 
             }
+
+            // imprimir contraparte de caja
+            $lineFormated['cuenta'] = '11050505';
+            $lineFormated['comprobante'] = '';
+            $lineFormated['fecha'] = $data[$k]->fecha_facturacion;
+            $lineFormated['documento'] = '00000001';
+            $lineFormated['documento_relacionado'] = $data[$k]->prefijo.$data[$k]->consecutivo;
+            $lineFormated['nit'] = $data[$k]->nit;
+            $lineFormated['detalle'] = 'CAJA';
+            $lineFormated['tipo'] = 1;
+            $lineFormated['valor'] = intval($totalConsec);
+            $lineFormated['base'] = '0';
+            $lineFormated['centro_costos'] = '';
+            $lineFormated['trans_e'] = '';
+            $lineFormated['plazo'] = '0';
+
+            fputcsv($fp, $lineFormated);
 
             fclose($fp);
             dd($dataFormated);
