@@ -298,6 +298,7 @@ export default {
     }
   },
   created: function () {
+    console.log(this.type)
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + this.type, 'programaciones')
     this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')

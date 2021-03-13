@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class GenEmpresa extends Model
 {
+
+    private $caractLinea = 0;
+
     protected $table = 'gen_empresa';
 
     protected $fillable = [
@@ -38,4 +41,14 @@ class GenEmpresa extends Model
     {
         return dateTimeSql();
     }
+
+
+    public static function setCaractLinea($int){
+        $this->caractLinea = $int;
+    }
+
+    public static function getCaractLinea($int){
+        return $this->caractLinea;
+    }
+
 }

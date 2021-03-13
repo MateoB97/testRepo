@@ -54,6 +54,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPJasper\PHPJasper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\GenPivotCuadreFormapago;
+use App\GenPivotCuadreTiposdoc;
+use App\SalPivotInventSalida;
+use App\SalPivotSalProducto;
+use App\LotProgramacion;
 
 class ReportesGeneradosController extends Controller
 {
@@ -114,7 +119,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxc.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxctraslado.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -132,42 +137,39 @@ class ReportesGeneradosController extends Controller
             $params = $_GET;
             $input = 'reportcxc';
             self::executeJasper($input, $params);
+        }
 
+        public function saldosCarteraTR(){
+
+            $params = $_GET;
+            $input = 'reportcxctraslado';
+            self::executeJasper($input, $params);
         }
 
         public function movimientosPorFecha(){
-            // dd($_GET);
             $params = $_GET;
-            // if((isset($params['fecha_inicial']) && isset($params['fecha_final']) && isset($params['tercero_id'])) && !isset($params['sucursal_id']) ){
-            //     $input = 'MovimientosPorFechaTercero';
-            // }else{
             $input = 'MovimientosPorFecha';
-            // }
+            self::executeJasper($input, $params);
+        }
+
+        public function movimientosPorFechaPorDia(){
+            $params = $_GET;
+            $input = 'MovimientosPorFechaPorDia';
             self::executeJasper($input, $params);
         }
 
         public function movimientosPorFechaGrupo(){
             // dd($_GET);
             $params = $_GET;
-            $input = 'DetallesMoviemientosPorFecha';
+            $input = 'DetallesMovimientosPorFecha';
             self::executeJasper($input, $params);
         }
 
-        public function testing(){
-            $fecha_inicial2 = '22-08-2020';
-            $fecha_final2 = '22-08-2020';
-            $rows = Collect();
-            $sumsVentasServicios = ['Ventas','Servicios'];
-            $rows = ReportesGenerados::selectViewAccount($fecha_inicial2, $fecha_final2);
-            dd($rows);
-            // $rows = DB::select("select * from AccountantView where fecha_facturacion = '$fecha_inicial' order by consecutivo");
-            // dd($rows);
-            foreach($rows as $row){
-                dd($row);
-            //     // foreach($row as $data){
-            //     //     dd($data);
-            //     // }
-            }
+        public function movimientosPorProducto(){
+            // dd($_GET);
+            $params = $_GET;
+            $input = 'MovimientosPorProducto';
+            self::executeJasper($input, $params);
         }
 
         public function vistaInterfazContadoras ($fecha_ini, $fecha_fin) {
@@ -191,8 +193,11 @@ class ReportesGeneradosController extends Controller
 
             foreach ($data as $k => $line) {
                 
+                // cambio de consecutivo
                 if ($consecAnterior != $line->consecutivo && $k != 0)  {
 
+                    // cuando se encuentra que se va a cambiar de consecutivo
+                    // se imprimen los ivas del consecutivo anterior
                     foreach ($ivaConsec as $j => $iva) {
 
                         $lineFormated['cuenta'] = $j;
@@ -212,8 +217,10 @@ class ReportesGeneradosController extends Controller
                         fputcsv($fp, $lineFormated);
                     }
 
+                    // reiniciar ivas
                     $ivaConsec = array();
 
+                    // imprimir contraparte de caja
                     $lineFormated['cuenta'] = '11050505';
                     $lineFormated['comprobante'] = '';
                     $lineFormated['fecha'] = $data[$k-1]->fecha_facturacion;
@@ -233,10 +240,12 @@ class ReportesGeneradosController extends Controller
                     $totalConsec = 0;
 
 
-                } 
+                }
 
+                // set consec actual como consec anterior para validacion
                 $consecAnterior = $line->consecutivo;
 
+                // print linea de factura
                 $lineFormated['cuenta'] = $line->cuenta_contable_venta;
                 $lineFormated['comprobante'] = '';
                 $lineFormated['fecha'] = $line->fecha_facturacion;
@@ -251,8 +260,9 @@ class ReportesGeneradosController extends Controller
                 $lineFormated['trans_e'] = '';
                 $lineFormated['plazo'] = '0';
 
+                // si cuenta contable 
                 if ($line->cuenta_contable_iva){
-                    
+
                     if (isset($ivaConsec[$line->cuenta_contable_iva])) {
                         $ivaConsec[$line->cuenta_contable_iva]['valor'] += intval($line->iva);
                         $ivaConsec[$line->cuenta_contable_iva]['base'] += intval($line->sub);
@@ -269,6 +279,23 @@ class ReportesGeneradosController extends Controller
                 fputcsv($fp, $lineFormated);
 
             }
+
+            // imprimir contraparte de caja
+            $lineFormated['cuenta'] = '11050505';
+            $lineFormated['comprobante'] = '';
+            $lineFormated['fecha'] = $data[$k]->fecha_facturacion;
+            $lineFormated['documento'] = '00000001';
+            $lineFormated['documento_relacionado'] = $data[$k]->prefijo.$data[$k]->consecutivo;
+            $lineFormated['nit'] = $data[$k]->nit;
+            $lineFormated['detalle'] = 'CAJA';
+            $lineFormated['tipo'] = 1;
+            $lineFormated['valor'] = intval($totalConsec);
+            $lineFormated['base'] = '0';
+            $lineFormated['centro_costos'] = '';
+            $lineFormated['trans_e'] = '';
+            $lineFormated['plazo'] = '0';
+
+            fputcsv($fp, $lineFormated);
 
             fclose($fp);
             dd($dataFormated);
