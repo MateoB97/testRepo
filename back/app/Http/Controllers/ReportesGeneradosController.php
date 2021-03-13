@@ -56,6 +56,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\GenPivotCuadreFormapago;
 use App\GenPivotCuadreTiposdoc;
+use App\SalPivotInventSalida;
+use App\SalPivotSalProducto;
+use App\LotProgramacion;
 
 class ReportesGeneradosController extends Controller
 {
@@ -116,7 +119,7 @@ class ReportesGeneradosController extends Controller
         }
 
         public function compileJrXml(){
-            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto.jrxml';
+            $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxctraslado.jrxml';
             $jasper = new PHPJasper;
             $jasper->compile($input)->execute();
         }
@@ -134,17 +137,18 @@ class ReportesGeneradosController extends Controller
             $params = $_GET;
             $input = 'reportcxc';
             self::executeJasper($input, $params);
+        }
 
+        public function saldosCarteraTR(){
+
+            $params = $_GET;
+            $input = 'reportcxctraslado';
+            self::executeJasper($input, $params);
         }
 
         public function movimientosPorFecha(){
-            // dd($_GET);
             $params = $_GET;
-            // if((isset($params['fecha_inicial']) && isset($params['fecha_final']) && isset($params['tercero_id'])) && !isset($params['sucursal_id']) ){
-            //     $input = 'MovimientosPorFechaTercero';
-            // }else{
             $input = 'MovimientosPorFecha';
-            // }
             self::executeJasper($input, $params);
         }
 
@@ -236,7 +240,7 @@ class ReportesGeneradosController extends Controller
                     $totalConsec = 0;
 
 
-                } 
+                }
 
                 // set consec actual como consec anterior para validacion
                 $consecAnterior = $line->consecutivo;
@@ -258,7 +262,7 @@ class ReportesGeneradosController extends Controller
 
                 // si cuenta contable 
                 if ($line->cuenta_contable_iva){
-                    
+
                     if (isset($ivaConsec[$line->cuenta_contable_iva])) {
                         $ivaConsec[$line->cuenta_contable_iva]['valor'] += intval($line->iva);
                         $ivaConsec[$line->cuenta_contable_iva]['base'] += intval($line->sub);

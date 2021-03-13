@@ -69,9 +69,10 @@ class LotProgramacion extends Model
             ->join('prod_grupos', 'lotes.prodGrupo_id', '=', 'prod_grupos.id')
             ->where('lotes.estado','=', 1)
             ->where('lot_programaciones.estado','!=', 2)
-            ->when($producto_empacado, function ($query, $producto_empacado) {
-                return $query->where('lotes.producto_empacado', $producto_empacado);
-            })
+            ->where('lotes.producto_empacado','=', $producto_empacado)
+            // ->when($producto_empacado, function ($query, $producto_empacado) {
+            //     return $query->where('lotes.producto_empacado', '=', $producto_empacado);
+            // })
             ->orderBy('programacion_id','desc')
             ->get();
     }

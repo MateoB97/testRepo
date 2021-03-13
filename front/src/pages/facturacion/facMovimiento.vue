@@ -175,7 +175,7 @@
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input filled v-model="orden" ref="scan" v-on:keyup.enter="buscarLineasOrden" label="Orden..." />
               </div>
-              <div  v-if="empresa.fact_grupo" class="col-12">
+              <div  v-if="empresa.fact_grupo" class="col-6">
                 <q-select
                   class="w-100"
                   v-model="storeItems.prod_grupo_id"
@@ -199,6 +199,9 @@
                     </q-item>
                   </template>
                 </q-select>
+              </div>
+              <div class="col-6">
+                <q-input label="Guia Transporte" v-model="storeItems.guiaTransporte" class="date-field" readonly :rules="['string'] " />
               </div>
               <!-- Fin datos solo para facturas -->
               <!-- // -->
@@ -506,14 +509,13 @@ export default {
       this.$refs.scan.focus()
     },
     preSave () {
+      this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
+      this.storeItems.sal_mercancia_consec = parseInt(this.storeItems.guiaTransporte)
       if (parseInt(this.tipoDoc.naturaleza) === 1 || parseInt(this.tipoDoc.naturaleza) === 4) {
         this.storeItems.lineas = this.dataResumen
         this.storeItems.cliente_id = this.sucursal
         if (this.storeItems.gen_vendedor_id) {
           this.storeItems.gen_vendedor_id = this.storeItems.gen_vendedor_id.id
-        }
-        if (this.storeItems.prod_grupo_id) {
-          this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
         }
         this.storeItems.total = parseInt(this.total)
         this.storeItems.subtotal = parseInt(this.subtotal)
@@ -820,7 +822,8 @@ export default {
             if (app.storeItems.gen_vendedor_id === undefined) {
               app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
             }
-          } else {
+            app.storeItems.guiaTransporte = app.num_tiquete
+          } else { // Aqui o Antes?
             app.$q.notify({ color: 'negative', message: 'Error al leer el despac.' })
           }
           app.num_tiquete = null

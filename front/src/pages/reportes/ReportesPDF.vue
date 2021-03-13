@@ -215,6 +215,13 @@
                       :tercerosFilter="true"
                     />
                   </div>
+                  <div class="col-4">
+                    <GlobalFiltersComponent
+                      titleBtn="CXC Traslados"
+                      url="api/reportesgenerados/reportes/saldocarteratr"
+                      :tercerosFilter="true"
+                    />
+                  </div>
                 <div class="col-4">
                     <a target="_blank" :href="$store.state.jhsoft.url+'api/compras/informes/cuentasporpagar'+'?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs w-100" color="primary">CXP</q-btn> </a>
                 </div>
@@ -287,10 +294,11 @@
                   <GlobalFiltersComponent
                       titleBtn="Movimientos x Producto"
                       url="api/reportesgenerados/reportes/movimientosPorProducto"
-                      :tercerosFilter="false"
+                      :tercerosFilter="true"
                       :tipoDocFilter="false"
                       :datesFilter="true"
                       :gruposFilter="false"
+                      :productosFilter="true"
                       :dateUnique="0"
                     />
                     <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->

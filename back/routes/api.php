@@ -343,6 +343,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/compilejrxml', 'ReportesGeneradosController@compileJrXml');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
+    Route::get('/reportes/saldocarteratr', 'ReportesGeneradosController@saldosCarteraTR');
 	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
     Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');

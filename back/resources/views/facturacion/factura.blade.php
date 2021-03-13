@@ -129,6 +129,7 @@
 									<p>{{ $movimiento->fecha_facturacion }}</p>
 								</td>
 							</tr>
+
 						</tbody>
 					</table>
 				</td>
@@ -163,6 +164,9 @@
 				@if ( $tipoDoc->naturaleza == 1)
 					<p><strong>Fecha Facturación:</strong> {{ $movimiento->fecha_facturacion }} </p>
 					<p><strong>Fecha Vencimiento:</strong> {{ $movimiento->fecha_vencimiento }} </p>
+                    @if ( $movimiento->sal_mercancia_consec != null)
+                        <p><strong>Codigo Inscripción 002DM - {{str_pad($movimiento->sal_mercancia_consec, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</strong></p>
+                    @endif
 				@else
                     <p><strong>Fecha Movimiento:</strong> {{ $movimiento->fecha_facturacion }} </p>
                 @endif

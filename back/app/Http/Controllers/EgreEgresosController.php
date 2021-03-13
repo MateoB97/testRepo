@@ -29,7 +29,7 @@ class EgreEgresosController extends Controller
 
         if ( count(EgreEgreso::all()) > 0 ){
             $consecutivo = EgreEgreso::all()->last();
-            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1; 
+            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
         }else{
             $nuevoItem->consecutivo = 1;
         }
@@ -93,26 +93,26 @@ class EgreEgresosController extends Controller
         // $printer->setJustification(Printer::JUSTIFY_CENTER);
 
         // ENCABEZADO
-        $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta  = str_pad(strtoupper(eliminar_acentos($empresa->razon_social)), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->direccion)), $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(strtoupper(eliminar_acentos($municipio->nombre))." - ".strtoupper(eliminar_acentos($departamento->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad($tipoEgreso->nombre, $caractPorlinea, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(eliminar_acentos($tipoEgreso->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad('Consecutivo: '.$egreso->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
         $etiqueta .= "Cliente: ";
-        $etiqueta .= str_pad($tercero->nombre, $caractPorlinea - 9, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(eliminar_acentos($tercero->nombre), $caractPorlinea - 9, " ", STR_PAD_BOTH);
         $etiqueta .= "Sucursal: ";
-        $etiqueta .= str_pad($sucursal->nombre, $caractPorlinea - 10, " ", STR_PAD_BOTH);
+        $etiqueta .= str_pad(eliminar_acentos($sucursal->nombre), $caractPorlinea - 10, " ", STR_PAD_BOTH);
         $etiqueta .= "Fecha: ";
         $etiqueta .= str_pad($egreso->created_at, $caractPorlinea - 7, " ", STR_PAD_BOTH);
         $etiqueta .= "Valor: ";
         $etiqueta .= str_pad('$ '.number_format($egreso->valor, 0, ',', '.'), $caractPorlinea - 7, " ", STR_PAD_BOTH);
         $etiqueta .= str_pad("Descripcion: ", $caractPorlinea, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('- '.$egreso->descripcion, $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+        $etiqueta .= str_pad('- '.eliminar_acentos($egreso->descripcion), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
         $etiqueta .= "Usuario: ";
         $etiqueta .= str_pad($user->name, $caractPorlinea - 9, " ", STR_PAD_BOTH);
 

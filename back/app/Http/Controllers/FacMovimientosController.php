@@ -636,9 +636,8 @@ class FacMovimientosController extends Controller
             // dd($data);
         } else {
             $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument];
-            // dd($data);
         }
-
+            // dd($data);
         if ($tipoDoc->formato_impresion == 1) {
             $pdf = PDF::loadView('facturacion.factura', $data);
         } elseif ($tipoDoc->formato_impresion == 2) {
@@ -1598,6 +1597,7 @@ class FacMovimientosController extends Controller
         } else if ($mes == 12) {
             $mes = 'C';
         }
+
 
         $date = Carbon::now();
         $fechaIni = $date->format('d/m/Y');
