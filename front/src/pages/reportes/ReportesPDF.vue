@@ -141,7 +141,7 @@
                       <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final +'?token='+ $store.state.jhsoft.token">
                         <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
                       </a>
-                      <!-- <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/impresionmovsporfecha/' + fecha_inicial + '/' + fecha_final">
+                      <!-- <a target="_blank" :href="$store.state.jhsoft.url+'api/reportesgenerados/movsporfechat80/' + fecha_inicial + '/' + fecha_final">
                         <q-btn class="q-ml-xs" icon="local_printshop" color="primary">Generar POS</q-btn>
                       </a> -->
                     </div>
@@ -341,10 +341,10 @@ export default {
         listaprecios: this.listaprecios
       },
       rutas_fechas: [
-        'api/facturacion/informes/ventasnetasporfecha/',
-        'api/facturacion/informes/recaudoporfecha/',
+        'api/reportesgenerados/ventasnetasporfecha/',
+        'api/reportesgenerados/recaudoporfecha/',
         'api/compras/informes/comprasnetasporfecha/',
-        'api/facturacion/informes/formasdepagopormovimientoporfecha/',
+        'api/reportesgenerados/formasdepagopormovimientoporfecha/',
         'api/facturacion/informes/movimientosporfecha/',
         'api/facturacion/informes/movimientosporfechaportercero/',
         'api/reportesgenerados/reportes/saldosencartera/',
@@ -423,7 +423,7 @@ export default {
   },
   printPoscxc: function () {
     var app = this
-    axios.get('http://localhost/fusionback/public/api/facturacion/movimientos/filtro/imprescioncxc').then(
+    axios.get(app.$store.state.jhsoft.url + 'api/reportesgenerados/cxct80').then(
       function (response) {
         if (response) {
           return app.$q.notify({ color: 'negative', message: 'Impresión con exito' })

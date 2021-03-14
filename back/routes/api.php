@@ -196,6 +196,20 @@ Route::group(['prefix' => 'generales'/*, 'middleware' => 'auth'*/], function(){
 	Route::get('/empresa/configuracion/obtenermac', 'GenEmpresaController@obtenerMAC');
 });
 
+Route::group(['prefix' => 'basculas'/*, 'middleware' => 'auth'*/], function(){
+
+	Route::get('readtiquetedibal/{tiquete}', 'GenBasculasController@readTiqueteDibal');
+	Route::get('readtiqueteepelsa/{tiquete}', 'GenBasculasController@readTiqueteEpelsa');
+
+	Route::get('/tiquetenofacturadosmarques/{fecha}', 'GenBasculasController@tiquetesNoFacturadosMarques');
+	Route::get('/tiquetenofacturados/{fecha}', 'GenBasculasController@tiquetesNoFacturados');
+
+	Route::get('/tiquetenofacturadospdf/{fecha}', 'GenBasculasController@tiquetesNoFacturadosPDF');
+
+	Route::get('/verificartiquetemarques/{tiquete}/{puesto}/{fecha}', 'GenBasculasController@verificarTiqueteMarques');
+
+});
+
 Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 	Route::apiResource('items', 'TerceroController');
 	Route::get('/items/estado/{id}/{cambio}', 'TerceroController@estado');
@@ -206,7 +220,7 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 });
 
 // Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
-    Route::group(['prefix' => 'inventario'], function(){
+Route::group(['prefix' => 'inventario'], function(){
 	Route::apiResource('items', 'InventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
 	Route::delete('produccion/{id}', 'InventariosController@destroy');
@@ -245,10 +259,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
     Route::get('movimientos/filtro/allnotas/', 'FacMovimientosController@allNotas');
     Route::get('movimientos/filtro/notaporid/{id}', 'FacMovimientosController@notaPorId');
     Route::get('movimientos/filtro/reciboporid/{id}', 'FacMovimientosController@reciboPorId');
-
-    Route::get('movimientos/filtro/imprescioncxc/', 'FacMovimientosController@saldosEnCarteraT80');
-    Route::get('movimientos/filtro/impresionmovsporfecha/{fechaini}/{fechafin}', 'FacMovimientosController@movimientosPorFechaT80');
-
+    
     Route::get('movimientos/filtro/testing/', 'FacMovimientosController@testimpresioncxc');//TESTING
 
 	Route::get('/imprimir/{id}', 'FacMovimientosController@generatePDF');
@@ -260,29 +271,10 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 	Route::get('/movrelacionado/{id}/items-abiertos', 'FacMovRelacionadosController@getItemsMovPrimarioAbiertos');
 	Route::get('/movrelacionado/{id}/items', 'FacMovRelacionadosController@getItemsMovPrimarios');
 
-	Route::get('/informes/saldoencartera', 'FacMovimientosController@saldosEnCartera');
-	Route::get('/informes/saldoencarteraxcliente/{tercerdo_id}', 'FacMovimientosController@saldosEnCarteraxTercero');
-	Route::get('/informes/ventasnetasporfecha/{fechaini}/{fechafin}', 'FacMovimientosController@ventasNetasPorFecha');
-	Route::get('/informes/recaudoporfecha/{fechaini}/{fechafin}', 'FacMovimientosController@recaudoPorFecha');
-	Route::get('/informes/movimientosporfecha/{fechaini}/{fechafin}', 'FacMovimientosController@movimientosPorFecha');
-	Route::get('/informes/movimientosporfechaportercero/{fechaini}/{fechafin}/{sucursal_id}', 'FacMovimientosController@movimientosPorFechaPorTercero');
-	Route::get('/informes/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'FacMovimientosController@movimientosConFormaPagoPorFecha');
-
-	Route::get('readtiquetedibal/{tiquete}', 'FacMovimientosController@readTiqueteDibal');
-	Route::get('readtiqueteepelsa/{tiquete}', 'FacMovimientosController@readTiqueteEpelsa');
 	Route::get('readdespacho/{despacho_id}', 'SalMercanciaController@despachoParaFactura');
-	Route::get('tiquetesbasculadia/{bascula}/{fecha}', 'FacMovimientosController@tiquetesDiaBascula');
-	Route::get('/movimientos/verificartiquetedibal/{tiquete}', 'FacMovimientosController@verificarTiqueteDibal');
-	Route::get('/movimientos/verificartiquetemarques/{tiquete}/{puesto}/{fecha}', 'FacMovimientosController@verificarTiqueteMarques');
-	Route::get('/tiquetenofacturados/{fecha}', 'FacMovimientosController@tiquetesNoFacturados');
-	Route::get('/tiquetenofacturadosmarques/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosMarques');
-	Route::get('/tiquetenofacturadospdf/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosPDF');
-	Route::get('/tiquetenofacturadosmarquespdf/{fecha}', 'FacMovimientosController@tiquetesNoFacturadosMarquesPDF');
-
 	Route::get('/facturacionelectronica/eliminardatoshabilitacion', 'FacMovimientosController@eliminarDatosHabilitacion');
 	Route::get('/datafacturacionelectronica/{id}', 'FacMovimientosController@dataFacturaElectronica');
 	Route::post('/agregarcufe/{id}', 'FacMovimientosController@agregarCufe');
-
 	Route::post('/enviarfacturasoenac','FacMovimientosController@sendFactToSoenac');
 
 });
@@ -294,21 +286,13 @@ Route::group(['prefix' => 'compras'], function(){
 	Route::apiResource('comproegreso', 'ComComproEgresoController');
 	Route::get('tipos/filtro/compras', 'ComTipoComprasController@compras');
 
-	// Route::get('movimientos/filtro/portipo/{id}', 'FacMovimientosController@porTipos');
-	// Route::get('compras/filtro/porsucursalytipo/{idsucursal}/{idtipo}', 'FacMovimientosController@porSucursal');
-	// Route::get('movimientos/filtro/facturasporsucursal/{idsucursal}', 'FacMovimientosController@facturasPendientesPorSucursal');
 	Route::get('filtro/comprasporsucursalytipodoc/{idsucursal}/{idtipodoc}', 'ComComprasController@comprasPendientesPorSucursalYTipo');
-	// Route::get('movimientos/filtro/todotiposucursalgrupo', 'FacMovimientosController@todosConTipoSucursalGrupo');
-	// Route::get('movimientos/filtro/facturaspendientesparanotas/{idsucursal}/{idtipodoc}', 'FacMovimientosController@FacturasPendientesParaNotas');
 	Route::get('comprasitems/filtro/porcompra/{id}', 'ComPivotCompraProductosController@porCompra');
 
 	Route::get('/imprimir/{id}', 'ComComprasController@generatePDF');
-	// Route::get('/imprimirpos/{id}', 'ComComprasController@printPOS');
 	Route::get('/comprobanteegreso/imprimir/{id}', 'ComComproEgresoController@generatePDF');
 	Route::get('/comprobanteegreso/imprimirpos/{id}', 'ComComproEgresoController@printPOS');
 
-	// Route::get('/movrelacionado/{id}', 'FacMovRelacionadosController@getMovPrimario');
-	// Route::get('/movrelacionado/{id}/items-abiertos', 'FacMovRelacionadosController@getItemsMovPrimarioAbiertos');
 	Route::get('/movrelacionado/{id}/items', 'ComTipoCompraRelacionadoController@getItemsMovPrimarios');
 
 	Route::get('/informes/cuentasporpagar', 'ComComprasController@cuentasPorPagar');
@@ -336,6 +320,8 @@ Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
 	Route::get('/productosporlote/{id}', 'InventariosController@GetProductosPorLotePDF');
 });
 
+
+
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
 
     Route::get('/reportes/testing', 'ReportesGeneradosController@testing');
@@ -348,6 +334,14 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
+
+    Route::get('/cxct80/', 'ReportesGeneradosController@saldosEnCarteraT80');
+    Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
+
+    Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');
+    Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
+
+    Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
 });
 
 

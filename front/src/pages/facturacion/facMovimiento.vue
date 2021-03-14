@@ -39,6 +39,7 @@
             </q-layout>
           </q-dialog>
         <!-- fin popup impresion al guardar -->
+
         <!-- inicio popup ingresar pago -->
           <q-dialog tabindex="0" @keyup.enter="localValidate()" v-model="openedAddPago" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
             <q-layout view="Lhh lpR fff" container style="height: 50vh; max-width: 800px" class="bg-white">
@@ -166,11 +167,11 @@
                 </q-select>
               </div>
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
-                <q-input v-if="empresa.tipo_escaner == 1" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteDibal" label="Escanear..."   />
-                <q-input v-if="empresa.tipo_escaner == 2" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteMarques" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho" label="Escanear..." />
+                <q-input v-if="empresa.tipo_escaner == 1" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteDibal()" label="Escanear..."   />
+                <q-input v-if="empresa.tipo_escaner == 2" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteMarques()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho()" label="Escanear..." />
               </div>
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input filled v-model="orden" ref="scan" v-on:keyup.enter="buscarLineasOrden" label="Orden..." />
@@ -363,6 +364,7 @@
 
 <script>
 import { globalFunctions } from 'boot/mixins.js'
+import { helperFacturacionScanerLineas } from 'boot/helpers/facturacion/scanerLineas.js'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
 import AddProductoManual from 'components/productos/addProductoManual'
 import NavMovComponent from 'components/facturacion/navegador.vue'
@@ -470,7 +472,7 @@ export default {
       }
     }
   },
-  mixins: [globalFunctions],
+  mixins: [globalFunctions, helperFacturacionScanerLineas],
   methods: {
     postSave (callback = null) {
       this.$router.push({ name: 'movimientos', params: { id: this.$route.params.id, consecmov: 'nuevo' } })
@@ -543,28 +545,10 @@ export default {
         this.options.vendedores = this.vendedores.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
-    filterDespachos (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.despachos = this.despachos.filter(v => v.id.toLowerCase().indexOf(needle) > -1)
-      })
-    },
     filterMovimientos (val, update, abort) {
       update(() => {
         const needle = val.toLowerCase()
         this.options.movimientos = this.movimientos.filter(v => v.consecutivo.toLowerCase().indexOf(needle) > -1)
-      })
-    },
-    filterTiposDoc (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.tiposDoc = this.tiposDoc.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
-      })
-    },
-    filterFormasPago (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.formasPago = this.formasPago.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
     filterGrupos (val, update, abort) {
@@ -573,36 +557,13 @@ export default {
         this.options.grupos = this.grupos.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
-    getPeso () {
-      var v = this
-      this.interval = setInterval(function () {
-        axios.get('http://127.0.0.1:5002/basculas').then(
-          function (response) {
-            v.temp.cantidad = response.data.substr(7, 7)
-          }
-        )
-      }, 1000)
-    },
-    stopGetPeso () {
-      clearInterval(this.interval)
-    },
-    getPesoData () {
-      var app = this
-      axios.get('http://127.0.0.1:5002/basculas').then(
-        function (response) {
-          app.temp.cantidad = response.data.substr(7, 7)
-        }
-      )
-    },
     openedAddProductoMethod () {
       this.openedAddProducto = true
-      this.getPeso()
     },
     closeAddProducto () {
       this.producto_selected = null
       this.temp.cantidad = null
       this.precio_producto = parseInt(0)
-      this.stopGetPeso()
       this.openedAddProducto = false
     },
     addProductFromComponent (newProduct) {
@@ -720,345 +681,6 @@ export default {
           })
         }
       )
-    },
-    buscarLineasTiqueteDibal () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readtiquetedibal/' + app.num_tiquete).then(
-          function (response) {
-            if (response.data.length > 0) {
-              var vendedor = null
-              response.data.forEach(function (element, j) {
-                const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
-                if (productoImpuesto !== undefined) {
-                  if (parseInt(element[1]) > 50) {
-                    element[1] = element[1] / 1000
-                  }
-                  var newProduct = {
-                    id: app.itemsCounter,
-                    producto: productoImpuesto.nombre,
-                    producto_id: productoImpuesto.id,
-                    producto_codigo: productoImpuesto.codigo,
-                    cantidad: element[1],
-                    precio: parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                    iva: productoImpuesto.impuesto,
-                    gen_iva_id: productoImpuesto.gen_iva_id,
-                    desc: 0.00,
-                    descporcentaje: 0.00,
-                    despacho: false,
-                    num_tiquete: element[3],
-                    num_linea_tiquete: element[4]
-                  }
-                  app.dataResumen.push(newProduct)
-                  vendedor = element[5]
-                  app.itemsCounter = app.itemsCounter + 1
-                  app.numLineas = app.numLineas + 1
-                } else {
-                  app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
-                }
-              })
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-              if (app.storeItems.gen_vendedor_id === undefined) {
-                app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-              }
-            } else {
-              app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete  o todos los elementos ya fueron facturados.' })
-            }
-            app.num_tiquete = null
-            app.$q.loading.hide()
-          }
-        )
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El tiquete ya esta cargado.' })
-        app.num_tiquete = null
-        app.$q.loading.hide()
-      }
-    },
-    buscarLineasDespacho () {
-      var app = this
-      axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readdespacho/' + app.num_tiquete).then(
-        function (response) {
-          if (response.data[0].length > 0) {
-            app.sucursal = response.data[1]
-            var vendedor = null
-            response.data[0].forEach(function (element, j) {
-              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
-              if (productoImpuesto !== undefined) {
-                var newProduct = {
-                  id: app.itemsCounter,
-                  producto: productoImpuesto.nombre,
-                  producto_id: productoImpuesto.id,
-                  producto_codigo: productoImpuesto.codigo,
-                  cantidad: element.peso,
-                  precio: parseInt(element.precio) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                  iva: productoImpuesto.impuesto,
-                  gen_iva_id: productoImpuesto.gen_iva_id,
-                  desc: 0.00,
-                  descporcentaje: 0.00,
-                  despacho: false,
-                  num_tiquete: app.num_tiquete,
-                  num_linea_tiquete: 0
-                }
-                app.dataResumen.push(newProduct)
-                vendedor = 1
-                app.itemsCounter = app.itemsCounter + 1
-                app.numLineas = app.numLineas + 1
-              } else {
-                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-              }
-            })
-            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-            if (app.storeItems.gen_vendedor_id === undefined) {
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-            }
-            app.storeItems.guiaTransporte = app.num_tiquete
-          } else { // Aqui o Antes?
-            app.$q.notify({ color: 'negative', message: 'Error al leer el despac.' })
-          }
-          app.num_tiquete = null
-          app.$q.loading.hide()
-        }
-      )
-    },
-    buscarLineasOrden () {
-      var app = this
-      axios.get(app.$store.state.jhsoft.url + 'api/ordenes/readordenfactura/' + app.orden + '/' + app.tipoDoc.id).then(
-        function (response) {
-          if (response.data.length > 0) {
-            var vendedor = null
-            response.data.forEach(function (element, j) {
-              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.id) === parseInt(element.producto_id))
-              if (productoImpuesto !== undefined) {
-                var newProduct = {
-                  id: app.itemsCounter,
-                  producto: productoImpuesto.nombre,
-                  producto_id: productoImpuesto.id,
-                  producto_codigo: productoImpuesto.codigo,
-                  cantidad: element.cantidad,
-                  precio: element.precio,
-                  iva: element.iva,
-                  gen_iva_id: productoImpuesto.gen_iva_id,
-                  desc: 0.00,
-                  descporcentaje: 0.00,
-                  despacho: false,
-                  num_tiquete: app.num_tiquete,
-                  num_linea_tiquete: 0
-                }
-                app.dataResumen.push(newProduct)
-                vendedor = 1
-                app.itemsCounter = app.itemsCounter + 1
-                app.numLineas = app.numLineas + 1
-              } else {
-                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-              }
-            })
-            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-            if (app.storeItems.gen_vendedor_id === undefined) {
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-            }
-          } else {
-            app.$q.notify({ color: 'negative', message: 'Error al leer la orden.' })
-          }
-          app.num_tiquete = null
-          app.$q.loading.hide()
-        }
-      )
-      app.orden = null
-    },
-    buscarLineasCodigoBarras () {
-      this.$q.loading.show()
-      var app = this
-      const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.ean13) === parseInt(app.num_tiquete))
-      if (productoImpuesto !== undefined) {
-        var valExist = app.dataResumen.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
-        if (valExist !== undefined) {
-          valExist.cantidad = valExist.cantidad + 1
-        } else {
-          const objectPrecio = this.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
-          var newProduct = {
-            id: app.itemsCounter,
-            producto: productoImpuesto.nombre,
-            producto_id: productoImpuesto.id,
-            producto_codigo: productoImpuesto.codigo,
-            cantidad: 1,
-            precio: objectPrecio.precio,
-            iva: productoImpuesto.impuesto,
-            gen_iva_id: productoImpuesto.gen_iva_id,
-            desc: 0.00,
-            descporcentaje: 0.00,
-            despacho: false
-          }
-          app.dataResumen.push(newProduct)
-          app.itemsCounter = app.itemsCounter + 1
-          app.numLineas = app.numLineas + 1
-        }
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(app.num_tiquete) + ' no esta creado.' })
-      }
-      app.num_tiquete = null
-      this.$q.loading.hide()
-    },
-    buscarLineasTiqueteEpelsa () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readtiqueteepelsa/' + app.num_tiquete).then(
-          function (response) {
-            if (response.data.length > 0) {
-              var vendedor = null
-              response.data.forEach(function (element, j) {
-                const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
-                if (productoImpuesto !== undefined) {
-                  if (parseInt(element[1]) > 50) {
-                    element[1] = element[1] / 1000
-                  }
-                  var newProduct = {
-                    id: app.itemsCounter,
-                    producto: productoImpuesto.nombre,
-                    producto_id: productoImpuesto.id,
-                    producto_codigo: productoImpuesto.codigo,
-                    cantidad: element[1],
-                    precio: parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                    iva: productoImpuesto.impuesto,
-                    gen_iva_id: productoImpuesto.gen_iva_id,
-                    desc: 0.00,
-                    descporcentaje: 0.00,
-                    despacho: false,
-                    num_tiquete: element[3],
-                    num_linea_tiquete: element[4]
-                  }
-                  app.dataResumen.push(newProduct)
-                  vendedor = element[5]
-                  app.itemsCounter = app.itemsCounter + 1
-                  app.numLineas = app.numLineas + 1
-                } else {
-                  app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
-                }
-              })
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-              if (app.storeItems.gen_vendedor_id === undefined) {
-                app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-              }
-            } else {
-              app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete.' })
-            }
-            app.num_tiquete = null
-            app.$q.loading.hide()
-          }
-        )
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El tiquete ya esta cargado.' })
-        app.num_tiquete = null
-        app.$q.loading.hide()
-      }
-    },
-    buscarLineasTiqueteMarques () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete.substr(6, 6)))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/movimientos/verificartiquetemarques/' + parseInt(app.num_tiquete.substr(6, 6)) + '/' + parseInt(app.num_tiquete.substr(4, 2)) + '/' + app.diaHoy).then(
-          function (response) {
-            if (response.data.length > 0) {
-              app.$q.notify({ color: 'negative', message: 'El tiquete ya fue facturado.' })
-              app.num_tiquete = null
-              app.$q.loading.hide()
-            } else {
-              var ipMarques = null
-              let ipMarquesArray = app.empresa.ruta_ip_marques.split('&')
-              ipMarquesArray.forEach(function (element, j) {
-                let itemMarques = element.split('-')
-                if (parseInt(itemMarques[1]) === parseInt(app.num_tiquete.substr(4, 2))) {
-                  ipMarques = itemMarques[0]
-                }
-              })
-              if (ipMarques !== null) {
-                axios.get('http://' + ipMarques + '/year/documentos?seek={"tipo_doc":1,"posto":' + parseInt(app.num_tiquete.substr(4, 2)) + ',"numero":' + parseInt(app.num_tiquete.substr(6, 6)) + '}&limit=1').then(
-                  function (response) {
-                    let cantLineas = response.data[0]['nr_parcelas']
-                    axios.get('http://' + ipMarques + '/year/documentos_lnh?seek={"tipo_doc":1,"posto":' + parseInt(app.num_tiquete.substr(4, 2)) + ',"numero":' + parseInt(app.num_tiquete.substr(6, 6)) + ',"linha_f":0}&limit=' + cantLineas).then(
-                      function (response) {
-                        if (response.data.length > 0) {
-                          var vendedor = null
-                          response.data.forEach(function (element, j) {
-                            // console.log(element.numero)
-                            if (parseInt(element.numero) === parseInt(app.num_tiquete.substr(6, 6))) {
-                              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
-                              if (productoImpuesto !== undefined) {
-                                var newProduct = {
-                                  id: app.itemsCounter,
-                                  producto: productoImpuesto.nombre,
-                                  producto_id: productoImpuesto.id,
-                                  producto_codigo: productoImpuesto.codigo,
-                                  cantidad: element.quantidade,
-                                  precio: parseInt(element.preco_unit / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
-                                  iva: productoImpuesto.impuesto,
-                                  gen_iva_id: productoImpuesto.gen_iva_id,
-                                  desc: 0.00,
-                                  descporcentaje: 0.00,
-                                  despacho: false,
-                                  num_tiquete: element.numero,
-                                  puesto_tiquete: element.posto,
-                                  num_linea_tiquete: element.linha_f
-                                }
-                                app.dataResumen.push(newProduct)
-                                vendedor = 1
-                                app.itemsCounter = app.itemsCounter + 1
-                                app.numLineas = app.numLineas + 1
-                              } else {
-                                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-                              }
-                            }
-                          })
-                          app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-                          if (app.storeItems.gen_vendedor_id === undefined) {
-                            app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-                          }
-                        } else {
-                          app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete ó verifique la conexion a las basculas.' })
-                        }
-                        app.num_tiquete = null
-                        app.$q.loading.hide()
-                      }
-                    )
-                  }
-                )
-              } else {
-                app.$q.notify({ color: 'negative', message: 'Bascula ' + parseInt(app.num_tiquete.substr(4, 2)) + ' no configurada.' })
-              }
-            }
-          }
-        )
-      }
     },
     verificarTipoDoc () {
       this.$q.loading.show()

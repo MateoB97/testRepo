@@ -26,18 +26,6 @@
                     </q-select>
                 </div>
                 <div class="col-4">
-                  <q-select
-                      label="Seleccione bascula"
-                      v-model="datos.bascula"
-                      :options="basculas"
-                      option-value="ruta"
-                      option-label="nombre"
-                      option-disable="inactive"
-                      emit-value
-                      map-options
-                    />
-                </div>
-                <div class="col-4">
                   <q-checkbox v-model="datos.cerdox2" label="Cerdos x2" />
                 </div>
             </div>
@@ -144,8 +132,13 @@
                 </div>
               </div>
               <div v-if="datos.producto_empacado === '0'" class="row q-col-gutter-sm q-mb-md">
-                <div class="col-3">
-                      <q-input ref="peso" v-model="temp.peso" @focus="getPeso" @blur="stopGetPeso" label="Peso" />
+                <div class="col-12">
+                    <Bascula
+                      ref="basculaComponent"
+                      v-model="temp.peso"
+                      :withBasculaSelect="false"
+                      basculaIp='http://127.0.0.1:5002/basculas-test'
+                    />
                 </div>
                 <div class="col-3" v-if="showGrupoRes">
                     <div class="q-gutter-sm">
@@ -233,9 +226,13 @@
 <script>
 const axios = require('axios')
 import { globalFunctions } from 'boot/mixins.js'
+import Bascula from 'components/generales/BasculasComponent.vue'
 
 export default {
   name: 'PagePesoPlanta',
+  components: {
+    Bascula
+  },
   data: function () {
     return {
       urlAPI: 'api/lotes/pesoplanta',
@@ -246,22 +243,11 @@ export default {
       showGrupoRes: false,
       tableData: [],
       grupos: [],
+      bascula: {
+        stop: false
+      },
       groupSelected: [],
       prodGrupo_nombre: null,
-      basculas: [],
-      // basculas: [
-      //   { label: 'Recepcion Res',
-      //     value: 'http://192.168.1.82:5002/basculas-cerdo'
-      //   },
-      //   {
-      //     label: 'Recepcion Cerdo',
-      //     value: 'http://192.168.1.82:5002/basculas-res'
-      //   },
-      //   {
-      //     label: 'Local',
-      //     value: 'http://127.0.0.1:5002/basculas'
-      //   }
-      // ],
       columns: [
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, sort: this.sortFunction, classes: 'my-class', style: 'width: 200px' },
         { name: 'peso', required: true, label: 'Peso', align: 'left', field: 'peso', sortable: true, classes: 'my-class', style: 'width: 200px' },
@@ -306,7 +292,6 @@ export default {
         traseros: [],
         canales: [],
         producto: null,
-        bascula: null,
         cerdox2: false
       },
       temp: {
@@ -323,6 +308,12 @@ export default {
     }
   },
   mixins: [globalFunctions],
+  beforeRouteLeave: function (to, from, next) {
+    if (this.$refs.basculaComponent) {
+      this.$refs.basculaComponent.stopGetPeso()
+    }
+    next()
+  },
   methods: {
     postSave () {
       this.showSelect = true
@@ -338,27 +329,6 @@ export default {
       a = parseInt(a.replace('nuevo', '')) + 9999999
       b = parseInt(b.replace('nuevo', '')) + 9999999
       return a - b
-    },
-    async getPeso () {
-      var v = this
-      this.interval = setInterval(function () {
-        v.getPesoData().then(vx => {
-          v.datos.peso = vx
-        })
-      }, 1000)
-    },
-    stopGetPeso () {
-      clearInterval(this.interval)
-    },
-    async getPesoData () {
-      try {
-        let data = await axios.get(this.datos.bascula)
-        if (data.data.indexOf('none') === -1) {
-          this.temp.peso = parseFloat(data.data.substr(7, 8))
-        }
-      } catch (error) {
-      } finally {
-      }
     },
     validarFaltantes () {
       console.log(this.storeItems)
@@ -440,6 +410,7 @@ export default {
       })
     },
     addFilaPeso () {
+      console.log(this.temp.peso)
       if ((this.temp.peso > 0) && (this.temp.peso !== null)) {
         if (this.datos.producto_empacado === '0') {
           if (this.datos.grupo === 'Res') {
@@ -614,42 +585,11 @@ export default {
   },
   created: function () {
     this.globalGetForSelect('api/lotes/items', 'lotes')
-    this.globalGetForSelect('api/generales/basculas', 'basculas')
     this.globalGetForSelect('api/generales/generalidades', 'productos_piezas')
   },
   computed: {
   },
-  // watch: {
-  //   datos: {
-  //     // This will let Vue know to look inside the array
-  //     deep: true,
-
-  //     // We have to move our method to a handler field
-  //     handler () {
-  //       localStorage.pesoPlantaDatos = JSON.stringify(this.datos)
-  //     }
-  //   },
-  //   storeItems: {
-  //     // This will let Vue know to look inside the array
-  //     deep: true,
-
-  //     // We have to move our method to a handler field
-  //     handler () {
-  //       localStorage.pesoPlantaStoreItems = JSON.stringify(this.storeItems)
-  //     }
-  //   }
-  // },
   mounted: function () {
-    this.getPeso()
-    // if (localStorage.pesoPlantaStoreItems) {
-    //   this.storeItems = JSON.parse(localStorage.pesoPlantaStoreItems)
-    //   console.log(this.storeItems)
-    //   this.selectedLote()
-    // }
-    // if (localStorage.pesoPlantaDatos) {
-    //   this.datos = JSON.parse(localStorage.pesoPlantaDatos)
-    // }
-    // // if (localStorage.pesoPlantaStoreItems) this.storeItems = localStorage.pesoPlantaStoreItems
   }
 }
 </script>
