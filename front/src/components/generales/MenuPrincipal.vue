@@ -360,7 +360,7 @@ export default {
     }
   },
   created: function () {
-    this.globalGetForSelect('api/facturacion/tipos', 'docFacturacion')
+    this.globalGetForSelect('api/facturacion/tipos/estado/1', 'docFacturacion')
     this.globalGetForSelect('api/compras/tipos', 'docCompras')
     this.globalGetForSelect('api/compras/tiposcomproegreso', 'docComproEgresos')
     this.globalGetForSelect('api/facturacion/tiposrecibocaja', 'docRecibos')

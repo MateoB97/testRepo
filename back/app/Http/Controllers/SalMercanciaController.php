@@ -187,7 +187,6 @@ class SalMercanciaController extends Controller
 
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
         $pdf = PDF::loadView('despachos.certificado', $data);
-
         // return view('certificados.pdf');
 
         return $pdf->stream();

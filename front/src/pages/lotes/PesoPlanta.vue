@@ -136,8 +136,7 @@
                     <Bascula
                       ref="basculaComponent"
                       v-model="temp.peso"
-                      :withBasculaSelect="false"
-                      basculaIp='http://127.0.0.1:5002/basculas-test'
+                      :withBasculaSelect="true"
                     />
                 </div>
                 <div class="col-3" v-if="showGrupoRes">

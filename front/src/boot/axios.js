@@ -32,8 +32,9 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://desktop-caermcs/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://sgc.estebangonzalez.xyz/back//api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgc/back/public/api'
+  Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgctesting/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
-  Vue.axios.defaults.baseURL = 'http://192.168.1.4/sgcdev/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.4/sgcdev/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 
   axios.interceptors.request.use(function (config) {

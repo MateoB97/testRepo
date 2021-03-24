@@ -42,12 +42,11 @@ class GenEmpresa extends Model
         return dateTimeSql();
     }
 
-
-    public static function setCaractLinea($int){
+    public function setCaractLinea($int){
         $this->caractLinea = $int;
     }
 
-    public static function getCaractLinea($int){
+    public  function getCaractLinea($int){
         return $this->caractLinea;
     }
 

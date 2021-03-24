@@ -240,6 +240,8 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 	Route::get('editarfactura/{tipodoc}/{consecmov}', 'FacMovimientosController@editarFactura');
 	Route::get('consultarultimo/{tipodoc}', 'FacMovimientosController@ultimoPorTipoDoc');
 
+    Route::get('tipos/estado/{estado}', 'FacTipoDocController@facTipoDocPorEstado');
+
 	Route::apiResource('tipos', 'FacTipoDocController');
 	Route::apiResource('tiposrecibocaja', 'FacTipoRecCajaController');
 	Route::apiResource('movimientos', 'FacMovimientosController');
@@ -259,7 +261,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
     Route::get('movimientos/filtro/allnotas/', 'FacMovimientosController@allNotas');
     Route::get('movimientos/filtro/notaporid/{id}', 'FacMovimientosController@notaPorId');
     Route::get('movimientos/filtro/reciboporid/{id}', 'FacMovimientosController@reciboPorId');
-    
+
     Route::get('movimientos/filtro/testing/', 'FacMovimientosController@testimpresioncxc');//TESTING
 
 	Route::get('/imprimir/{id}', 'FacMovimientosController@generatePDF');
@@ -335,7 +337,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
 
-    Route::get('/cxct80/', 'ReportesGeneradosController@saldosEnCarteraT80');
+    Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
     Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
 
     Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');

@@ -739,14 +739,17 @@
               <div v-if="showForAnimals" class="col-6">
                 <q-input color="primary" type="number" v-model="storeItems.num_animales" label="N° de animales"></q-input>
               </div>
-              <div class="col-6">
+              <div class="col-3">
                 <q-select
-                      label="Seleccione Tipo de animal"
+                      label="Seleccione Tipo de animales"
                       v-model="storeItems.ProdGrupo_id"
                       :options="grupos"
                       option-value="id"
                       option-label="nombre"
                 />
+              </div>
+              <div class="col-3">
+                  <q-checkbox class="q-mt-md" v-model="storeItems.producto_aprobado" left-label label="Aprobado ?" />
               </div>
             </div>
             <div class="row q-col-gutter-sm q-mt-sm">
@@ -1015,6 +1018,8 @@ export default {
   mixins: [globalFunctions],
   methods: {
     preSave () {
+      console.log(this.storeItems.producto_aprobado)
+      this.storeItems.producto_aprobado = this.storeItems.producto_aprobado
       this.storeItems.ProdGrupo_id = this.storeItems.ProdGrupo_id.id
       if (this.storeItems.transportador_id.id) {
         this.storeItems.transportador_id = this.storeItems.transportador_id.id
@@ -1150,7 +1155,9 @@ export default {
         this.storeItems.num_animales = 0
         this.storeItems.pcc = 0
         this.storeItems.ppe = 0
-        this.storeItems.fecha_sacrificio = '1900/01/01'
+        this.storeItems.fecha_sacrificio = null
+      } else {
+        this.storeItems.fecha_peso_pie = null
       }
       this.storeItems.programaciones.push({
         id: 'nuevo' + 1,
@@ -1198,14 +1205,23 @@ export default {
       }
     },
     addProgramacion () {
-      this.storeItems.programaciones.push({
-        id: 'nuevo' + this.programaciones_counter,
-        fecha_desposte: this.temp.fecha_desposte,
-        num_animales: this.temp.num_animales,
-        producto_canal: this.temp.producto_canal,
-        terceroSucursal_id: this.sucursal
-      })
-      this.programaciones_counter++
+      if (this.temp.fecha_desposte) {
+        if (!this.storeItems.fecha_sacrificio) {
+          this.$q.notify({ type: 'negative', message: 'Ingresar primero fecha de sacrificio' })
+          this.openedProgramacion = false
+        } else if (this.temp.fecha_desposte < this.storeItems.fecha_sacrificio) {
+          this.$q.notify({ type: 'negative', message: 'La fecha de desposte debe ser mayor a la fecha de sacrificio' })
+        } else {
+          this.storeItems.programaciones.push({
+            id: 'nuevo' + this.programaciones_counter,
+            fecha_desposte: this.temp.fecha_desposte,
+            num_animales: this.temp.num_animales,
+            producto_canal: this.temp.producto_canal,
+            terceroSucursal_id: this.sucursal
+          })
+          this.programaciones_counter++
+        }
+      }
       this.temp.fecha_desposte = null
       this.temp.num_animales = null
       this.sucursal = null
