@@ -87,7 +87,10 @@ class Inventario extends Model
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
                 'prod_grupos.registro_sanitario as registro_sanitario',
-                'prod_grupos.nombre as grupo'
+                'prod_grupos.nombre as grupo',
+                'prod_subgrupos.nombre as subgrupo_nombre',
+                'prod_subgrupos.encabezado_etiqueta',
+                'lotes.producto_aprobado'
             )
             ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
             ->join('lot_programaciones','lot_programaciones.id', '=', 'producto_terminados.prog_lotes_id')
@@ -98,6 +101,7 @@ class Inventario extends Model
             ->where('inventarios.id','=', $id)
             ->get();
     }
+
 
     public static function GetDataSalMercancia($id){
     return DB::table('inventarios')

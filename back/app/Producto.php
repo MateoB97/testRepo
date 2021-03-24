@@ -65,13 +65,14 @@ class Producto extends Model
             ->get();
     }
 
-    public static function productosCustom () {
+    public static function productoSubgrupoByID ($id) {
         return DB::table('productos')
-        ->select( DB::raw( 'productos.id As id,productos.nombre As nombre,productos.codigo As codigo,prod_subgrupos.nombre As subgrupo, prod_grupos.nombre as grupo, productos.activo as activo, cast(codigo as int) as codigoInt' ))
+        ->select('productos.id As id','productos.nombre As nombre','productos.codigo As codigo','prod_subgrupos.nombre As subgrupo', 'prod_subgrupos.encabezado_etiqueta As encabezado_etiqueta','prod_grupos.nombre as grupo','productos.activo as activo')
         ->join('prod_subgrupos', 'productos.prod_subgrupo_id', '=', 'prod_subgrupos.id')
         ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
+        ->where('productos.id', $id)
         ->get();
-    }
+}
 
     public static function todosConImpuestos(){
     return DB::table('productos')

@@ -201,7 +201,7 @@
                   </template>
                 </q-select>
               </div>
-              <div class="col-6">
+              <div v-if="tipoDoc.naturaleza == 1" class="col-6">
                 <q-input label="Guia Transporte" v-model="storeItems.guiaTransporte" class="date-field" readonly :rules="['string'] " />
               </div>
               <!-- Fin datos solo para facturas -->
@@ -511,9 +511,16 @@ export default {
       this.$refs.scan.focus()
     },
     preSave () {
-      this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
-      this.storeItems.sal_mercancia_consec = parseInt(this.storeItems.guiaTransporte)
+      if (this.storeItems.gen_vendedor_id === null) {
+        delete this.storeItems.gen_vendedor_id
+      }
+      if (this.storeItems.prod_grupo_id) {
+        this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
+      } else if (this.empresa.fact_grupo === true) {
+        this.storeItems.prod_grupo_id = null
+      }
       if (parseInt(this.tipoDoc.naturaleza) === 1 || parseInt(this.tipoDoc.naturaleza) === 4) {
+        this.storeItems.sal_mercancia_consec = parseInt(this.storeItems.guiaTransporte)
         this.storeItems.lineas = this.dataResumen
         this.storeItems.cliente_id = this.sucursal
         if (this.storeItems.gen_vendedor_id) {

@@ -18,7 +18,6 @@ use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use App\FacMovRelacionado;
 use App\FacPivotMovFormapago;
-use App\FacPivotFormaRecibo;
 use App\FacTipoDoc;
 use App\FacTipoRecCaja;
 use App\Producto;
@@ -193,7 +192,7 @@ class ReportesGeneradosController extends Controller
         $fp = fopen('C:\tiquetes\reporte.csv', 'wb');
 
         foreach ($data as $k => $line) {
-            
+
             // cambio de consecutivo
             if ($consecAnterior != $line->consecutivo && $k != 0)  {
 
@@ -261,7 +260,7 @@ class ReportesGeneradosController extends Controller
             $lineFormated['trans_e'] = '';
             $lineFormated['plazo'] = '0';
 
-            // si cuenta contable 
+            // si cuenta contable
             if ($line->cuenta_contable_iva){
 
                 if (isset($ivaConsec[$line->cuenta_contable_iva])) {
@@ -658,4 +657,9 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
+    public static function testing(){
+        $id = 541565;
+        $data = Inventario::GetDataEtiqueta($id)->first();
+        dd($data);
+    }
 }

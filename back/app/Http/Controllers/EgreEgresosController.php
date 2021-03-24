@@ -14,6 +14,9 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Carbon\Carbon;
+use App\GenEmpresa;
+use App\GenMunicipio;
+use App\GenDepartamento;
 
 class EgreEgresosController extends Controller
 {

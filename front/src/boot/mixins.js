@@ -155,6 +155,8 @@ export const globalFunctions = {
         }).finally(function () {
           app.showForUpdate = false
         })
+      } else {
+        app.$q.loading.hide()
       }
     },
     globalStoreItemEdit (noValidate = 0, id) {

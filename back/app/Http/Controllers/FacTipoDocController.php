@@ -16,6 +16,12 @@ class FacTipoDocController extends Controller
         return $index;
     }
 
+    public function facTipoDocPorEstado($estado)
+    {
+        $index= FacTipoDoc::facTipoDocPorEstado($estado);
+        return $index;
+    }
+
     public function facturas()
     {
         $list = FacTipoDoc::where('naturaleza', 1)->get();
@@ -70,7 +76,7 @@ class FacTipoDocController extends Controller
         if ($v) {
             return 'done';
         } else {
-           return 'Imposible eliminar'; 
+           return 'Imposible eliminar';
         }
     }
 }

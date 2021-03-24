@@ -82,15 +82,15 @@
 					<p>Tel {{ $empresa->telefono }}</p>
 					<p>{{ $empresa->direccion }}</p>
 					<p>{{ $empresa->municipio }} - {{ $empresa->departamento }}</p>
-					<p>Codigo Inscripción 002DM - {{str_pad($salMercancia->consecutivo, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</p>
+					<p><strong>Codigo Inscripción:</strong> 002DM</p>
+                    <p><strong>N° de Guía:</strong> 002DM - {{str_pad($salMercancia->consecutivo, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</p>
                 </td>
 				<td>
 					<p> <strong>Cliente: {{ $tercero->nombre}}</strong></p>
 					<p><strong>Nit:</strong> {{ $tercero->documento}}</p>
 					<p><strong>Sucursal:</strong> {{ $sucursal->sucursal_nombre}}</p>
-					<p><strong>Dirección:</strong> {{ $sucursal->sucursal_direccion}}</p>
+					<p><strong>Dirección:</strong> {{ $sucursal->sucursal_direccion}} - {{ $sucursal->municipio_nombre }} - {{ $sucursal->departamento_nombre }}</p>
 					<p><strong>Teléfono:</strong> {{ $sucursal->sucursal_telefono}}</p>
-					<p><strong>{{ $sucursal->municipio_nombre }} - {{ $sucursal->departamento_nombre }} </strong></p>
 				</td>
 			</tr>
 		</tbody>
