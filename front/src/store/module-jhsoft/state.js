@@ -3,9 +3,9 @@ export default {
   // url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://192.168.1.100/sgc/back/public/',
   // url: 'http://sgc.estebangonzalez.xyz/back/',
-  // url: 'http://192.168.1.4/sgcdev/back/public/',
-  // url: 'http://192.168.1.184/sgc/back/public/',
-  url: 'http://192.168.1.82/sgctesting/back/public/',
+  // url: 'http://192.168.1.2/sgcdev/back/public/',
+  url: 'http://192.168.1.100/sgc/back/public/',
+  // url: 'http://192.168.1.82/sgctesting/back/public/',
   // url: 'http://desktop-caermcs/sgc/back/public/',
   // url: 'http://fusion.test/',
   tipo_licencia: 4,
@@ -17,5 +17,5 @@ export default {
   inventario: true,
   ordenes: true,
   // 1 pos lite (solo pos), 2 pos + cartera, 3 pos + cartera + inventario + facturacion electronica, 4 3 + produccion, 5 solo produccion
-  token: localStorage.sgc_testing_jwt_token
+  token: localStorage.sgc_jwt_token
 }

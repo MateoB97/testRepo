@@ -26,18 +26,6 @@
                 </div>
                 <div class="col-3">
                   <q-select
-                      label="Seleccione bascula"
-                      v-model="datos.bascula"
-                      :options="basculas"
-                      option-value="value"
-                      option-label="label"
-                      option-disable="inactive"
-                      emit-value
-                      map-options
-                    />
-                </div>
-                <div class="col-3">
-                  <q-select
                       label="Seleccione impresora"
                       v-model="storeItems.impresora"
                       :options="impresoras"
@@ -128,8 +116,13 @@
                       <p>{{ datos.producto }}</p>
                     </div>
                     <div class="row">
-                      <h5>Peso:</h5>
-                      <q-input v-model="storeItems.cantidad" @focus="getPeso" @blur="stopGetPeso" label="Peso" />
+                      <div class="col-12">
+                          <Bascula
+                            ref="basculaComponent"
+                            v-model="cantidad"
+                            :withBasculaSelect="true"
+                          />
+                      </div>
                     </div>
                     <div class="row q-mt-md">
                       <q-btn color="primary" v-on:click="globalStoreItem(0)" label="Guardar" />
@@ -143,9 +136,13 @@
 <script>
 const axios = require('axios')
 import { globalFunctions } from 'boot/mixins.js'
+import Bascula from 'components/generales/BasculasComponent.vue'
 
 export default {
   name: 'LotEmpaque',
+  components: {
+    Bascula
+  },
   props: ['type'],
   data () {
     return {
@@ -188,31 +185,16 @@ export default {
   },
   mixins: [globalFunctions],
   methods: {
+    beforeRouteLeave: function (to, from, next) {
+      if (this.$refs.basculaComponent) {
+        this.$refs.basculaComponent.stopGetPeso()
+      }
+      next()
+    },
     preSave () {
     },
     postSave () {
       this.cantidad = null
-    },
-    async getPeso () {
-      var v = this
-      this.interval = setInterval(function () {
-        v.getPesoData().then(vx => {
-          v.datos.peso = vx
-        })
-      }, 250)
-    },
-    stopGetPeso () {
-      clearInterval(this.interval)
-    },
-    async getPesoData () {
-      try {
-        let data = await axios.get(this.datos.bascula)
-        this.storeItems.cantidad = data.data.substr(8, 7)
-        // this.storeItems.cantidad = data.data.substr(7, 7)
-        // this.storeItems.cantidad = data.data.substr(12, 2).split('').reverse().join('') + '.' + data.data.substr(8, 3).split('').reverse().join('')
-      } catch (error) {
-      } finally {
-      }
     },
     async selectedProgramacion (programacion) {
       this.show.subgrupos = false
