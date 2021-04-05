@@ -14,8 +14,8 @@ class ChangeFacTipoDocEstadoOficial extends Migration
     public function up()
     {
         Schema::table('fac_tipo_doc', function (Blueprint $table) {
-            $table->boolean('fac_tipo_estado')->nullable()->default();
-            $table->boolean('fac_tipo_oficial')->nullable()->default();
+            $table->boolean('estado')->nullable()->default();
+            $table->boolean('legal')->nullable()->default();
         });
     }
 

@@ -587,11 +587,11 @@ class InventariosController extends Controller
                 ^CI28
                 ".$proceso."
                 ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28";
-        // if($data->producto_aprobado != null && !$lote->producto_empacado && !$marinado){
-        //     $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
-        // }elseif($data->producto_aprobado != null && $lote->producto_empacado){
-        //     $etiqueta .= "^FT200,260^A0N,30,30^FH\^CI28^FD|Aprobado^FS^CI28";
-        // }
+        if($data->producto_aprobado != null && !$lote->producto_empacado && !$marinado){
+            $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
+        }elseif($data->producto_aprobado != null && $lote->producto_empacado){
+            $etiqueta .= "^FT200,260^A0N,30,30^FH\^CI28^FD|Aprobado^FS^CI28";
+        }
         if(!$lote->producto_empacado){// LOTES JH
             if(!$marinado){
                 $etiqueta .= "

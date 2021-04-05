@@ -237,6 +237,8 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 
 	// // Route::get('importar/cargarcartera', 'FacMovimientosController@importarDatos');
 
+    Route::get('tiquetesnofacturados/limpiartiquetes', 'FacMovimientosController@limpiarTiquetesBascula');
+
 	Route::get('editarfactura/{tipodoc}/{consecmov}', 'FacMovimientosController@editarFactura');
 	Route::get('consultarultimo/{tipodoc}', 'FacMovimientosController@ultimoPorTipoDoc');
 
@@ -262,7 +264,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
     Route::get('movimientos/filtro/notaporid/{id}', 'FacMovimientosController@notaPorId');
     Route::get('movimientos/filtro/reciboporid/{id}', 'FacMovimientosController@reciboPorId');
 
-    Route::get('movimientos/filtro/testing/', 'FacMovimientosController@testimpresioncxc');//TESTING
+
 
 	Route::get('/imprimir/{id}', 'FacMovimientosController@generatePDF');
 	Route::get('/imprimirpos/{id}/{copia}', 'FacMovimientosController@printPOS');
