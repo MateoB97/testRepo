@@ -639,7 +639,7 @@
                   </div>
                   <div class="q-pa-md col-12">
                     <q-table
-                      title="Peso Plantaaa"
+                      title="Peso Planta"
                       :data="show.productos"
                       :columns="columnsShowProductos"
                       row-key="name"

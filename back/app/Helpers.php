@@ -158,7 +158,7 @@ if (! function_exists('current_user')) {
 		} else {
 			return str_pad($string, $caractLinea, $relleno, STR_PAD_BOTH);
 		}
-		
+
 	}
 
 	function posLineaDerecha ($string, $relleno = ' ', $toUpper = true) {
@@ -172,7 +172,7 @@ if (! function_exists('current_user')) {
 		} else {
 			return str_pad($string, $caractLinea, $relleno, STR_PAD_RIGHT);
 		}
-		
+
 	}
 
 	function posLineaIzquierda ($string, $relleno = ' ', $toUpper = true) {
@@ -186,7 +186,7 @@ if (! function_exists('current_user')) {
 		} else {
 			return str_pad($string, $caractLinea, $relleno, STR_PAD_LEFT);
 		}
-		
+
 	}
 
 	function toNumber($number){
@@ -202,7 +202,7 @@ if (! function_exists('current_user')) {
 		}
 
 		return $string;
-		
+
 	}
 
 

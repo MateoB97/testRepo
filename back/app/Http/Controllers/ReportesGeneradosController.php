@@ -658,41 +658,4 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
-    public static function testing(){
-
-        $lineas = FacPivotMovProducto::porMovimiento(63912);
-        foreach($lineas as $linea){
-            $itemInventario = Inventario::where('producto_id', $linea->producto_id)->where('tipo_invent','!=',2)->get()->first();
-            if ($itemInventario) {
-                $itemInventario->cantidad += floatval($linea->cantidad);
-                $itemInventario->save();
-            } else {
-                $nuevoInventario = new Inventario($linea);
-                $nuevoInventario->cantidad = + $linea['cantidad'];
-                $nuevoInventario->costo_promedio = 0;
-                $nuevoInventario->tipo_invent = 1;
-                $nuevoInventario->save();
-            }
-        }
-        // // $lineFormated = array();
-        // // $datos = TerceroSucursal::getDataSucursalNoId()->unique('tercero_id');
-        // // // $lastScan =0;
-        // // // $count = 0;
-        // // // $datacsv = collect();
-        // // // $nombreTercero = '';
-        // // $fp = fopen('fichero.csv', 'w');
-        // // foreach($datos->toArray() as $data){
-        // //     $lineFormated['tercero_id'] = $data->tercero_id;
-        // //     $lineFormated['tercero_nombre'] = $data->tercero_nombre;
-        // //     $lineFormated['sucursal_id'] = $data->sucursal_id;
-        // //     $lineFormated['sucursal_nombre'] = $data->sucursal_nombre;
-        // //     $lineFormated['sucursal_direccion'] = $data->sucursal_direccion;
-        // //     $lineFormated['sucursal_telefono'] = $data->sucursal_telefono;
-        // //     $lineFormated['municipio_nombre'] = $data->municipio_nombre;
-        // //     $lineFormated['departamento_nombre'] = $data->departamento_nombre;
-        // //     fputcsv($fp, $lineFormated);
-        // // }
-        // // fclose($fp);
-        dd($items);
-    }
 }
