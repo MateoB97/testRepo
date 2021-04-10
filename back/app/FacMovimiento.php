@@ -145,7 +145,7 @@ class FacMovimiento extends Model
         ->where('fac_tipo_doc_id', $tipodoc)
         ->where('fac_tipo_doc.traslado', 0)
         ->where('gen_cuadre_caja_id', $cuadre)
-        ->where('estado', 3)
+        ->where('fac_movimientos.estado', 3)
         ->get();
     }
 

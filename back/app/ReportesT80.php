@@ -1,0 +1,179 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ReportesT80 extends Model
+{
+
+	private $caractLinea;
+
+	public function __construct ($caractLinea) {
+
+		$this->caractLinea = $caractLinea;
+
+	}
+
+	public function limitAndCleanStringLinea ($string, $limit= '') {
+
+		if ($limit == '') {
+			$limit = $this->caractLinea;
+		}
+
+		$string = substr(eliminar_acentos($string), 0, $limit);
+
+		return $string;
+
+	}
+
+    public function posLineaCentro ($string, $relleno = ' ', $toUpper = true) {
+
+		$string = $this->limitAndCleanStringLinea($string);
+
+		if ($toUpper) {
+			return str_pad(strtoupper($string), $this->caractLinea, $relleno, STR_PAD_BOTH);
+		} else {
+			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_BOTH);
+		}
+		
+	}
+
+	public function posLineaDerecha ($string, $relleno = ' ', $toUpper = true) {
+
+		$string = $this->limitAndCleanStringLinea($string);
+
+		if ($toUpper) {
+			return str_pad(strtoupper($string), $this->caractLinea, $relleno, STR_PAD_RIGHT);
+		} else {
+			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_RIGHT);
+		}
+		
+	}
+
+	public function posLineaIzquierda ($string, $relleno = ' ', $toUpper = true) {
+
+		$string = $this->limitAndCleanStringLinea($string);
+
+		if ($toUpper) {
+			return str_pad(strtoupper($string), $this->caractLinea, $relleno, STR_PAD_LEFT);
+		} else {
+			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_LEFT);
+		}
+		
+	}
+
+	public function toNumber($number){
+		return number_format($number, 0, ',', '.');
+	}
+
+	public function posArrayCentro ($array, $relleno = ' ' , $toUpper = true) {
+
+		$string = '';
+
+		foreach ($array as $line) {
+			$string .= posLineaCentro($line, $relleno, $toUpper);
+		}
+
+		return $string;
+		
+	}
+
+
+	public function posHeaderEmpresa(){
+
+		$empresa = GenEmpresa::find(1);
+		$municipio = GenMunicipio::find($empresa->gen_municipios_id);
+        $departamento = GenDepartamento::find($municipio->departamento_id);
+
+		$header = array(
+			$empresa->razon_social,
+			$empresa->nombre,
+			'NIT: '.$empresa->nit,
+			$empresa->tipo_regimen,
+			$empresa->direccion,
+			$municipio->nombre.' - '.$departamento->nombre,
+			'TEL: '.$empresa->telefono
+		);
+
+		$string = posArrayCentro($header);
+
+		return $string;
+	}
+
+	public function posLineaBlanco () {
+
+		return str_pad("", $this->caractLinea, " ", STR_PAD_BOTH);
+	}
+
+	public function posLineaGuion () {
+
+		return str_pad("", $this->caractLinea, "-", STR_PAD_BOTH);
+	}
+
+	public function posLineaTresItems ($item1, $item2, $lengthItem3, $item3) {
+
+		$item1 = eliminar_acentos($item1);
+		$item2 = eliminar_acentos($item2);
+		$item3 = eliminar_acentos($item3);
+
+		$lengthItem1 = strlen($item2) + $lengthItem3;
+
+		//$lengthItem1 + strlen($item2) + $lengthItem3 must be equeal to $caractLinea
+
+		$string = str_pad($item1, $this->caractLinea - $lengthItem1, " ", STR_PAD_RIGHT);
+		$string .= $item2;
+		$string .= str_pad($item3, $space2, " ", STR_PAD_LEFT);
+
+		return substr($string, 0, $this->caractLinea);
+	}
+
+	public function multiItemsFromArray($data){
+
+		$stringLine = '';
+		$totalChars = 0;
+
+		foreach ($data as $item) {
+			$totalChars += $item[1];
+		}
+
+		if ($totalChars > $this->caractLinea) {
+			return 'Error: Caracteres sobrepasan el tamaño de la linea '.json_encode($data);
+		}
+
+		// string, size, fill, side-fill
+		foreach ($data as $item) {
+			
+			$totalChars += intval($item[1]);
+
+			if ($item[3] < 0) {
+
+				$side = STR_PAD_LEFT;
+
+			} elseif ($item[3] == 0) {
+			
+				$side = STR_PAD_BOTH;
+
+			} else {
+
+				$side = STR_PAD_RIGHT;
+
+			}
+
+			if ($item[1] == 0) {
+				$item[1] = $this->caractLinea - $totalChars;
+			}
+
+			$string = $this->limitAndCleanStringLinea($string, $item[1]);
+
+			$stringLine .= str_pad($string, $item[1], $item[2], $side);
+
+		}
+
+
+		return $stringLine;
+
+	}
+
+
+}

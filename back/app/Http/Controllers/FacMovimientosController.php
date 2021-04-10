@@ -37,6 +37,7 @@ use Carbon\Carbon;
 use PDF;
 use App\FacReciboCaja;
 use App\FacPivotRecMov;
+use App\ReportesT80;
 use DNS2D;
 use App\SoenacRegimen;
 use App\SoenacResponsabilidad;
@@ -651,7 +652,8 @@ class FacMovimientosController extends Controller
 
     public function printPOS($id, $copia){
 
-        $caractPorlinea  = null;
+        $repT80 = new ReportesT80(48);
+
         $nuevoItem = FacMovimiento::find($id);
         $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
@@ -685,74 +687,90 @@ class FacMovimientosController extends Controller
                 $printer->graphics($img);
             }
             $etiqueta = str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            
+            $etiqueta .= $repT80->posHeaderEmpresa();
+
+            $etiqueta .= $repT80->posLineaBlanco();
 
             // DATOS DE FACTURACION
             if ($tipoDoc->prefijo) {
-                $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac);
             } else {
-                $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac);
             }
-            $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VIGENCIA 18 MESES", $caractPorlinea, "-", STR_PAD_BOTH);
 
-            // DATOS DE LA VENTA
-            $etiqueta .= str_pad("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= $repT80->posArrayCentro(
+                    "N RESOLUCION: ".$tipoDoc->resolucion,
+                    "FECHA: ".$tipoDoc->fec_resolucion,
+                    '',
+                    "VIGENCIA 18 MESES"
+                    '',
+                    "CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion,
+                    "VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre)
+                );
+
             if ($copia == 1) {
-                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("   COPIA   ", '*');
             }
 
             if ($tipoDoc->prefijo) {
-                $etiqueta .= str_pad("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo);
             } else {
-                $etiqueta .= str_pad("FACTURA DE VENTA # ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("FACTURA DE VENTA # ".$nuevoItem->consecutivo);
             }
+
             if ($copia == 1) {
-                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+                $etiqueta .= $repT80->posLineaCentro("   COPIA   ", '*');
             }
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+            $etiqueta .= $repT80->posLineaGuion();
 
             // DATOS DEL CLIENTE
-            $etiqueta .= str_pad(eliminar_acentos(substr($tercero->nombre, 0, 41)), $caractPorlinea, " ", STR_PAD_RIGHT);
+            $etiqueta .= $repT80->posLineaDerecha($tercero->nombre);
             if ($tercero->digito_verificacion) {
-                $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= $repT80->posLineaDerecha("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea);
             } else {
-                $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= $repT80->posLineaDerecha("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono);
             }
-            $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, $caractPorlinea, " ", STR_PAD_RIGHT);
 
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+            $etiqueta .= $repT80->posLineaDerecha("DIRECCION: ".$sucursal->direccion);
+
+            $etiqueta .= $repT80->posLineaGuion();
 
             // PRODUCTOS
-            $etiqueta .= str_pad("CODIGO   PRODUCTO   TOTAL | IVA", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= $repT80->posArrayCentro(
+                    "CODIGO   PRODUCTO   TOTAL | IVA",
+                    '-',
+                    ' '
+                );
+
+
             $totalGeneral = 0;
 
             foreach ($lineas as $linea) {
 
                 // linea 1
-                $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
-                $etiqueta .= ' ';
-                $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
-                $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
-                $etiqueta .= ' ';
-                $total = intval($linea['precio']) * floatval($linea['cantidad']);
-                $total =  number_format($total, 0, ',', '.');
-                $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                $etiqueta .= ' |';
-                $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
+                $etiqueta .= $repT80->multiItemsFromArray(
+                        [
+                            [Producto::find($linea->producto_id)->codigo, 3, '0', -1],
+                            [' '.Producto::find($linea->producto_id)->nombre,  0, ' ', 1],
+                            [' '.$repT80->toNumber(intval($linea['precio']) * floatval($linea['cantidad'])), 11, ' ', -1],
+                            ['| ',  2, ' ', 0],
+                            [$linea['iva'],  2, ' ', -1]
+                        ]
+                    );
+
                 // linea 2
+                $etiqueta .= $repT80->multiItemsFromArray(
+                        [
+                            [Producto::find($linea->producto_id)->codigo, 3, '0', -1],
+                            [' '.Producto::find($linea->producto_id)->nombre    ,  0, ' ', 1],
+                            [' '.$repT80->toNumber(intval($linea['precio']) * floatval($linea['cantidad'])), 11, ' ', -1],
+                            ['| '           ,  2, ' ', 0],
+                            [$linea['iva']  ,  2, ' ', -1]
+                        ]
+                    );
+
                 $etiqueta .= '    ';
                 $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
                 $etiqueta .= ' ';

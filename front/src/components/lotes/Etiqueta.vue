@@ -119,7 +119,7 @@
                       <div class="col-12">
                           <Bascula
                             ref="basculaComponent"
-                            v-model="cantidad"
+                            v-model="storeItems.cantidad"
                             :withBasculaSelect="true"
                           />
                       </div>
