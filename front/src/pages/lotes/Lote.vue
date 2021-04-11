@@ -634,7 +634,7 @@
                 <div class="row q-col-gutter-sm">
                   <div class="column col-12 q-mt-lg">
                     <div class="col-6 self-center q-mb-lg">
-                      <h5 style="margin: 0px">PRODUCTOS</h5>
+                      <h5 style="margin: 0px">PRODUCTO</h5>
                     </div>
                   </div>
                   <div class="q-pa-md col-12">

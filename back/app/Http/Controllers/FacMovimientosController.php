@@ -346,7 +346,7 @@ class FacMovimientosController extends Controller
         if ($tipoDoc->naturaleza == 0) {
 
             $docRelacionado = FacMovimiento::find($request->docReferencia['id']);
-
+            self::descargarDevolucionInventario($docRelacionado->id);
             $docRelacionado->estado = 3;
 
             $docRelacionado->save();
@@ -486,6 +486,18 @@ class FacMovimientosController extends Controller
                 } else {
                     $nuevoInventario = new Inventario($linea);
                     $nuevoInventario->cantidad = - $linea['cantidad'];
+                    $nuevoInventario->costo_promedio = 0;
+                    $nuevoInventario->tipo_invent = 1;
+                    $nuevoInventario->save();
+                }
+            }elseif($tipoDoc->naturaleza == 2){
+                $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
+                if ($itemInventario) {
+                    $itemInventario->cantidad += floatval($linea['cantidad']);
+                    $itemInventario->save();
+                } else {
+                    $nuevoInventario = new Inventario($linea);
+                    $nuevoInventario->cantidad = + $linea['cantidad'];
                     $nuevoInventario->costo_promedio = 0;
                     $nuevoInventario->tipo_invent = 1;
                     $nuevoInventario->save();
@@ -1222,5 +1234,24 @@ class FacMovimientosController extends Controller
         return $http;
     }
 
+    public function limpiarTiquetesBascula (){
+        FacMovimiento::limpiarTiquetesBascula();
+    }
 
+    public static function  descargarDevolucionInventario($id){
+        $lineas = FacPivotMovProducto::porMovimiento($id);
+        foreach($lineas as $linea){
+            $itemInventario = Inventario::where('producto_id', $linea->producto_id)->where('tipo_invent','!=',2)->get()->first();
+            if ($itemInventario) {
+                $itemInventario->cantidad += floatval($linea->cantidad);
+                $itemInventario->save();
+            } else {
+                $nuevoInventario = new Inventario($linea);
+                $nuevoInventario->cantidad = + floatval($linea->cantidad);
+                $nuevoInventario->costo_promedio = 0;
+                $nuevoInventario->tipo_invent = 1;
+                $nuevoInventario->save();
+            }
+        }
+    }
 }

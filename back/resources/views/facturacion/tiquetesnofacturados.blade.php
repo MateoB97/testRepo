@@ -100,7 +100,6 @@
 			</tr>
 		</thead>
 		<tbody>
-
 			@php
 				$totalCounter = 0;
 				$granTotal = 0;

@@ -31,9 +31,7 @@ class GenCuadreCajaController extends Controller
     public function index()
     {
         $list = GenCuadreCaja::todosConUsuario();
-
         return $list;
-
     }
 
     public function abiertoPorUsuario($id)
@@ -248,8 +246,6 @@ class GenCuadreCajaController extends Controller
         $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
         $etiqueta .= str_pad('TOTAL RECIBOS', $caracLinea-18, " ", STR_PAD_RIGHT) . str_pad( number_format($recibos->valor, 0, ',', '.'), 18, " ", STR_PAD_LEFT);
 
-
-
         $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
 
         $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
@@ -335,9 +331,6 @@ class GenCuadreCajaController extends Controller
 
         $etiqueta .= 'DIFERENCIA';
         $etiqueta .= str_pad( number_format($cuadre->monto_cierre - ($ingresosEfectivoTotal - $cuadre->total_egresos), 0, ',', '.'), $caracLinea- 10, " ", STR_PAD_LEFT);
-
-
-
 
         $printer->text($etiqueta);
         $printer->feed(2);

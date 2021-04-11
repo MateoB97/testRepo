@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\GenBascula;
 use App\FacPivotMovProducto;
 use App\GenEmpresa;
+use App\GenImpresora;
 use App\Producto;
 use App\GenVendedor;
 use App\GenUnidades;
@@ -14,6 +15,7 @@ use PDF;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
+use Illuminate\Support\Facades\Auth;
 
 class GenBasculasController extends Controller
 {
@@ -47,7 +49,7 @@ class GenBasculasController extends Controller
     public function estado($id, $cambio)
     {
          $model = GenBascula::find($id);
-         
+
          $modificacion = ($cambio == 'activar') ? $model->activo = 1 : $model->activo =0;
          $validate = $model->save();
          $return = $validate ? 'true' : 'false';
@@ -234,6 +236,7 @@ class GenBasculasController extends Controller
         $arrayLines = array();
         $totalGnal = 0;
         $totalTiquete = 0;
+        $tiqueteAnterior ='';
 
         $marquesData = GenEmpresa::find(1)->ruta_ip_marques;
 
@@ -523,6 +526,7 @@ class GenBasculasController extends Controller
         }
 
         $data = ['etiqueta' => $arrayLines];
+        // dd($data);
         $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
 
         return $pdf->stream();
@@ -635,9 +639,8 @@ class GenBasculasController extends Controller
 
     public function epelsaDibalPDF($fecha)
     {
-
         $empresa = GenEmpresa::find(1);
-
+        $total = 0;
         $fechaIni = date('d/m/Y', strtotime($fecha));
         $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
         $arrayTotal = array();
@@ -746,7 +749,6 @@ class GenBasculasController extends Controller
                             'precio' => ''
                         ));
                     }
-
                     if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
                         array_pop($arrayLines);
                         array_pop($arrayLines);
