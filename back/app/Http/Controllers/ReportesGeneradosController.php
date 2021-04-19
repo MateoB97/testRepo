@@ -59,6 +59,7 @@ use App\GenPivotCuadreTiposdoc;
 use App\SalPivotInventSalida;
 use App\SalPivotSalProducto;
 use App\LotProgramacion;
+use Illuminate\Support\Collection;
 
 class ReportesGeneradosController extends Controller
 {
@@ -119,7 +120,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\reportcxctraslado.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -657,9 +658,4 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
-    public static function testing(){
-        $id = 541565;
-        $data = Inventario::GetDataEtiqueta($id)->first();
-        dd($data);
-    }
 }

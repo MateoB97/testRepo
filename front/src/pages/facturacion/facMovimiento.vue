@@ -40,6 +40,41 @@
           </q-dialog>
         <!-- fin popup impresion al guardar -->
 
+        <!-- ini popup inventario notas -->
+          <q-dialog tabindex="0" v-model="openInventarioNotas" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 30vh; max-width: 800px" class="bg-white">
+
+              <q-page-container>
+                  <q-page padding>
+                  <div class="row">
+                    <div class="text-center">
+                      <h4>¿ Este movimiento debe afectar inventario ?</h4>
+                    </div>
+                  </div>
+                  <div class="row q-col-gutter-md">
+                    <div class="col-6">
+                      <q-btn class="q-mt-sm w100"
+                        color="positive"
+                        v-close-popup
+                        label="Si"
+                        @click="storeItems.afectaInventario = true, globalValidate('guardar')"
+                      />
+                    </div>
+                    <div class="col-6">
+                      <q-btn class="q-mt-sm w100"
+                          color="negative"
+                          v-close-popup
+                          label="No"
+                          @click="storeItems.afectaInventario = false, globalValidate('guardar')"
+                      />
+                    </div>
+                  </div>
+                  </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popup inventario notas -->
+
         <!-- inicio popup ingresar pago -->
           <q-dialog tabindex="0" @keyup.enter="localValidate()" v-model="openedAddPago" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
             <q-layout view="Lhh lpR fff" container style="height: 50vh; max-width: 800px" class="bg-white">
@@ -266,9 +301,8 @@
                   />
                 </div>
                 <div class="col-12 w-100 q-mt-sm">
-                  <q-btn  v-if="tipoDoc.naturaleza != 4 && updateMode == false" class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
-                  <q-btn  v-if="tipoDoc.naturaleza == 1 && updateMode == true" class="btn-coral w-100" v-on:click="globalValidate('guardar-edicion', movActualId)" label="Guardar Edicion" />
-                  <q-btn  v-if="tipoDoc.naturaleza == 4 && updateMode == false" class="btn-azul w-100" v-on:click="localValidate()" label="Guardar" />
+                  <q-btn  v-if="updateMode == true" class="btn-coral w-100" v-on:click="localValidate()" label="Guardar Edicion" />
+                  <q-btn  v-if="updateMode == false" class="btn-azul w-100" v-on:click="localValidate()" label="Guardar" />
                 </div>
                 <div v-if="tipoDoc.naturaleza == 4" class="col-12 text-center q-mt-md">
                     <q-toggle v-model="valueToggle" label="AutoImpresión"/>
@@ -430,6 +464,7 @@ export default {
       vendedores: [],
       formasPago: [],
       updateMode: false,
+      openInventarioNotas: false,
       options: {
         despachos: this.despachos,
         tiposDoc: this.tiposDoc,
@@ -591,20 +626,25 @@ export default {
       return ((Math.round(row.precio) - row.desc) * (row.iva / 100))
     },
     localValidate () {
-      if (parseInt(this.totalAbono) < parseInt(this.total)) {
-        this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
-      } else if (parseInt(this.total) < 1) {
-        this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
-      } else {
-        if (this.sendingCheck === 0) {
-          this.openedAddPago = false
-          if (this.updateMode === true) {
-            this.globalValidate('guardar-edicion', this.movActualId)
-          } else {
+      // if is pos and no update, total abono must be bigger than total
+      if (parseInt(this.tipoDoc.naturaleza) === 4 && this.updateMode === false) {
+        if (parseInt(this.totalAbono) < parseInt(this.total)) {
+          this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
+        } else if (parseInt(this.total) < 1) {
+          this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
+        } else {
+          if (this.sendingCheck === 0) {
+            this.openedAddPago = false
             this.globalValidate('guardar')
+            this.sendingCheck = 1
           }
-          this.sendingCheck = 1
         }
+      } else if (parseInt(this.tipoDoc.naturaleza) === 2 || parseInt(this.tipoDoc.naturaleza) === 3) {
+        this.openInventarioNotas = true
+      } else if (parseInt(this.tipoDoc.naturaleza) === 1 && this.updateMode === true) {
+        this.globalValidate('guardar-edicion', this.movActualId)
+      } else {
+        this.globalValidate('guardar')
       }
     },
     setPorcentaje (v) {
@@ -985,6 +1025,9 @@ export default {
       color: #21ba45;
     }
     .q-table__container{
+        width: 100%;
+    }
+    .w100{
         width: 100%;
     }
     .my-sticky-header-table .q-table__middle{

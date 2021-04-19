@@ -29,6 +29,34 @@
             </q-layout>
           </q-dialog>
         <!-- fin popup Errores Fact Elect -->
+        <!-- inicio popup Limpiar Basculas -->
+          <q-dialog v-model="openedLimpiarBascula" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 250px; max-width: 800px; background-color: #ffffff; color: #FFFFFF">
+              <q-header >
+                <q-toolbar style="background-color: #7E7EF4!important;">
+                  <q-btn flat v-close-popup round dense icon="close" />
+                </q-toolbar>
+              </q-header>
+
+              <q-page-container>
+                <q-page padding>
+                  <div class="overflow-hidden">
+                    <div class="row q-col-gutter-sm">
+                      <div class="col">
+                        <q-input type="password" label="Ingrese la contraseña para limpiar " v-model="contraseñaLimpiarBascula"></q-input>
+                      </div>
+                    </div>
+                    <div class="row q-col-gutter-sm q-mt-md">
+                      <div class="col">
+                        <q-btn v-close-popup color="negative" v-on:click="limpiarTiquetesBasculas()" label="Limpiar Tiquetes no Facturados" />
+                      </div>
+                    </div>
+                  </div>
+                </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popup Limpiar Basculas -->
 
         <h3>Datos de la Empresa</h3>
         <div class="overflow-hidden">
@@ -283,6 +311,9 @@
                   <div class="col">
                     <q-btn color="negative" v-on:click="openedEliminarDatosHabFE = true" label="Eliminar Datos Habil FE" />
                   </div>
+                  <div class="col">
+                    <q-btn color="negative" v-on:click="openedLimpiarBascula = true" label="Limpiar Tiquetes" />
+                  </div>
                 </div>
             </div>
             <div class="row q-mt-md">
@@ -312,7 +343,9 @@ export default {
       tableData: [],
       tipos: [],
       contraseñaEliminarHabFE: null,
+      contraseñaLimpiarBascula: null,
       openedEliminarDatosHabFE: false,
+      openedLimpiarBascula: false,
       groupSelected: [],
       columns: [
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
@@ -476,6 +509,27 @@ export default {
         })
       } else {
         this.contraseñaEliminarHabFE = null
+        this.$q.notify({ color: 'negative', message: 'Contraseña Incorrecta' })
+      }
+    },
+    limpiarTiquetesBasculas () {
+      if (this.contraseñaLimpiarBascula === 'adminsgc3.1416') {
+        this.contraseñaLimpiarBascula = null
+        var app = this
+        app.$q.loading.show()
+        axios.get(this.$store.state.jhsoft.url + 'api/facturacion/tiquetesnofacturados/limpiartiquetes').then(
+          function (response) {
+            if (response.data === 'done') {
+              app.$q.notify({ color: 'positive', message: 'Datos Eliminados.' })
+            }
+          }
+        ).catch(function (error) {
+          console.log(error)
+        }).finally(function () {
+          app.$q.loading.hide()
+        })
+      } else {
+        this.contraseñaLimpiarBascula = null
         this.$q.notify({ color: 'negative', message: 'Contraseña Incorrecta' })
       }
     },

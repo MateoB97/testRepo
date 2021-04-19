@@ -79,7 +79,9 @@ module.exports = function (ctx) {
         'QBar',
         'QSpace',
         'QCardActions',
-        'QBtnToggle'
+        'QBtnToggle',
+        'QTabs',
+        'QTab'
       ],
       directives: [
         'Ripple',

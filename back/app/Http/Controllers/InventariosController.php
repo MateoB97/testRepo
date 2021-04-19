@@ -366,11 +366,11 @@ class InventariosController extends Controller
                 ^CI28
                 ".$proceso."
                 ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28";
-        // if($data->producto_aprobado != null && !$lote->producto_empacado && !$marinado){
-        //     $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
-        // }elseif($data->producto_aprobado != null && $lote->producto_empacado){
-        //     $etiqueta .= "^FT200,260^A0N,30,30^FH\^CI28^FD|Aprobado^FS^CI28";
-        // }
+        if($data->producto_aprobado != null && !$lote->producto_empacado && !$marinado){
+            $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
+        }elseif($data->producto_aprobado != null && $lote->producto_empacado){
+            $etiqueta .= "^FT200,260^A0N,30,30^FH\^CI28^FD|Aprobado^FS^CI28";
+        }
         if(!$lote->producto_empacado){// LOTES JH
             if(!$marinado){
                 $etiqueta .= "
@@ -391,8 +391,8 @@ class InventariosController extends Controller
                     ^FT30,275^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
                     ^FT30,300^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
                     ^FT235,225^A0N,24,24^FH\^CI28^FD".$data->fecha_sacrificio."^FS^CI28
-                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
-                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
+                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
+                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
                     ^FT270,300^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28";
             }else{
                 $etiqueta .= "
@@ -418,8 +418,8 @@ class InventariosController extends Controller
                     ^FT30,235^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
                     ^FT30,260^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
                     ^FT235,185^A0N,24,24^FH\^CI28^FD".$data->fecha_sacrificio."^FS^CI28
-                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
-                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
+                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
+                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
                     ^FT270,260^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28
                     ^PQ1,0,1,Y
                     ^XZ";
@@ -516,7 +516,8 @@ class InventariosController extends Controller
             if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^"; }
             if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
 
-            $titulo = "CARNE DE ".strtoupper($data_grupo);
+            // $titulo = "CARNE DE ".strtoupper($data_grupo);
+            $titulo =  self::validarTitulo($producto->prodSubgrupo->encabezado_etiqueta, $data_grupo, $request->marinado);
             $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
             $etiqueta = "
                 ^XA~TA000~JSN^LT0^MNW^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD15^JUS^LRN^CI0^XZ
@@ -527,10 +528,14 @@ class InventariosController extends Controller
                 ^LS0
                 ".$proceso."
                 ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^CI28";
-
+                if($programacion->lote->producto_aprobado > 0 && !$request->marinado){
+                    $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
+                }elseif($programacion->lote->producto_aprobado > 0 &&  $request->marinado){
+                    $etiqueta .= "^FT595,235^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
+                }
             if (!$request->marinado) {
                 $etiqueta .= "
-                    ^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($data_grupo)."^FS^CI28
+                    ".$titulo."
                     ^FPH,1^FT27,170^A0N,50,50^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
                     ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
@@ -543,12 +548,12 @@ class InventariosController extends Controller
                     ^FT30,275^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
                     ^FT30,300^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
                     ^FT235,225^A0N,24,24^FH\^CI28^FD".$data_fecha_sacrificio."^FS^CI28
-                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
-                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
+                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
+                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
                     ^FT270,300^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28";
             }else{
                 $etiqueta .= "
-                    ^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($data_grupo)." MARINADA^FS^CI28
+                    ".$titulo."
                     ^FPH,1^FT30,126^A0N,43,43^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
                     ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data_registro_sanitario."^FS^CI28
                     ^FT430,210^ARN,1^FH\^CI28^FDMarca:^FS^CI28
@@ -566,8 +571,8 @@ class InventariosController extends Controller
                     ^FT30,235^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
                     ^FT30,260^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
                     ^FT235,185^A0N,24,24^FH\^CI28^FD".$data_fecha_sacrificio."^FS^CI28
-                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
-                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
+                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
+                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
                     ^FT270,260^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28
                     ^PQ1,0,1,Y
                     ^XZ";
@@ -591,15 +596,14 @@ class InventariosController extends Controller
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
-        $titulo = '';
-        if($encabezado > 0 || $encabezado != null || $encabezado != "null"){
+        if($encabezado > 0 ){
             if(!$marinado){
-                return $titulo = "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
             }else{
-                return $titulo = "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
+                return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
             }
         }else{
-            return $titulo = '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+            return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
         }
     }
 

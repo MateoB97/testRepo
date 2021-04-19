@@ -182,6 +182,7 @@ class Inventario extends Model
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
+                'producto_terminados.almacenamiento as almacenamiento',
                 'producto_terminados.created_at as fecha_empaque',
                 'prod_grupos.nombre as grupo',
                 'lot_programaciones.id as programacion'

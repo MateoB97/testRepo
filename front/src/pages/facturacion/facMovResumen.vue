@@ -138,7 +138,6 @@ export default {
     },
     printPOS (id, copia) {
       var app = this
-      console.log(id)
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/imprimirpos/' + id + '/' + copia).then(
         function (response) {
           if (response.data === 'done') {

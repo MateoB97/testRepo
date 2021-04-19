@@ -346,7 +346,7 @@ class FacMovimientosController extends Controller
         if ($tipoDoc->naturaleza == 0) {
 
             $docRelacionado = FacMovimiento::find($request->docReferencia['id']);
-
+            self::descargarDevolucionInventario($docRelacionado->id);
             $docRelacionado->estado = 3;
 
             $docRelacionado->save();
@@ -477,7 +477,7 @@ class FacMovimientosController extends Controller
             $nuevoPivot->precio = intval($linea['precio']);
             $nuevoPivot->save();
 
-            if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1) {
+            if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1 || ($tipoDoc->naturaleza == 2 && $request->afectaInventario == true)) {
 
                 $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
                 if ($itemInventario) {
@@ -490,6 +490,7 @@ class FacMovimientosController extends Controller
                     $nuevoInventario->tipo_invent = 1;
                     $nuevoInventario->save();
                 }
+
             }
         }
 
@@ -1222,5 +1223,24 @@ class FacMovimientosController extends Controller
         return $http;
     }
 
+    public function limpiarTiquetesBascula (){
+        FacMovimiento::limpiarTiquetesBascula();
+    }
 
+    public static function  descargarDevolucionInventario($id){
+        $lineas = FacPivotMovProducto::porMovimiento($id);
+        foreach($lineas as $linea){
+            $itemInventario = Inventario::where('producto_id', $linea->producto_id)->where('tipo_invent','!=',2)->get()->first();
+            if ($itemInventario) {
+                $itemInventario->cantidad += floatval($linea->cantidad);
+                $itemInventario->save();
+            } else {
+                $nuevoInventario = new Inventario($linea);
+                $nuevoInventario->cantidad = + floatval($linea->cantidad);
+                $nuevoInventario->costo_promedio = 0;
+                $nuevoInventario->tipo_invent = 1;
+                $nuevoInventario->save();
+            }
+        }
+    }
 }

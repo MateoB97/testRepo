@@ -25,8 +25,8 @@ class FacTipoDoc extends Model
         'soenac_tipo_doc_api_id',
         'resolucion_soenac_id',
         'habilitacion_fe',
-        'fac_tipo_estado',
-        'fac_tipo_oficial'
+        'estado',
+        'legal'
     ];
 
     public function getDateFormat()
@@ -55,10 +55,10 @@ class FacTipoDoc extends Model
                     'soenac_tipo_doc_api_id',
                     'resolucion_soenac_id',
                     'habilitacion_fe',
-                    'fac_tipo_estado',
-                    'fac_tipo_oficial'
-                    )
-                ->where('fac_tipo_doc.fac_tipo_estado','=', $estado)
+                    'estado',
+                    'legal'
+                )
+                ->where('estado','=', $estado)
                 ->get();
         }
 

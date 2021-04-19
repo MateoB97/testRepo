@@ -241,7 +241,6 @@ export default {
   methods: {
     postSave (callback) {
       this.storeItems = {
-        fecha_recibo: null,
         ajuste_observacion: 'Sin observaciones',
         ajuste: 0
       }

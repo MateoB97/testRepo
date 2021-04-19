@@ -71,12 +71,28 @@
 </style>
 </head>
 <body>
-    <p>Fecha: {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
-    <h3 style="text-align:center;">GUIA DE TRANSPORTE</h3>
+    <table class="table-info">
+        <tbody>
+            <tr>
+                <td>
+                    <h3  style="text-align:center;">GUIA DE TRANSPORTE</h3>
+                <td>
+                <td>
+                    <img style="width: 140px; height:90px;" src="{{ asset('images/logo.png') }}">
+                <td>
+            </tr>
+            {{--  <tr>
+                <td>
+                    <h3  style="text-align:center;">GUIA DE TRANSPORTE</h3>
+                <td>
+            </tr>  --}}
+        </tbody>
+    </table>
 	<table class="table-info">
 		<tbody>
             <tr>
 				<td>
+                    <p><strong>Fecha:</strong> {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
 					<p><strong>{{ strtoupper($empresa->razon_social) }}</strong></p>
 					<p>{{ $empresa->nit }}</p>
 					<p>Tel {{ $empresa->telefono }}</p>

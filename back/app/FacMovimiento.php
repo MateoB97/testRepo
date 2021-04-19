@@ -433,13 +433,9 @@ public static function reciboRelacionados($id)
     ->get();
 }
 
-// // // public static function todosConTipoSucursalGrupoTipoCustom () {
-// // //     return DB::table('fac_movimientos AS f')
-// // //             ->select( DB::raw( 'fac_movimientos.id, COUNT(distinct fac_cruce.fac_mov_secundario)' ))
-// // //             ->join('fac_cruce','fac_cruce.fac_mov_secundario', '=', 'f.id')
-// // //             ->join('fac_movimientos','fac_movimientos.id', '=', 'fac_cruce.fac_mov_principal')
-// // //             ->groupBy('fac_movimientos.id')
-// // //             ->get();
-// // // }
+public static function limpiarTiquetesBascula () {
+    DB::statement('UPDATE fac_pivot_mov_productos SET num_tiquete = null where CAST(created_at as date)  = CAST(GETDATE() as date)');
+    // return DB::raw("UPDATE fac_pivot_mov_productos SET num_tiquete = null where CAST(created_at as date)  = CAST(GETDATE() as date)");
+}
 
 }
