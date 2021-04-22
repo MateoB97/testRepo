@@ -43,7 +43,7 @@ class ComComprasController extends Controller
 
         if ( count(ComCompra::where('com_tipo_compras_id', $nuevoItem->com_tipo_compras_id)->get()) > 0 ){
             $consecutivo = ComCompra::where('com_tipo_compras_id', $nuevoItem->com_tipo_compras_id)->get()->last();
-            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1; 
+            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
         }else{
             $nuevoItem->consecutivo = $tipoCompra->consec_inicio;
         }
@@ -52,7 +52,7 @@ class ComComprasController extends Controller
         if ($tipoCompra->naturaleza == 0) {
 
             $docRelacionado = ComCompra::find($request->docReferencia['id']);
-
+            self::descargarDevolucionInventario($docRelacionado->id);
             $docRelacionado->estado = 3;
 
             $docRelacionado->save();
@@ -64,7 +64,7 @@ class ComComprasController extends Controller
 
            $nuevoItem->estado = 1;
            $nuevoItem->saldo = $nuevoItem->total;
-           
+
            $nuevoItem->save();
 
         }
@@ -85,7 +85,7 @@ class ComComprasController extends Controller
                 } else {
                     $itemInventario->costo_promedio = intval($linea['precio']);
                 }
-                
+
 
                 $itemInventario->cantidad += floatval($linea['cantidad']);
                 $itemInventario->save();
@@ -131,7 +131,7 @@ class ComComprasController extends Controller
         } elseif ($tipoCompra->formato_impresion == 3) {
             $pdf = PDF::loadView('compras.remision', $data);
         }
-        
+
         return $pdf->stream();
     }
 
@@ -192,10 +192,10 @@ class ComComprasController extends Controller
 
             if ($ventas->total > 0 || $devoluciones->total > 0) {
                 array_push($comprasTotales, [$tipo->nombre, $ventas, $devoluciones]);
-                $granSubtotal += $ventas->subtotal; 
-                $granDescuento += $ventas->descuento; 
-                $granIva += $ventas->ivatotal; 
-                $granTotal += $ventas->total; 
+                $granSubtotal += $ventas->subtotal;
+                $granDescuento += $ventas->descuento;
+                $granIva += $ventas->ivatotal;
+                $granTotal += $ventas->total;
 
                 $granDevSubtotal += $devoluciones->subtotal;
                 $granDevDescuento += $devoluciones->descuento;
@@ -207,21 +207,50 @@ class ComComprasController extends Controller
         $hoy = Carbon::now();
 
         $data = ['comprasTotales' => $comprasTotales,
-                 'fechaIni' => $fechaIni, 
-                 'fechaFin' => $fechaFin, 
-                 'granSubtotal' => $granSubtotal, 
-                 'granDescuento' => $granDescuento, 
-                 'granIva' => $granIva, 
-                 'granTotal' => $granTotal, 
-                 'granDevSubtotal' => $granDevSubtotal, 
-                 'granDevDescuento' => $granDevDescuento, 
-                 'granDevIva' => $granDevIva, 
-                 'granDevTotal' => $granDevTotal, 
+                 'fechaIni' => $fechaIni,
+                 'fechaFin' => $fechaFin,
+                 'granSubtotal' => $granSubtotal,
+                 'granDescuento' => $granDescuento,
+                 'granIva' => $granIva,
+                 'granTotal' => $granTotal,
+                 'granDevSubtotal' => $granDevSubtotal,
+                 'granDevDescuento' => $granDevDescuento,
+                 'granDevIva' => $granDevIva,
+                 'granDevTotal' => $granDevTotal,
                  'hoy' => $hoy, ];
 
         $pdf = PDF::loadView('compras.comprasnetasporfecha', $data);
 
         return $pdf->stream();
+    }
+
+    public static function  descargarDevolucionInventario($id){
+        $lineas = ComPivotCompraProducto::porCompra($id);
+        foreach($lineas as $linea){
+            self::afectarInventario($linea->producto_id, $linea->cantidad, 0);
+        }
+    }
+
+    public static function afectarInventario ($producto_id, $cantidad, $tipo_operacion) {
+
+        if ($tipo_operacion == 1){//Devolucion
+            $cantidad = floatval($cantidad);
+        } else {
+            $cantidad = -floatval($cantidad);//Venta
+        }
+
+        $itemInventario = Inventario::where('producto_id', $producto_id)->where('tipo_invent','!=',2)->get()->first();
+        if ($itemInventario) {
+            $itemInventario->cantidad += $cantidad;
+            $itemInventario->save();
+        } else {
+            $nuevoInventario = new Inventario();
+            $nuevoInventario->cantidad = $cantidad;
+            $nuevoInventario->producto_id = $producto_id;
+            $nuevoInventario->costo_promedio = 0;
+            $nuevoInventario->tipo_invent = 1;
+            $nuevoInventario->save();
+        }
     }
 
 }

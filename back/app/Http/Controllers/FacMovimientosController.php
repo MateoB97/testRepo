@@ -85,37 +85,37 @@ class FacMovimientosController extends Controller
         //     ['71386506','VLADIMIR ALZATE HINCAPIE','0','1','0','1','calle 95 49 05','3022078732','UNICA','79','NO TIENE'],
         //     ['201080','yeison chiki','0','1','0','2','cr48 52-26','2339319','UNICA','79','NO TIENE']];
 
-        // $i = 2;
+        $i = 2;
 
-        // foreach ($terceros as $item) {
-        //     Tercero::create([
-        //         'documento' => $item[0],
-        //         'nombre' => strtolower($item[1]),
-        //         'proveedor' => $item[2],
-        //         'cliente' => $item[3],
-        //         'empleado' => $item[4],
-        //         'digito_verificacion' => $item[5],
-        //         'activo' => 1,
-        //         'habilitado_traslados' => 0,
-        //         'soenac_regim_id' => null,
-        //         'soenac_responsab_id' => null,
-        //         'soenac_tipo_org_id' => null,
-        //         'soenac_tipo_documento_id' => null,
-        //         'registro_mercantil' => null
-        //     ]);
+        foreach ($terceros as $item) {
+            Tercero::create([
+                'documento' => $item[0],
+                'nombre' => strtolower($item[1]),
+                'proveedor' => $item[2],
+                'cliente' => $item[3],
+                'empleado' => $item[4],
+                'digito_verificacion' => $item[5],
+                'activo' => 1,
+                'habilitado_traslados' => 0,
+                'soenac_regim_id' => null,
+                'soenac_responsab_id' => null,
+                'soenac_tipo_org_id' => null,
+                'soenac_tipo_documento_id' => null,
+                'registro_mercantil' => null
+            ]);
 
-        //     TerceroSucursal::create([
-        //         'nombre' => strtolower($item[8]),
-        //         'direccion' => $item[6],
-        //         'telefono' => intval($item[7]),
-        //         'tercero_id' => $i,
-        //         'prodListaPrecio_id' => 1,
-        //         'activo' => 1,
-        //         'gen_municipios_id' => intval($item[9])
-        //     ]);
+            TerceroSucursal::create([
+                'nombre' => strtolower($item[8]),
+                'direccion' => $item[6],
+                'telefono' => intval($item[7]),
+                'tercero_id' => $i,
+                'prodListaPrecio_id' => 1,
+                'activo' => 1,
+                'gen_municipios_id' => intval($item[9])
+            ]);
 
-        //     $i = $i + 1;
-        // }
+            $i = $i + 1;
+        }
 
 
         $data =
@@ -477,20 +477,11 @@ class FacMovimientosController extends Controller
             $nuevoPivot->precio = intval($linea['precio']);
             $nuevoPivot->save();
 
-            if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1 || ($tipoDoc->naturaleza == 2 && $request->afectaInventario == true)) {
+            if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1) {
 
-                $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
-                if ($itemInventario) {
-                    $itemInventario->cantidad -= floatval($linea['cantidad']);
-                    $itemInventario->save();
-                } else {
-                    $nuevoInventario = new Inventario($linea);
-                    $nuevoInventario->cantidad = - $linea['cantidad'];
-                    $nuevoInventario->costo_promedio = 0;
-                    $nuevoInventario->tipo_invent = 1;
-                    $nuevoInventario->save();
-                }
-
+                self::afectarInventario($linea['producto_id'], $linea['cantidad'], 0);
+            } elseif ($tipoDoc->naturaleza == 2 && $request->afectaInventario == true) {
+                self::afectarInventario($linea['producto_id'], $linea['cantidad'], 1);
             }
         }
 
@@ -498,6 +489,28 @@ class FacMovimientosController extends Controller
             return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id, true]];
         } else {
             return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
+        }
+    }
+
+    public static function afectarInventario ($producto_id, $cantidad, $tipo_operacion) {
+
+        if ($tipo_operacion == 1){
+            $cantidad = floatval($cantidad);
+        } else {
+            $cantidad = -floatval($cantidad);
+        }
+
+        $itemInventario = Inventario::where('producto_id', $producto_id)->where('tipo_invent','!=',2)->get()->first();
+        if ($itemInventario) {
+            $itemInventario->cantidad += $cantidad;
+            $itemInventario->save();
+        } else {
+            $nuevoInventario = new Inventario();
+            $nuevoInventario->cantidad = $cantidad;
+            $nuevoInventario->producto_id = $producto_id;
+            $nuevoInventario->costo_promedio = 0;
+            $nuevoInventario->tipo_invent = 1;
+            $nuevoInventario->save();
         }
     }
 
@@ -620,7 +633,6 @@ class FacMovimientosController extends Controller
         $movimiento = FacMovimiento::find($id);
         $data = null;
         $movimiento->qr = substr( $movimiento->qr, strpos($movimiento->qr, 'https://'));
-
         $tipoDoc = $movimiento->tipoDoc;
 
         $empresa = GenEmpresa::find(1);
@@ -653,8 +665,6 @@ class FacMovimientosController extends Controller
 
     public function printPOS($id, $copia){
 
-        $repT80 = new ReportesT80(48);
-
         $nuevoItem = FacMovimiento::find($id);
         $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
@@ -663,7 +673,7 @@ class FacMovimientosController extends Controller
         $tercero = $sucursal->Tercero;
         $municipio = GenMunicipio::find($empresa->gen_municipios_id);
         $departamento = GenDepartamento::find($municipio->departamento_id);
-
+        $caractPorlinea = caracteres_linea_pos();
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
@@ -688,90 +698,74 @@ class FacMovimientosController extends Controller
                 $printer->graphics($img);
             }
             $etiqueta = str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            
-            $etiqueta .= $repT80->posHeaderEmpresa();
-
-            $etiqueta .= $repT80->posLineaBlanco();
+            $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
 
             // DATOS DE FACTURACION
             if ($tipoDoc->prefijo) {
-                $etiqueta .= $repT80->posLineaCentro("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac);
+                $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
             } else {
-                $etiqueta .= $repT80->posLineaCentro("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac);
+                $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
             }
+            $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+            $etiqueta .= str_pad("VIGENCIA 18 MESES", $caractPorlinea, "-", STR_PAD_BOTH);
 
-            $etiqueta .= $repT80->posArrayCentro(
-                    "N RESOLUCION: ".$tipoDoc->resolucion,
-                    "FECHA: ".$tipoDoc->fec_resolucion,
-                    '',
-                    "VIGENCIA 18 MESES"
-                    '',
-                    "CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion,
-                    "VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre)
-                );
-
+            // DATOS DE LA VENTA
+            $etiqueta .= str_pad("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion, $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
             if ($copia == 1) {
-                $etiqueta .= $repT80->posLineaCentro("   COPIA   ", '*');
+                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
             }
 
             if ($tipoDoc->prefijo) {
-                $etiqueta .= $repT80->posLineaCentro("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo);
+                $etiqueta .= str_pad("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
             } else {
-                $etiqueta .= $repT80->posLineaCentro("FACTURA DE VENTA # ".$nuevoItem->consecutivo);
+                $etiqueta .= str_pad("FACTURA DE VENTA # ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
             }
-
             if ($copia == 1) {
-                $etiqueta .= $repT80->posLineaCentro("   COPIA   ", '*');
+                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
             }
-
-            $etiqueta .= $repT80->posLineaGuion();
+            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
 
             // DATOS DEL CLIENTE
-            $etiqueta .= $repT80->posLineaDerecha($tercero->nombre);
+            $etiqueta .= str_pad(eliminar_acentos(substr($tercero->nombre, 0, 41)), $caractPorlinea, " ", STR_PAD_RIGHT);
             if ($tercero->digito_verificacion) {
-                $etiqueta .= $repT80->posLineaDerecha("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea);
+                $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
             } else {
-                $etiqueta .= $repT80->posLineaDerecha("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono);
+                $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
             }
+            $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, $caractPorlinea, " ", STR_PAD_RIGHT);
 
-            $etiqueta .= $repT80->posLineaDerecha("DIRECCION: ".$sucursal->direccion);
-
-            $etiqueta .= $repT80->posLineaGuion();
+            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
 
             // PRODUCTOS
-            $etiqueta .= $repT80->posArrayCentro(
-                    "CODIGO   PRODUCTO   TOTAL | IVA",
-                    '-',
-                    ' '
-                );
-
-
+            $etiqueta .= str_pad("CODIGO   PRODUCTO   TOTAL | IVA", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
             $totalGeneral = 0;
 
             foreach ($lineas as $linea) {
 
                 // linea 1
-                $etiqueta .= $repT80->multiItemsFromArray(
-                        [
-                            [Producto::find($linea->producto_id)->codigo, 3, '0', -1],
-                            [' '.Producto::find($linea->producto_id)->nombre,  0, ' ', 1],
-                            [' '.$repT80->toNumber(intval($linea['precio']) * floatval($linea['cantidad'])), 11, ' ', -1],
-                            ['| ',  2, ' ', 0],
-                            [$linea['iva'],  2, ' ', -1]
-                        ]
-                    );
-
+                $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
+                $etiqueta .= ' ';
+                $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
+                $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
+                $etiqueta .= ' ';
+                $total = intval($linea['precio']) * floatval($linea['cantidad']);
+                $total =  number_format($total, 0, ',', '.');
+                $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
+                $etiqueta .= ' |';
+                $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
                 // linea 2
-                $etiqueta .= $repT80->multiItemsFromArray(
-                        [
-                            [Producto::find($linea->producto_id)->codigo, 3, '0', -1],
-                            [' '.Producto::find($linea->producto_id)->nombre    ,  0, ' ', 1],
-                            [' '.$repT80->toNumber(intval($linea['precio']) * floatval($linea['cantidad'])), 11, ' ', -1],
-                            ['| '           ,  2, ' ', 0],
-                            [$linea['iva']  ,  2, ' ', -1]
-                        ]
-                    );
-
                 $etiqueta .= '    ';
                 $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
                 $etiqueta .= ' ';
@@ -1230,17 +1224,7 @@ class FacMovimientosController extends Controller
     public static function  descargarDevolucionInventario($id){
         $lineas = FacPivotMovProducto::porMovimiento($id);
         foreach($lineas as $linea){
-            $itemInventario = Inventario::where('producto_id', $linea->producto_id)->where('tipo_invent','!=',2)->get()->first();
-            if ($itemInventario) {
-                $itemInventario->cantidad += floatval($linea->cantidad);
-                $itemInventario->save();
-            } else {
-                $nuevoInventario = new Inventario($linea);
-                $nuevoInventario->cantidad = + floatval($linea->cantidad);
-                $nuevoInventario->costo_promedio = 0;
-                $nuevoInventario->tipo_invent = 1;
-                $nuevoInventario->save();
-            }
+            self::afectarInventario($linea->producto_id, $linea->cantidad, 0);
         }
     }
 }

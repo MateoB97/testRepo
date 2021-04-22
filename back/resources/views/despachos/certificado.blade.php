@@ -205,7 +205,8 @@
 			<img style="max-width: 100%" src="{{ asset('images/firma.png') }}">
 		</div>
 		<div style="width: 49%; float: right; text-align: justify;">
-			<p class="text-footer">Los animales de los cuales proviene la carne son beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas (Refrigeración de 0-4ºC, Congelacion -18ºC).</p>
+            {{--  <p class="text-footer"> OBSERVACIONES:</p>  --}}
+			<p class="text-footer">OBSERVACIONES <br/> Los animales de los cuales proviene la carne son beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas (Refrigeración de 0-4ºC, Congelacion -18ºC).</p>
 			<p class="text-footer">En caso de petición, queja o reclamo comuníquese al correo pqrssupercarnesjh@gmail.com.</p>
 		</div>
 	</div>

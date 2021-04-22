@@ -338,7 +338,6 @@ export default {
       urlAPI: 'api/compras/items',
       tipoCompra: {},
       storeItems: {
-        doc_referencia: null
       },
       datos: {
       },

@@ -120,7 +120,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\PesoPlantaxLote.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -170,6 +170,15 @@ class ReportesGeneradosController extends Controller
         // dd($_GET);
         $params = $_GET;
         $input = 'MovimientosPorProducto';
+        self::executeJasper($input, $params);
+    }
+
+    public function pesoPlantaLote($lote_id){
+        // dd($_GET);
+        $params = [
+            'lote_id' => $lote_id,
+        ];
+        $input = 'PesoPlantaxLote';
         self::executeJasper($input, $params);
     }
 
@@ -479,7 +488,6 @@ class ReportesGeneradosController extends Controller
         }
 
         foreach($receiptTypes as $receiptType){//Recibos
-
             if($receiptDetails->where('tipo',$receiptType->nombre)->count()){
                 $etiqueta .= pad(eliminar_acentos(eliminar_acentos($receiptType->nombre)) ,0, ' ');
                     foreach($receiptDetails->where('tipo',$receiptType->nombre) as $receiptDetail){
@@ -656,6 +664,14 @@ class ReportesGeneradosController extends Controller
         $pdf = PDF::loadView('facturacion.movimientoconformadepagoporfecha', $data);
 
         return $pdf->stream();
+    }
+
+    public static function testing(){
+        // $fecha = '2021-04-19';
+        // $data = ReportesGenerados::recibosAbonosCreditos($fecha);
+        // dd($data);
+        $data = '7838';
+        dd(substr($data,1,6));
     }
 
 }

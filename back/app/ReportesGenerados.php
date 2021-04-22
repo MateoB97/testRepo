@@ -322,4 +322,97 @@ class ReportesGenerados extends Model
     }
 
 
+    public static function ventasContadoCredito($fecha){
+        return DB::select(
+            "
+            select
+                fac_tipo_doc.nombre as VentasTipoDoc,
+                min(fac_movimientos.consecutivo) as VentasMinConsecutivo,
+                max(fac_movimientos.consecutivo) as VentasMaxConsecutivo,
+                sum(fac_movimientos.total) as Devtotal
+            from fac_movimientos
+            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
+            where fecha_facturacion = '$fecha'
+                and fac_movimientos.estado != 3
+                and fac_tipo_doc.naturaleza in (1,4)
+                and fac_tipo_doc.legal >0
+            group by fac_tipo_doc.nombre
+            "
+        );
     }
+
+    public static function devolucionesContadoCredito($fecha){
+        return DB::select(
+            "
+            select
+                fac_tipo_doc.nombre as DevTipoDoc,
+                sum(fac_movimientos.total) as total
+            from fac_movimientos
+            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
+            where fecha_facturacion = '$fecha'
+                and fac_movimientos.estado = 3
+                and fac_tipo_doc.naturaleza in (1,4)
+                and fac_tipo_doc.legal >0
+            group by fac_tipo_doc.nombre
+            "
+        );
+    }
+
+    public static function recibosAbonosCreditos($fecha){
+        return DB::select(
+            "
+            select
+                fac_tipo_doc.nombre as DevTipoDoc,
+                sum(fac_movimientos.total) as total
+            from fac_movimientos
+            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
+            where fecha_facturacion = '$fecha'
+                and fac_movimientos.estado = 3
+                and fac_tipo_doc.naturaleza in (1,4)
+                and fac_tipo_doc.legal >0
+            group by fac_tipo_doc.nombre
+            "
+        );
+    }
+
+    public static function impuestoFiscal($fecha){
+        return DB::select("
+        select
+        a.tipo_documento,
+        a.fecha_facturacion,
+        a.naturaleza,
+        a.legal,
+        a.[Impuesto %],
+        sum(a.ValorTotalSinIva) As [ValorTotalSinIVA],
+        sum(a.ValorIva) as [ValorIVA],
+        sum(a.ValorTotalSinIva) + sum(a.ValorIva) as [ValorTotalConIVA]
+    from (
+    select
+            d.consecutivo,
+            d.fecha_facturacion,
+            td.id,
+            td.naturaleza,
+            td.nombre as tipo_documento,
+            td.legal,
+            dd.descporcentaje,
+            dd.iva as [Impuesto %],
+            dd.precio as ValorUnit,
+            dd.cantidad,
+            (dd.precio * dd.cantidad) as ValorTotalSinIva,
+            (dd.precio * dd.cantidad) * (cast(dd.iva as float)/100) as ValorIva,
+            (dd.precio * dd.cantidad) + ((dd.precio * dd.cantidad) * (cast(dd.iva as float)/100)) as ValorTotal
+        from fac_movimientos d
+        inner join tercero_sucursales ts on d.cliente_id = ts.id
+        inner join terceros t on t.id = ts.tercero_id
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join productos p on dd.producto_id = p.id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        where
+            td.naturaleza in (1,4) and td.legal >0
+            and d.estado != 3
+            and  fecha_facturacion = '$fecha'
+    )a
+    group by a.tipo_documento, a.fecha_facturacion, a.naturaleza,a.legal, a.[Impuesto %]
+    order by a.tipo_documento");
+    }
+}

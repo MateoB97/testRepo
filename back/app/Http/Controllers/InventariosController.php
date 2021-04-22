@@ -513,7 +513,7 @@ class InventariosController extends Controller
 
             // if ($almaRefrigerado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^FS"; }
             // if ($almaCongelado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE CONGELADO A -18\F8C ^FS"; }
-            if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^"; }
+            if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F8C"; }
             if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
 
             // $titulo = "CARNE DE ".strtoupper($data_grupo);

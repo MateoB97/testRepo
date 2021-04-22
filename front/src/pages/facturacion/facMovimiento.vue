@@ -551,8 +551,6 @@ export default {
       }
       if (this.storeItems.prod_grupo_id) {
         this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
-      } else if (this.empresa.fact_grupo === true) {
-        this.storeItems.prod_grupo_id = null
       }
       if (parseInt(this.tipoDoc.naturaleza) === 1 || parseInt(this.tipoDoc.naturaleza) === 4) {
         this.storeItems.sal_mercancia_consec = parseInt(this.storeItems.guiaTransporte)

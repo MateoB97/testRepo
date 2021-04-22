@@ -36,7 +36,7 @@ class ReportesT80 extends Model
 		} else {
 			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_BOTH);
 		}
-		
+
 	}
 
 	public function posLineaDerecha ($string, $relleno = ' ', $toUpper = true) {
@@ -48,7 +48,7 @@ class ReportesT80 extends Model
 		} else {
 			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_RIGHT);
 		}
-		
+
 	}
 
 	public function posLineaIzquierda ($string, $relleno = ' ', $toUpper = true) {
@@ -60,7 +60,7 @@ class ReportesT80 extends Model
 		} else {
 			return str_pad($string, $this->caractLinea, $relleno, STR_PAD_LEFT);
 		}
-		
+
 	}
 
 	public function toNumber($number){
@@ -72,11 +72,11 @@ class ReportesT80 extends Model
 		$string = '';
 
 		foreach ($array as $line) {
-			$string .= posLineaCentro($line, $relleno, $toUpper);
+			$string .= $this->posLineaCentro($line, $relleno, $toUpper);
 		}
 
 		return $string;
-		
+
 	}
 
 
@@ -96,7 +96,7 @@ class ReportesT80 extends Model
 			'TEL: '.$empresa->telefono
 		);
 
-		$string = posArrayCentro($header);
+		$string = $this->posArrayCentro($header);
 
 		return $string;
 	}
@@ -132,7 +132,7 @@ class ReportesT80 extends Model
 
 		$stringLine = '';
 		$totalChars = 0;
-
+        $string = '';
 		foreach ($data as $item) {
 			$totalChars += $item[1];
 		}
@@ -143,7 +143,7 @@ class ReportesT80 extends Model
 
 		// string, size, fill, side-fill
 		foreach ($data as $item) {
-			
+
 			$totalChars += intval($item[1]);
 
 			if ($item[3] < 0) {
@@ -151,7 +151,7 @@ class ReportesT80 extends Model
 				$side = STR_PAD_LEFT;
 
 			} elseif ($item[3] == 0) {
-			
+
 				$side = STR_PAD_BOTH;
 
 			} else {
