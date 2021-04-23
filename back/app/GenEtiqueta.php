@@ -12,7 +12,7 @@ use App\GenDepartamento;
 
 class GenEtiqueta extends Model
 {
-    
+
 
     public static function imprimirEtiqueta($impresora, $item, $marinado) {
 
@@ -62,7 +62,7 @@ class GenEtiqueta extends Model
                 ^FH\^FD>:".$item->id."^FS";
 
         if(!$lote->producto_empacado){// LOTES JH
-            
+
             $etiqueta .= self::fechasEtiqueta($data);
 
         }else{
@@ -104,7 +104,7 @@ class GenEtiqueta extends Model
     }
 
     public static function fechasEtiqueta ($data) {
-        
+
         return "^FT30,185^ARN,1^FH\^CI28^FDFecha Sacrificio:^FS^CI28
                     ^FT30,210^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
                     ^FT30,235^ARN,5,5^FH\^CI28^FDFecha Empaque:^FS^CI28
@@ -113,26 +113,26 @@ class GenEtiqueta extends Model
                     ^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
                     ^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
                     ^FT270,260^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28";
-    
+
     }
 
     public static function marinadoEtiquetas ($porcMarinado) {
-        
+
         return "^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
                     ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyecci\A2n, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
                     ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
                     ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28";
-    
+
     }
 
     public static function headersEtiquetas ($data) {
-        
+
         return "^FT430,220^ARN,1^FH\^CI28^FDPeso:^FS^CI28
                     ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
                     ^FT520,220^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
                     ^FT515,260^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
                     ^FT510,300^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28";
-    
+
     }
 }
