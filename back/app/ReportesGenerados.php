@@ -329,7 +329,7 @@ class ReportesGenerados extends Model
                 fac_tipo_doc.nombre as VentasTipoDoc,
                 min(fac_movimientos.consecutivo) as VentasMinConsecutivo,
                 max(fac_movimientos.consecutivo) as VentasMaxConsecutivo,
-                sum(fac_movimientos.total) as Devtotal
+                sum(fac_movimientos.total) as total
             from fac_movimientos
             inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
             where fecha_facturacion = '$fecha'
@@ -382,7 +382,7 @@ class ReportesGenerados extends Model
         a.fecha_facturacion,
         a.naturaleza,
         a.legal,
-        a.[Impuesto %],
+        a.[impuesto],
         sum(a.ValorTotalSinIva) As [ValorTotalSinIVA],
         sum(a.ValorIva) as [ValorIVA],
         sum(a.ValorTotalSinIva) + sum(a.ValorIva) as [ValorTotalConIVA]
@@ -395,7 +395,7 @@ class ReportesGenerados extends Model
             td.nombre as tipo_documento,
             td.legal,
             dd.descporcentaje,
-            dd.iva as [Impuesto %],
+            dd.iva as [impuesto],
             dd.precio as ValorUnit,
             dd.cantidad,
             (dd.precio * dd.cantidad) as ValorTotalSinIva,
@@ -412,7 +412,7 @@ class ReportesGenerados extends Model
             and d.estado != 3
             and  fecha_facturacion = '$fecha'
     )a
-    group by a.tipo_documento, a.fecha_facturacion, a.naturaleza,a.legal, a.[Impuesto %]
+    group by a.tipo_documento, a.fecha_facturacion, a.naturaleza,a.legal, a.[impuesto]
     order by a.tipo_documento");
     }
 }

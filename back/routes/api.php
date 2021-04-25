@@ -320,10 +320,16 @@ Route::group(['prefix' => 'egresos', 'middleware' => 'auth'], function(){
 	Route::get('/reporteporcuadre/{id}', 'EgreEgresosController@generateReporteEgresosPorCuadre');
 });
 
+Route::group(['prefix' => 'ingresos', 'middleware' => 'auth'], function(){
+	Route::apiResource('items', 'GenCuadreIngresoEfectivoController');
+	Route::get('/imprimir/{id}', 'GenCuadreIngresoEfectivoController@generatePDF');
+	// Route::get('/reporteporcuadre/{id}', 'GenCuadreIngresoEfectivoController@generateReporteIngrPorCuadre');
+});
+
+
 Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
 	Route::get('/productosporlote/{id}', 'InventariosController@GetProductosPorLotePDF');
 });
-
 
 
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
@@ -347,6 +353,8 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
 
     Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
+
+    Route::get('/reportefiscal/{fechaini}/{fechafin}', 'ReportesGeneradosController@reporteFiscalPos');
 });
 
 

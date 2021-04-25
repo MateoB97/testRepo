@@ -34,4 +34,9 @@ class Authenticate extends Middleware
         }
         return 'authentication_error';
     }
+
+    public function getDateFormat()
+    {
+        return dateTimeSql();
+    }
 }

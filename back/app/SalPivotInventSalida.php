@@ -45,7 +45,7 @@ class SalPivotInventSalida extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return dateTimeSql();
     }
 
     public static function GetDataCertificado($id){

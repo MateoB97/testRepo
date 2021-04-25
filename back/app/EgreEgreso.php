@@ -25,7 +25,8 @@ class EgreEgreso extends Model
             	'egre_tipo_egreso.nombre as tipo_egreso',
             	'tercero_sucursales.nombre as sucursal',
             	'terceros.nombre as tercero',
-            	'users.name as usuario'
+            	'users.name as usuario',
+                'consecutivo'
             )
             ->join('egre_tipo_egreso','egre_tipo_egreso.id', '=', 'egre_egresos.egre_tipo_egreso_id')
             ->join('tercero_sucursales','tercero_sucursales.id', '=', 'egre_egresos.proveedor_id')
