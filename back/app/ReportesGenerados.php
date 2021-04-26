@@ -361,18 +361,32 @@ class ReportesGenerados extends Model
     public static function recibosAbonosCreditos($fecha){
         return DB::select(
             "
-            select
-                fac_tipo_doc.nombre as DevTipoDoc,
-                sum(fac_movimientos.total) as total
-            from fac_movimientos
-            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
-            where fecha_facturacion = '$fecha'
-                and fac_movimientos.estado = 3
-                and fac_tipo_doc.naturaleza in (1,4)
-                and fac_tipo_doc.legal >0
-            group by fac_tipo_doc.nombre
+            select 
+                trc.nombre,
+                sum(fp.valor) as Valor
+            from fac_recibos_caja rc
+            inner join fac_pivot_forma_recibo fp on rc.id =fp.fac_recibo_id
+            inner join fac_formas_pago fm on fp.fac_formas_pago_id = fm.id
+            inner join fac_tipo_rec_caja trc on rc.fac_tipo_rec_caja_id = trc.id
+            where rc.fecha_recibo = '$fecha'
+            group by trc.nombre
             "
         );
+    }
+
+    public static function efectivosRecibos($fecha){
+        return 
+        DB::statement("
+        select
+            fac_formas_pago.nombre,
+            sum(fac_pivot_forma_recibo.valor) as Valor
+        from fac_recibos_caja  
+        inner join fac_pivot_forma_recibo on  fac_recibos_caja.id =  fac_pivot_forma_recibo.fac_recibo_id
+        inner join fac_formas_pago on  fac_pivot_forma_recibo.fac_formas_pago_id = fac_formas_pago.id
+        where fac_recibos_caja.fecha_recibo = '$fecha'
+        group by fac_formas_pago.nombre
+        ")
+
     }
 
     public static function impuestoFiscal($fecha){
