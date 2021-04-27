@@ -113,7 +113,7 @@ class GenBasculasController extends Controller
 
         if (substr($tiquete, 0, 1) == '2' && strlen($tiquete) > 6){ 
             $seccion = '001';
-            $tiquete = intval(substr($tiquete,6,5));
+            $tiquete = intval(substr($tiquete,6,6));
         } else {
             $seccion = '000';
         }
