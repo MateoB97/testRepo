@@ -6,7 +6,7 @@ export const helperFacturacionScanerLineas = {
       this.$q.loading.show()
       var app = this
       var tiqueteLeido = false
-      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
+      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 12))
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))

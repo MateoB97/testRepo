@@ -223,6 +223,8 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 Route::group(['prefix' => 'inventario'], function(){
 	Route::apiResource('items', 'InventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
+	Route::put('produccion/{id}', 'InventariosController@update');
+	Route::get('produccion/{id}', 'InventariosController@show');
 	Route::delete('produccion/{id}', 'InventariosController@destroy');
 	Route::get('/productonprogram/{idproducto}/{idprogramacion}', 'InventariosController@GetDataExistentes');
 	Route::get('/idfilter/{id}', 'InventariosController@GetInfoSalMercancia');

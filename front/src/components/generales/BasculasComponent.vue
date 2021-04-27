@@ -14,7 +14,8 @@
       />
     </div>
     <div class="col-6">
-      <q-input ref="peso" v-model="peso" label="Peso" />
+      <q-input v-if="bascula != 'Manual'" ref="peso" v-model="peso" label="Peso" />
+      <q-input v-if="bascula == 'Manual'" ref="peso" v-model="peso" label="Peso" @input="$emit('input', peso)" />
     </div>
   </div>
 
@@ -48,14 +49,20 @@ export default {
   methods: {
     getPeso () {
       var v = this
-      this.interval = setInterval(function () {
-        axios.get(v.bascula).then(
-          function (response) {
-            v.peso = JSON.parse(response.data).p
-            v.$emit('input', v.peso)
-          }
-        )
-      }, 1000)
+      if (v.bascula !== 'Manual') {
+        this.stopGetPeso()
+        this.interval = setInterval(function () {
+          axios.get(v.bascula).then(
+            function (response) {
+              v.peso = JSON.parse(response.data).p
+              v.$emit('input', v.peso)
+            }
+          )
+        }, 1000)
+      } else {
+        console.log('holi')
+        this.stopGetPeso()
+      }
     },
     stopGetPeso () {
       clearInterval(this.interval)

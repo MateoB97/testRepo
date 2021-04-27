@@ -111,7 +111,14 @@ class GenBasculasController extends Controller
             array_push($lineasFacturadas, $item->num_linea_tiquete);
         }
 
-        $val = $ruta.'/BL000'.$dia.$mes.'.TOT';
+        if (substr($tiquete, 0, 1) == '2' && strlen($tiquete) > 6){ 
+            $seccion = '001';
+            $tiquete = intval(substr($tiquete,6,5));
+        } else {
+            $seccion = '000';
+        }
+
+        $val = $ruta.'/BL'.$seccion.$dia.$mes.'.TOT';
 
         $handle = @fopen($val, "r");
 
@@ -123,7 +130,7 @@ class GenBasculasController extends Controller
                                     intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
                                     intval(substr($buffer, 2, 5)), // numero tiquete
                                     intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
+                                    intval(substr($buffer, 31, 2)));// vendedo
 
                 if (( (intval(substr($buffer, 2, 5)) == $tiquete)) && (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas)) ){
                     array_push($arrayTotal, $arrayItem);
