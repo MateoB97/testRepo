@@ -6,7 +6,9 @@ export const helperFacturacionScanerLineas = {
       this.$q.loading.show()
       var app = this
       var tiqueteLeido = false
+      var puestoTiquete = 0
       if (app.num_tiquete.length === 13) {
+        puestoTiquete = parseInt(app.num_tiquete.substr(0, 1))
         app.num_tiquete = parseInt(app.num_tiquete.substr(0, 12))
       } else {
         app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
@@ -42,7 +44,8 @@ export const helperFacturacionScanerLineas = {
                     descporcentaje: 0.00,
                     despacho: false,
                     num_tiquete: element[3],
-                    num_linea_tiquete: element[4]
+                    num_linea_tiquete: element[4],
+                    puesto_tiquete: puestoTiquete
                   }
                   app.dataResumen.push(newProduct)
                   vendedor = element[5]
