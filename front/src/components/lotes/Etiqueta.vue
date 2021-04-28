@@ -125,7 +125,39 @@
                       </div>
                     </div>
                     <div class="row q-mt-md">
-                      <q-btn color="primary" v-on:click="globalStoreItem(0)" label="Guardar" />
+                      <div class="row q-col-gutter-xl">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(1)" color="primary" label="1" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(2)" color="primary" label="2" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(3)" color="primary" label="3" />
+                        </div>
+                      </div>
+                      <div class="row q-col-gutter-xl" style="margin-top:-20px">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(4)" color="primary" label="4" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(5)" color="primary" label="5" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(6)" color="primary" label="6" />
+                        </div>
+                      </div>
+                      <div class="row q-col-gutter-xl" style="margin-top:-20px">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(7)" color="primary" label="7" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(8)" color="primary" label="8" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(9)" color="primary" label="9" />
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -147,11 +179,6 @@ export default {
   data () {
     return {
       urlAPI: 'api/inventario/items',
-      basculas: [
-        { label: 'Local',
-          value: 'http://127.0.0.1:5002/basculas'
-        }
-      ],
       impresoras: [],
       left: true,
       right: true,
@@ -277,6 +304,10 @@ export default {
     },
     async getTodos () {
       this.globalGetForSelect('api/lotes/programaciones/abiertas', 'programaciones')
+    },
+    printEtiquetas (numPiezas) {
+      this.storeItems.num_piezas = numPiezas
+      this.globalStoreItem(0)
     }
   },
   created: function () {

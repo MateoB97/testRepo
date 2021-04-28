@@ -337,7 +337,7 @@ export const globalFunctions = {
             },
             'legal_monetary_totals': {
               'line_extension_amount': parseFloat(lineasAmountTotal).toFixed(2),
-              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount).toFixed(2),
+              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount + restaBolsa).toFixed(2),
               'tax_inclusive_amount': parseFloat(lineasAmountTotal + ivaTotal + restaBolsa).toFixed(2),
               'allowance_total_amount': '0.00',
               'charge_total_amount': '0.00',

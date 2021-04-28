@@ -19,7 +19,7 @@ class Tercero extends Model
      *
      * @var array
      */
-    protected $fillable = ['documento','nombre','proveedor','cliente','empleado','activo','habilitado_traslados','digito_verificacion','soenac_regim_id', 'soenac_responsab_id','soenac_tipo_org_id','soenac_tipo_documento_id','registro_mercantil'];
+    protected $fillable = ['documento','nombre','proveedor','cliente','empleado','activo','habilitado_traslados','digito_verificacion','soenac_regim_id', 'soenac_responsab_id','soenac_tipo_org_id','soenac_tipo_documento_id','registro_mercantil', 'plazo_facturacion'];
 
     /**
      * Tercero has many TerceroSucursal.

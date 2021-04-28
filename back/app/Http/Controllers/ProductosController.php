@@ -312,6 +312,28 @@ class ProductosController extends Controller
             }
             $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
             fwrite($fp, $linea2.PHP_EOL);
+
+            // solo para clientes con 2 secciones de basculas
+            // $linea1 = '02L200M0';
+            // $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+            // $linea1 .= '   ';
+            // $nombre = strtoupper($linea->nombre);
+            // $nombre = str_replace('ñ', 'N', $nombre);
+            // $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
+            // $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
+            // $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
+
+            // fwrite($fp, $linea1.PHP_EOL);
+
+            // $linea2 = '02H3000';
+            // $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+            // if ($linea->unidad_id == 1) {
+            //     $linea2 .= '0';
+            // } else {
+            //     $linea2 .= '1';
+            // }
+            // $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
+            // fwrite($fp, $linea2.PHP_EOL);
         }
 
         $vendedores = GenVendedor::all();

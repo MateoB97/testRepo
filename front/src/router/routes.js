@@ -119,15 +119,16 @@ const routes = [
     props: true
   },
   {
-    path: '/egresos',
+    path: '/gestion-efectivo',
     meta: {
       auth: true
     },
     component: () => import('layouts/MyLayout.vue'),
     children: [
-      { path: 'tipos', component: () => import('pages/egresos/tipos.vue') },
-      { path: 'items', component: () => import('pages/egresos/egresos.vue') },
-      { path: 'resumen', component: () => import('pages/egresos/resumen.vue') }
+      { path: 'tipos', component: () => import('pages/gestionEfectivo/tipos.vue') },
+      { path: 'egresos', component: () => import('pages/gestionEfectivo/egresos.vue') },
+      { path: 'resumen', component: () => import('pages/gestionEfectivo/resumen.vue') },
+      { path: 'ingresos', component: () => import('pages/gestionEfectivo/ingresos.vue') }
     ],
     props: true
   },

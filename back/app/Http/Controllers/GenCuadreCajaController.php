@@ -7,6 +7,7 @@ use App\GenCuadreCaja;
 use App\FacTipoDoc;
 use App\FacMovimiento;
 use App\GenEmpresa;
+use App\GenCuadreIngresoEfectivo;
 use App\EgreEgreso;
 use App\GenMunicipio;
 use App\GenDepartamento;
@@ -18,6 +19,7 @@ use App\GenImpresora;
 use App\User;
 use App\EgreTipoEgreso;
 use App\GenPivotCuadreFormapago;
+use App\ReportesT80;
 use App\GenPivotCuadreTiposdoc;
 use Illuminate\Support\Facades\Auth;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
@@ -77,6 +79,14 @@ class GenCuadreCajaController extends Controller
        $cuadre->estado = 0;
 
        $totalegresos = EgreEgreso::sumEfectivoCuadre($cuadre->id)->first();
+
+       $totalIngresos = GenCuadreIngresoEfectivo::sumIngresoEfectivoCuadre($cuadre->id)->first();
+
+       if ($totalIngresos->valor) {
+            $cuadre->total_ingresos = $totalIngresos->valor;
+       } else {
+            $cuadre->total_egresos = 0;
+       }
 
        if ($totalegresos->valor) {
             $cuadre->total_egresos = $totalegresos->valor;
@@ -171,9 +181,12 @@ class GenCuadreCajaController extends Controller
 
         $caracLinea = caracteres_linea_pos();
 
+        $t80 = new ReportesT80(caracteres_linea_pos());
+
         $user = User::find(Auth::user()->id);
 
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
@@ -182,75 +195,66 @@ class GenCuadreCajaController extends Controller
         $cuadre->created_at = formato_fecha($cuadre->created_at);
         $cuadre->updated_at = formato_fecha($cuadre->updated_at);
 
-        $empresa = GenEmpresa::find(1);
-
-        $municipio = GenMunicipio::find($empresa->gen_municipios_id);
-
-        $departamento = GenDepartamento::find($municipio->departamento_id);
-
         $recibos = GenPivotCuadreFormapago::sumCuadreRecibos($id)->first();
 
         $etiqueta = str_pad("", $caracLinea, " ", STR_PAD_BOTH);
 
-        $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->nombre), $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("NIT: ".$empresa->nit, $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->direccion), $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", $caracLinea, " ", STR_PAD_BOTH);
+        $etiqueta .= $t80->posHeaderEmpresa();
+
+        $etiqueta .= $t80->posDosItemsExtremos('CUADRE CAJA',$id);
+        $etiqueta .= $t80->posDosItemsExtremos('Fecha Apertura:',$cuadre->created_at);
+        $etiqueta .= $t80->posDosItemsExtremos('Fecha Cierre:',$cuadre->updated_at);
+        $etiqueta .= $t80->posDosItemsExtremos('Usuario cuadre:',$cuadre->usuario_id);
+        $etiqueta .= $t80->posDosItemsExtremos('+ Monto Apertura:', $t80->toNumber($cuadre->monto_apertura));
 
 
-        $etiqueta .= str_pad('CUADRE CAJA', $caracLinea - 18, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad($id, 18, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posLineaBlanco();
 
-        $etiqueta .= 'Fecha Apertura:';
-        $etiqueta .= str_pad($cuadre->created_at, $caracLinea - 15, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posLineaGuion();
+        $etiqueta .= $t80->posLineaCentro('VENTAS');
+        $etiqueta .= $t80->posLineaGuion();
 
-        $etiqueta .= 'Fecha Cierre:';
-        $etiqueta .= str_pad($cuadre->updated_at, $caracLinea - 13, " ", STR_PAD_LEFT);
-
-        $etiqueta .= 'Usuario cuadre:';
-        $etiqueta .= str_pad(User::find($cuadre->usuario_id)->name, $caracLinea - 15, " ", STR_PAD_LEFT);
-
-        $etiqueta .= '+ Monto Apertura';
-        $etiqueta .= str_pad( number_format($cuadre->monto_apertura, 0, ',', '.'), $caracLinea - 16, " ", STR_PAD_LEFT);
-
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('VENTAS', $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
 
         $ventas = GenPivotCuadreTiposdoc::porCuadreConTipodoc($id);
         $ventasTotal = 0;
 
         foreach ($ventas  as $venta) {
             // ENCABEZADO
-            $etiqueta .= str_pad('- '.eliminar_acentos($venta->tipodoc), $caracLinea, " ", STR_PAD_RIGHT);
-
-            $etiqueta .= str_pad('-- Total', $caracLinea-18, ".", STR_PAD_RIGHT);
-            $etiqueta .= str_pad( number_format($venta->total, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
-            $etiqueta .= str_pad('-- Dev Total', $caracLinea-18, ".", STR_PAD_RIGHT);
-            $etiqueta .= str_pad( number_format($venta->devolucion_total, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
-            $etiqueta .= str_pad('-- Gran Total', $caracLinea-18, ".", STR_PAD_RIGHT);
-            $etiqueta .= str_pad( number_format($venta->total - $venta->devolucion_total, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
-            $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+            $etiqueta .= $t80->posLineaDerecha('- '.$venta->tipodoc);
+            $etiqueta .= $t80->posDosItemsExtremos('-- Total', $t80->toNumber($venta->total));
+            $etiqueta .= $t80->posDosItemsExtremos('-- Dev Total', $t80->toNumber($venta->devolucion_total));
+            $etiqueta .= $t80->posDosItemsExtremos('-- Gran Total', $t80->toNumber($venta->total - $venta->devolucion_total));
+            $etiqueta .= $t80->posLineaBlanco();
 
             $ventasTotal = $ventasTotal + ($venta->total - $venta->devolucion_total);
         }
 
-        $etiqueta .= str_pad('VENTAS TOTALES', $caracLinea-18, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad( number_format($ventasTotal, 0, ',', '.'), 18, " ", STR_PAD_LEFT);
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('TOTAL RECIBOS', $caracLinea-18, " ", STR_PAD_RIGHT) . str_pad( number_format($recibos->valor, 0, ',', '.'), 18, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posDosItemsExtremos('VENTAS TOTALES', $t80->toNumber($ventasTotal));
 
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posLineaBlanco();
 
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('INGRESOS', $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posDosItemsExtremos('TOTAL RECIBOS', $t80->toNumber($recibos->valor));
+
+
+        $notasCredito = FacMovimiento::notasCreditoPorCuadre($id);
+
+        $totalNotasCredito = 0;
+
+        $etiqueta .= $t80->posLineaDerecha('NOTAS CREDITO');
+
+        foreach ($notasCredito as $notaCredito) { 
+          $etiqueta .= $t80->posDosItemsExtremos('- '. $notaCredito->consecutivo, $t80->toNumber($notaCredito->total));
+
+          $totalNotasCredito += $notaCredito->total;
+        }
+
+        $etiqueta .= $t80->posLineaBlanco();
+        $etiqueta .= $t80->posDosItemsExtremos('TOTAL NOTAS CREDITO', $t80->toNumber($totalNotasCredito));
+        $etiqueta .= $t80->posLineaBlanco();
+
+        $etiqueta .= $t80->posLineaGuion();
+        $etiqueta .= $t80->posLineaCentro('INGRESOS');
+        $etiqueta .= $t80->posLineaGuion();
 
         $ingresosTotales = 0;
         $ingresosEfectivoTotal = 0;
@@ -264,7 +268,7 @@ class GenCuadreCajaController extends Controller
 
             if (!is_null($ingreso->valor)) {
 
-              $etiqueta .= str_pad(eliminar_acentos($forma->nombre), $caracLinea-18, ".", STR_PAD_RIGHT) . str_pad( number_format($ingreso->valor, 0, ',', '.'), 18, ".", STR_PAD_LEFT);
+              $etiqueta .= $t80->posDosItemsExtremos($forma->nombre, $t80->toNumber($ingreso->valor));
 
               $totalIngresos += $ingreso->valor;
 
@@ -274,16 +278,13 @@ class GenCuadreCajaController extends Controller
             }
         }
 
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posLineaBlanco();
+        $etiqueta .= $t80->posDosItemsExtremos('INGRESOS TOTALES', $t80->toNumber($totalIngresos));
+        $etiqueta .= $t80->posLineaBlanco();
 
-        $etiqueta .= 'INGRESOS TOTALES';
-        $etiqueta .= str_pad( number_format($totalIngresos, 0, ',', '.'), $caracLinea - 16, " ", STR_PAD_LEFT);
-
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('EGRESOS', $caracLinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posLineaGuion();
+        $etiqueta .= $t80->posLineaCentro('EGRESOS');
+        $etiqueta .= $t80->posLineaGuion();
 
         $tiposEgreso = EgreTipoEgreso::all();
 
@@ -294,48 +295,45 @@ class GenCuadreCajaController extends Controller
             if (count($egresos) > 0) {
                 $total = 0;
 
-                $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
-                $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad(strtoupper(eliminar_acentos($tipo->nombre)), $caracLinea, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= $t80->posLineaGuion();
+                $etiqueta .= $t80->posLineaBlanco();
+                $etiqueta .= $t80->posLineaCentro($tipo->nombre);
+                $etiqueta .= $t80->posLineaBlanco();
 
                 foreach ($egresos as $egreso) {
                     $total = intval($egreso->valor) + $total;
 
-                    $etiqueta .= str_pad($egreso->consecutivo.' - '. substr(eliminar_acentos($egreso->descripcion), 0, 25), $caracLinea - 12, " ", STR_PAD_RIGHT). str_pad('$'.number_format($egreso->valor, 0, ',', '.'), 12, " ", STR_PAD_LEFT);
+                    $etiqueta .= $t80->posDosItemsExtremos($egreso->consecutivo.' - '.substr(eliminar_acentos($egreso->descripcion), 0, 25), '$'.$t80->toNumber($egreso->valor));
                 }
 
-                $etiqueta .= '*Total';
-                $etiqueta .= str_pad('$'.number_format($total, 0, ',', '.'), $caracLinea-6, " ", STR_PAD_LEFT);
+                $etiqueta .= $t80->posDosItemsExtremos('*Total', '$'.$t80->toNumber($total));
             }
         }
 
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
-        $etiqueta .= 'EGRESOS EFECT. TOT.';
-        $etiqueta .= str_pad( number_format($cuadre->total_egresos, 0, ',', '.'), $caracLinea-19, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posLineaBlanco();
 
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posDosItemsExtremos('EGRESOS EFECT. TOT.', $t80->toNumber($cuadre->total_egresos));
+        $etiqueta .= $t80->posDosItemsExtremos('INGRESOS EFECT. TOT.', $t80->toNumber($cuadre->total_ingresos));
 
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('', $caracLinea, "-", STR_PAD_RIGHT);
 
-        $etiqueta .= str_pad('RESUMEN CUADRE', $caracLinea, " ", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posLineaBlanco();
+        $etiqueta .= $t80->posLineaGuion();
+        $etiqueta .= $t80->posLineaGuion();
 
-        $etiqueta .= str_pad('', $caracLinea, " ", STR_PAD_RIGHT);
+        $etiqueta .= $t80->posLineaDerecha('RESUMEN CUADRE');
 
-        $etiqueta .= '= BALANCE';
-        $etiqueta .= str_pad( number_format($ingresosEfectivoTotal - $cuadre->total_egresos, 0, ',', '.'),  $caracLinea- 9, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posLineaBlanco();
 
-        $etiqueta .= '- Monto Cierre';
-        $etiqueta .= str_pad( number_format($cuadre->monto_cierre, 0, ',', '.'), $caracLinea- 14, " ", STR_PAD_LEFT);
-
-        $etiqueta .= 'DIFERENCIA';
-        $etiqueta .= str_pad( number_format($cuadre->monto_cierre - ($ingresosEfectivoTotal - $cuadre->total_egresos), 0, ',', '.'), $caracLinea- 10, " ", STR_PAD_LEFT);
+        $etiqueta .= $t80->posDosItemsExtremos('= BALANCE', $t80->toNumber($ingresosEfectivoTotal - $cuadre->total_egresos + $cuadre->total_ingresos));
+        $etiqueta .= $t80->posDosItemsExtremos('- Monto Cierre', $t80->toNumber($cuadre->monto_cierre));
+        $etiqueta .= $t80->posDosItemsExtremos('DIFERENCIA', $t80->toNumber($cuadre->monto_cierre - ($ingresosEfectivoTotal - $cuadre->total_egresos + $cuadre->total_ingresos)));
 
         $printer->text($etiqueta);
         $printer->feed(2);
         $printer->cut();
+
         $printer->close();
+
     }
 
     public function printCuadrePDF ($id) {

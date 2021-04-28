@@ -39,7 +39,7 @@
             input-debounce="0"
             :options="options.sucursales"
             @filter="filterSucursales"
-            @input="$emit('input', datos.sucursal)"
+            @input="sendToParent()"
           >
             <template v-slot:no-option>
               <q-item>
@@ -103,6 +103,10 @@ export default {
         const needle = val.toLowerCase()
         this.options.sucursales = this.sucursales.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
+    },
+    sendToParent () {
+      this.$emit('input', this.datos.sucursal)
+      this.$emit('setPlazo', this.datos.tercero_id.plazo_facturacion)
     }
   },
   created: function () {

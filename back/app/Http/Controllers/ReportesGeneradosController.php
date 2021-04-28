@@ -58,6 +58,7 @@ use App\GenPivotCuadreFormapago;
 use App\GenPivotCuadreTiposdoc;
 use App\SalPivotInventSalida;
 use App\SalPivotSalProducto;
+use App\ReportesT80;
 use App\LotProgramacion;
 use Illuminate\Support\Collection;
 
@@ -672,6 +673,107 @@ class ReportesGeneradosController extends Controller
         // dd($data);
         $data = '7838';
         dd(substr($data,1,6));
+    }
+
+    public function reporteFiscalPos($fechaIni, $fechaFin){
+
+        $user = User::find(2);
+
+        $fechaIni = '18/02/2021';
+
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+
+        
+        $t80 = new ReportesT80(48);
+
+        $str = '';
+
+        $str .= $t80->posLineaCentro('COMPROBANTE INFORME DIARIO');
+
+        $str .= $t80->posHeaderEmpresa();
+        $str .= $t80->posLineaDerecha('Fecha Impresion: '.Carbon::now());
+        $str .= $t80->posLineaDerecha('Fecha Inicial: '. $fechaIni);
+        $str .= $t80->posLineaDerecha('Fecha Final: '. $fechaFin);
+
+        $str .= $t80->posLineaBlanco();
+        
+        $str .= $t80->posLineaCentro('OPERACIONES    VALOR   NRO');
+        $str .= $t80->posLineaDerecha('VENTAS');
+
+
+        $ventas = ReportesGenerados::ventasContadoCredito($fechaIni);
+        $totalVentas = 0;
+
+        foreach ($ventas as $tipoVenta) {
+            $str .= $t80->multiItemsFromArray([
+                ['- '.$tipoVenta->VentasTipoDoc, 0, ' ', 1],
+                [$t80->toNumber($tipoVenta->total), 12, ' ', -1],
+                [$tipoVenta->VentasMaxConsecutivo - $tipoVenta->VentasMinConsecutivo + 1, 12, ' ', -1]
+            ]);
+
+            $totalVentas += $tipoVenta->total;
+        }
+
+        $devoluciones = ReportesGenerados::devolucionesContadoCredito($fechaIni);
+
+        foreach ($devoluciones as $tipoDevol) {
+            $str .= $t80->multiItemsFromArray([
+                ['- '.$tipoDevol->DevTipoDoc.' Anuladas', 0, ' ', 1],
+                [$t80->toNumber($tipoDevol->total), 12, ' ', -1],
+                [0, 12, ' ', -1]
+            ]);
+        }
+
+        $str .= $t80->multiItemsFromArray([
+                ['Total Ventas', 0, ' ', 1],
+                [$t80->toNumber($totalVentas), 12, ' ', -1],
+                [' ', 12, ' ', -1]
+            ]);
+
+        $str .= $t80->posLineaBlanco();
+
+        // CONSECUTIVOS
+        $str .= $t80->posLineaDerecha('CONSECUTIVOS');
+        $str .= $t80->posLineaCentro('INICIAL               FINAL');
+
+        $str .= $t80->posLineaDerecha('- Facturas');
+
+        foreach ($ventas as $tipoVenta) {
+            $str .= $t80->multiItemsFromArray([
+                [$tipoVenta->VentasMinConsecutivo, 0, ' ', 1],
+                [$tipoVenta->VentasMaxConsecutivo, 24, ' ', 1]
+            ]);
+        }
+
+        $str .= $t80->posLineaBlanco();
+
+
+        // IMPUESTOS
+        $str .= $t80->posLineaDerecha('DETALLE DE IMPUESTOS');
+        $impuestos = ReportesGenerados::impuestoFiscal($fechaIni);
+
+        foreach ($impuestos as $key => $impuesto) {
+
+            if ($key == 0) {
+                $str .= $t80->posLineaDerecha('- '.$impuesto->tipo_documento);
+            } else if ($impuestos[$key -1]->tipo_documento != $impuesto->tipo_documento) {
+                $str .= $t80->posLineaDerecha('- '.$impuesto->tipo_documento);
+            }
+
+            $str .= $t80->multiItemsFromArray([
+                ['-- Base '.$impuesto->impuesto.'%' , 0, ' ', 1],
+                [$t80->toNumber($impuesto->ValorTotalSinIVA), 12, ' ', -1],
+                [$t80->toNumber($impuesto->ValorIVA), 12, ' ', -1]
+            ]);
+        }
+
+
+        $printer->text($str);
+        $printer->feed(1);
+        $printer->cut();
+        $printer->close();
     }
 
 }

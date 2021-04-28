@@ -13,10 +13,10 @@ class ProductoTerminado extends Model
      *
      * @var array
      */
-    protected $fillable = ['prog_lotes_id','invent_id','almacenamiento','dias_vencimiento'];
+    protected $fillable = ['prog_lotes_id','invent_id','almacenamiento','dias_vencimiento','num_piezas'];
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return dateTimeSql();
     }
 }
