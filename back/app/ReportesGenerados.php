@@ -361,7 +361,7 @@ class ReportesGenerados extends Model
     public static function recibosAbonosCreditos($fecha){
         return DB::select(
             "
-            select 
+            select
                 trc.nombre,
                 sum(fp.valor) as Valor
             from fac_recibos_caja rc
@@ -375,17 +375,17 @@ class ReportesGenerados extends Model
     }
 
     public static function efectivosRecibos($fecha){
-        return 
+        return
         DB::statement("
         select
             fac_formas_pago.nombre,
             sum(fac_pivot_forma_recibo.valor) as Valor
-        from fac_recibos_caja  
+        from fac_recibos_caja
         inner join fac_pivot_forma_recibo on  fac_recibos_caja.id =  fac_pivot_forma_recibo.fac_recibo_id
         inner join fac_formas_pago on  fac_pivot_forma_recibo.fac_formas_pago_id = fac_formas_pago.id
         where fac_recibos_caja.fecha_recibo = '$fecha'
         group by fac_formas_pago.nombre
-        ")
+        ");
 
     }
 
@@ -428,5 +428,56 @@ class ReportesGenerados extends Model
     )a
     group by a.tipo_documento, a.fecha_facturacion, a.naturaleza,a.legal, a.[Impuesto %]
     order by a.tipo_documento");
+    }
+
+    public static function pesoAcomuladoVentasNotasDevs($fecha_inicial, $fecha_final){
+        return
+        DB::select("
+        select
+            a.producto_id,
+            a.nombre,
+            isnull(a.PesoVenta, 0) as PesoVenta,
+            isnull(b.PesoDevs, 0) as PesoDevs,
+            isnull(c.PesoNotas, 0) as PesoNotas,
+            isnull(a.PesoVenta, 0) - isnull(b.PesoDevs, 0) - isnull(c.PesoNotas, 0) as PesoTotal
+        from (
+        select
+            p.id as producto_id,
+            p.nombre,
+            sum(dd.cantidad) as PesoVenta
+        from fac_movimientos d
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        inner join productos p on dd.producto_id = p.id
+        where d.fecha_facturacion between '$fecha_inicial' and '$fecha_final' and d.estado != 3 and td.naturaleza in (1,4)
+        group by p.id, p.nombre
+        )a
+        left join (
+        select
+            p.id as producto_id,
+            p.nombre,
+            sum(dd.cantidad) as PesoDevs
+        from fac_movimientos d
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        inner join productos p on dd.producto_id = p.id
+        where d.fecha_facturacion between '$fecha_inicial' and '$fecha_final' and d.estado = 3
+        group by p.id, p.nombre
+        )b on a.producto_id = b.producto_id
+        left join (
+        SELECT
+            productos.id as producto_id,
+            productos.nombre,
+            sum(cast(fac_pivot_mov_productos.cantidad as float) ) as PesoNotas
+        FROM fac_cruce
+        inner join fac_movimientos mf on mf.id = fac_cruce.fac_mov_principal
+        inner join fac_movimientos mn on mn.id = fac_cruce.[fac_mov_secundario]
+        inner join fac_pivot_mov_productos on mn.id = fac_pivot_mov_productos.fac_mov_id
+        inner join fac_tipo_doc on fac_tipo_doc.id = mn.fac_tipo_doc_id
+        inner join productos on fac_pivot_mov_productos.producto_id = productos.id
+        where cast(mf.created_at as date) between '$fecha_inicial' and '$fecha_final'  and cast(mn.created_at as date) between '$fecha_inicial' and '$fecha_final' and fac_tipo_doc.naturaleza = 2
+        group by productos.id, productos.nombre
+        )c on a.producto_id = c.producto_id
+        ");
     }
 }

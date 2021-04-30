@@ -27,7 +27,8 @@ class FacMovimiento extends Model
         'estado_fe',
         'nota',
         'prod_grupo_id',
-        'sal_mercancia_consec'
+        'sal_mercancia_consec',
+        'afectar_inventario'
     ];
 
     public function getDateFormat()

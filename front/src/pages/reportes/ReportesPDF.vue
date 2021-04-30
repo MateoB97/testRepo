@@ -303,6 +303,14 @@
                     />
                     <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
                 </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Peso Factura - Ventas - Devoluciones - Notas"
+                    url="api/reportesgenerados/reportes/pesoporfechaventasdevsnotas"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
                 <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
                 </div> -->

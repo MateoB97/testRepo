@@ -339,6 +339,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
     Route::get('/reportes/pesoplantalote/{lote_id}', 'ReportesGeneradosController@pesoPlantaLote');
+    Route::get('/reportes/pesoporfechaventasdevsnotas', 'ReportesGeneradosController@pesoPorFechasVentasDevsNotas');
 
     Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
     Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
