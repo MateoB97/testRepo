@@ -9,7 +9,7 @@ class GenCuadreCaja extends Model
 {
     protected $table = 'gen_cuadre_caja';
 
-    protected $fillable = ['monto_apertura','monto_cierre','estado', 'total_egresos','usuario_id'];
+    protected $fillable = ['monto_apertura','monto_cierre','estado', 'total_egresos','total_ingresos','usuario_id'];
 
     public function getDateFormat()
     {
@@ -34,6 +34,7 @@ class GenCuadreCaja extends Model
     return DB::table('gen_cuadre_caja')
             ->select(
                 'gen_cuadre_caja.monto_apertura',
+                'gen_cuadre_caja.total_ingresos',
                 'gen_cuadre_caja.id as id',
                 'gen_cuadre_caja.monto_cierre',
                 'gen_cuadre_caja.created_at',

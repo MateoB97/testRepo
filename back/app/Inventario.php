@@ -16,6 +16,12 @@ class Inventario extends Model
 	    return dateTimeSql();
 	}
 
+    public function producto()
+    {
+        // belongsTo(RelatedModel, foreignKey = prodSubgrupo_id, keyOnRelatedModel = id)
+        return $this->belongsTo('App\Producto', 'producto_id');
+    }
+
 	public static function todosConCodigoProducto(){
     return DB::table('inventarios')
             ->select(

@@ -128,6 +128,19 @@ class ReportesT80 extends Model
 		return substr($string, 0, $this->caractLinea);
 	}
 
+	public function posDosItemsExtremos ($item1, $item2, $fill = ' ') {
+
+		$item1 = eliminar_acentos($item1);
+		$item2 = eliminar_acentos($item2);
+
+		$fillBetween = $this->caractLinea - strlen($item2);
+
+		$string = str_pad($item1, $fillBetween, $fill, STR_PAD_RIGHT);
+		$string .= $item2;
+
+		return $this->limitAndCleanStringLinea($string);
+	}
+
 	public function multiItemsFromArray($data){
 
 		$stringLine = '';
@@ -164,7 +177,7 @@ class ReportesT80 extends Model
 				$item[1] = $this->caractLinea - $totalChars;
 			}
 
-			$string = $this->limitAndCleanStringLinea($string, $item[1]);
+			$string = $this->limitAndCleanStringLinea($item[0], $item[1]);
 
 			$stringLine .= str_pad($string, $item[1], $item[2], $side);
 

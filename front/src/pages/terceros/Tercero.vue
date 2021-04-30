@@ -167,6 +167,9 @@
                     <q-input v-model="storeItems.registro_mercantil" label="Registro Mercantil"/>
                 </div>
                 <div  class="col-3">
+                    <q-input v-model="storeItems.plazo_facturacion" label="Plazo Facturación"/>
+                </div>
+                <div  class="col-3">
                     <q-select
                       label="Regimen"
                       v-model="storeItems.soenac_regim_id"
@@ -354,7 +357,8 @@ export default {
         soenac_regim_id: null,
         soenac_responsab_id: null,
         soenac_tipo_documento_id: null,
-        soenac_tipo_org_id: null
+        soenac_tipo_org_id: null,
+        plazo_facturacion: null
       },
       urlAPI: 'api/terceros/items',
       listaprecios: [],

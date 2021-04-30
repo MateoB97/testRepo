@@ -99,6 +99,7 @@ class InventariosController extends Controller
 
                 $prodTerminado = new ProductoTerminado($request->all());
                 $prodTerminado->invent_id = $item->id;
+                $prodTerminado->num_piezas = $request->num_piezas;
 
                 if ($lote->producto_empacado) {
                     $prodTerminado->almacenamiento = 0;
@@ -287,11 +288,13 @@ class InventariosController extends Controller
 
     public function GetPiezasImpresas($idprogramacion, $idproducto)
     {
-        $data = LotEtiquetaInterna::where('producto_id',$idproducto)->where('prog_lotes_id',$idprogramacion)->get();
+        $data = LotEtiquetaInterna::getEtiquetasImpresas($idproducto, $idprogramacion);
 
-        $counter = count($data);
+        if (is_null($data[0]->cantidad)){
+            $data[0]->cantidad = 0;
+        }
 
-        return $counter;
+        return $data[0]->cantidad;
     }
 
     public function GetProductosPorLotePDF($idlote)
@@ -498,12 +501,14 @@ class InventariosController extends Controller
         $printer = new Printer($connector);
         $printer->setJustification(Printer::JUSTIFY_CENTER);
         $almace="";
-        for ($i = 0; $i < $request->numEtiquetas ; $i++) {
 
-            $eti_interna = new LotEtiquetaInterna;
-            $eti_interna->prog_lotes_id = $programacion->id;
-            $eti_interna->reimpresion = $request->reimpresion;
-            $eti_interna->producto_id = $producto->id;
+        $eti_interna = new LotEtiquetaInterna;
+        $eti_interna->prog_lotes_id = $programacion->id;
+        $eti_interna->reimpresion = $request->reimpresion;
+        $eti_interna->producto_id = $producto->id;
+        $eti_interna->cantidad = $request->numEtiquetas;
+
+        for ($i = 0; $i < $request->numEtiquetas ; $i++) {
 
             $almaRefrigerado = strrpos($almacenamiento, "Refrigerado");
             $almaCongelado = strrpos($almacenamiento, "Congelado");
@@ -588,9 +593,9 @@ class InventariosController extends Controller
                 la conexión con la impresora. Recuerda incluir esto al final de todos los archivos
             */
             $done = $printer->close();
-            $eti_interna->save();
-
         }
+
+        $eti_interna->save();
 
         return 'doneNoRestore';
     }

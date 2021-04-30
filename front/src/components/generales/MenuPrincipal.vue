@@ -63,7 +63,8 @@
           <q-card>
             <q-card-section>
               <router-link v-for="doc in docFacturacion" :key="doc.id" :to="{ name: 'movimientos', params: { id: doc.id, consecmov: 'nuevo' } }" class="menuItem">{{ doc.nombre }}</router-link>
-              <router-link to="/egresos/items" class="menuItem q-mt-sm">Gestion de efectivo</router-link>
+              <router-link to="/gestion-efectivo/ingresos" class="menuItem q-mt-sm">ingreso de efectivo</router-link>
+              <router-link to="/gestion-efectivo/egresos" class="menuItem q-mt-sm">Egreso de efectivo</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>
@@ -249,7 +250,7 @@
               <router-link v-if="this.$store.state.jhsoft.recibos" to="/facturacion/recibos" class="menuItem">Recibos</router-link>
               <router-link v-if="this.$store.state.jhsoft.compras" to="/compras/items" class="menuItem">Compras</router-link>
               <router-link v-if="this.$store.state.jhsoft.compras" to="/compras/compro-egresos" class="menuItem">Comprobantes de Egreso</router-link>
-              <router-link to="/egresos/resumen" class="menuItem">Egresos</router-link>
+              <router-link to="/gestion-efectivo/resumen" class="menuItem">Egresos</router-link>
               <router-link v-if="this.$store.state.jhsoft.ordenes" to="/ordenes/resumen" class="menuItem">Ordenes</router-link>
               <router-link to="/generales/cuadrecaja" class="menuItem">Cuadre Z</router-link>
               <router-link to="/generales/tiquetesnofacturados" class="menuItem">Tiquete no facturado</router-link>

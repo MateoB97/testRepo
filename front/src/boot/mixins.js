@@ -333,11 +333,12 @@ export const globalFunctions = {
               'type_liability_id': response.data.cliente.soenac_responsabilidad,
               'type_organization_id': response.data.cliente.soenac_tipo_organizacion,
               'type_document_identification_id': response.data.cliente.soenac_tipo_documento,
-              'merchant_registration': response.data.cliente.tercero.registro_mercantil
+              'merchant_registration': response.data.cliente.tercero.registro_mercantil,
+              'municipality_id': 1
             },
             'legal_monetary_totals': {
               'line_extension_amount': parseFloat(lineasAmountTotal).toFixed(2),
-              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount).toFixed(2),
+              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount + restaBolsa).toFixed(2),
               'tax_inclusive_amount': parseFloat(lineasAmountTotal + ivaTotal + restaBolsa).toFixed(2),
               'allowance_total_amount': '0.00',
               'charge_total_amount': '0.00',

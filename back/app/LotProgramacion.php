@@ -74,10 +74,11 @@ class LotProgramacion extends Model
             //     return $query->where('lotes.producto_empacado', '=', $producto_empacado);
             // })
             ->orderBy('programacion_id','desc')
+            ->limit(200)
             ->get();
     }
 
-    public static function todosConLoteAbiertoPorGrupo($id, $producto_empacado){
+    public static function todosConLoteAbiertoPorGrupo($grupoId, $producto_empacado){
     return DB::table('lot_programaciones')
             ->select(
                 'lot_programaciones.fecha_desposte As fecha_desposte',
@@ -98,13 +99,14 @@ class LotProgramacion extends Model
             ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('lotes.estado','=', 1)
             ->where('lot_programaciones.estado','!=', 2)
-            ->where('lotes.prodGrupo_id', $id)
+            ->where('lotes.prodGrupo_id', $grupoId)
             ->where('lotes.producto_empacado', $producto_empacado)
             ->orderBy('programacion_id','desc')
+            ->limit(200)
             ->get();
     }
 
-    public static function conLoteAbiertoPorId($id, $producto_empacado){
+    public static function conLoteAbiertoPorId($loteId, $producto_empacado){
     return DB::table('lot_programaciones')
             ->select(
                 'lot_programaciones.fecha_desposte As fecha_desposte',
@@ -125,7 +127,7 @@ class LotProgramacion extends Model
             ->leftJoin('tercero_sucursales', 'tercero_sucursales.id', '=', 'lot_programaciones.terceroSucursal_id')
             ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('lotes.estado','=', 1)
-            ->where('lotes.id', $id)
+            ->where('lotes.id', $loteId)
             ->where('lotes.producto_empacado', $producto_empacado)
             ->orderBy('programacion_id','desc')
             ->get();
@@ -133,6 +135,6 @@ class LotProgramacion extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return dateTimeSql();
     }
 }

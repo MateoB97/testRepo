@@ -12,6 +12,6 @@ class LotLiquidacion extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return dateTimeSql();
     }
 }

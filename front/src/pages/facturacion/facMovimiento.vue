@@ -115,7 +115,7 @@
                 <NavMovComponent @insertLine="insertLineFromNav" @setFactData="setFactDataFromNav" />
             </div>
             <div v-if="viewTerceros" class="col-12 row q-col-gutter-md">
-              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Cliente'/>
+              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" @setPlazo="setPlazo" columnas='col-12' labelTercero='Cliente'/>
             </div>
             <div class="col-12 row q-col-gutter-md">
               <!-- // -->
@@ -838,14 +838,22 @@ export default {
       app.pagos = item.pagos
       app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(item.vendedor))
     },
-    fechasHoy () {
+    setPlazo (value) {
+      console.log(value)
+      this.fechasHoy(value)
+    },
+    fechasHoy (plazo = 30) {
+      if (plazo === null) {
+        plazo = 30
+      }
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
       var mm = String(today.getMonth() + 1).padStart(2, '0')
       var yyyy = today.getFullYear()
       this.storeItems.fecha_facturacion = yyyy + '/' + mm + '/' + dd
+      // fecha venciomiento
       var today2 = new Date()
-      today2.setDate(today2.getDate() + 15)
+      today2.setDate(today2.getDate() + parseInt(plazo))
       dd = String(today2.getDate()).padStart(2, '0')
       mm = String(today2.getMonth() + 1).padStart(2, '0')
       yyyy = today2.getFullYear()
