@@ -436,6 +436,7 @@ export default {
         despacho: null
       },
       dataNotas: [],
+      afectaInventario: null,
       orden: null,
       movActualId: null,
       num_tiquete: null,
@@ -547,6 +548,11 @@ export default {
       this.$refs.scan.focus()
     },
     preSave () {
+      if (this.storeItems.afectaInventario === true) {
+        this.storeItems.afectar_inventario = 1
+      } else {
+        this.storeItems.afectar_inventario = 0
+      }
       if (this.storeItems.gen_vendedor_id === null) {
         delete this.storeItems.gen_vendedor_id
       }

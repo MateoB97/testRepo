@@ -657,19 +657,34 @@ class ReportesGeneradosController extends Controller
         $data = ['datosTotal' => $datosTotal,
                  'fechaIni' => $fechaIni,
                  'fechaFin' => $fechaFin,
-                 'hoy' => $hoy, ];
+                 'hoy' => $hoy ];
 
         $pdf = PDF::loadView('facturacion.movimientoconformadepagoporfecha', $data);
 
         return $pdf->stream();
     }
 
+    // public static function pesoPorFechasVentasDevsNotas($fecha_ini, $fecha_fin){
+        public static function pesoPorFechasVentasDevsNotas(){
+        $params = $_GET;
+        $fecha_ini = null;
+        $fecha_inicial = null;
+       foreach($params as $param){
+        if($fecha_ini == null){
+            $fecha_ini = $param;
+        }else{
+            $fecha_fin = $param;
+        }
+       }
+        $empresa = GenEmpresa::find(1);
+        $lineas = ReportesGenerados::pesoAcomuladoVentasNotasDevs($fecha_ini, $fecha_fin);
+        $data = ['empresa'=>$empresa, 'lineas'=> $lineas, 'fecha_ini'=> $fecha_ini, 'fecha_fin'=> $fecha_fin, 'today'=>date('yyyy/m/d/m:h:s')];
+        $pdf = PDF::loadView('facturacion.pesototalventasdevsnotas', $data);
+        return $pdf->stream();
+    }
+
     public static function testing(){
-        // $fecha = '2021-04-19';
-        // $data = ReportesGenerados::recibosAbonosCreditos($fecha);
-        // dd($data);
-        $data = '7838';
-        dd(substr($data,1,6));
+       dd(getdate());
     }
 
     public function reporteFiscalPos(){
