@@ -174,11 +174,8 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
-    public function pesoPlantaLote($lote_id){
-        // dd($_GET);
-        $params = [
-            'lote_id' => $lote_id,
-        ];
+    public function pesoPlantaLote(){
+        $params = $_GET;
         $input = 'PesoPlantaxLote';
         self::executeJasper($input, $params);
     }
@@ -675,11 +672,11 @@ class ReportesGeneradosController extends Controller
         dd(substr($data,1,6));
     }
 
-    public function reporteFiscalPos($fechaIni, $fechaFin){
+    public function reporteFiscalPos(){
+
+        $fechaIni = $_GET['fecha_inicial'];
 
         $user = User::find(2);
-
-        $fechaIni = '18/02/2021';
 
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
@@ -695,13 +692,13 @@ class ReportesGeneradosController extends Controller
         $str .= $t80->posHeaderEmpresa();
         $str .= $t80->posLineaDerecha('Fecha Impresion: '.Carbon::now());
         $str .= $t80->posLineaDerecha('Fecha Inicial: '. $fechaIni);
-        $str .= $t80->posLineaDerecha('Fecha Final: '. $fechaFin);
 
         $str .= $t80->posLineaBlanco();
         
         $str .= $t80->posLineaCentro('OPERACIONES    VALOR   NRO');
-        $str .= $t80->posLineaDerecha('VENTAS');
 
+        // VENTAS 
+        $str .= $t80->posLineaDerecha('VENTAS');
 
         $ventas = ReportesGenerados::ventasContadoCredito($fechaIni);
         $totalVentas = 0;
@@ -716,6 +713,7 @@ class ReportesGeneradosController extends Controller
             $totalVentas += $tipoVenta->total;
         }
 
+        // DEVOLUCIONES
         $devoluciones = ReportesGenerados::devolucionesContadoCredito($fechaIni);
 
         foreach ($devoluciones as $tipoDevol) {
@@ -731,6 +729,36 @@ class ReportesGeneradosController extends Controller
                 [$t80->toNumber($totalVentas), 12, ' ', -1],
                 [' ', 12, ' ', -1]
             ]);
+
+        $str .= $t80->posLineaBlanco();
+
+        // MEDIOS DE PAGO
+        $str .= $t80->posLineaDerecha('ABONOS CREDITO');
+
+        $abonos = ReportesGenerados::recibosAbonosCreditos($fechaIni);
+
+        foreach ($abonos as $abono) {
+            $str .= $t80->multiItemsFromArray([
+                ['- '.$abono->nombre, 0, ' ', 1],
+                [$t80->toNumber($abono->Valor), 12, ' ', -1],
+                [' ', 12, ' ', -1]
+            ]);
+        }
+
+        $str .= $t80->posLineaBlanco();
+
+        // MEDIOS DE PAGO
+        $str .= $t80->posLineaDerecha('MEDIOS DE PAGO');
+
+        $mediosPago = ReportesGenerados::efectivosRecibos($fechaIni);
+
+        foreach ($mediosPago as $medioPago) {
+            $str .= $t80->multiItemsFromArray([
+                ['- '.$medioPago->nombre, 0, ' ', 1],
+                [$t80->toNumber($medioPago->Valor), 12, ' ', -1],
+                [' ', 12, ' ', -1]
+            ]);
+        }
 
         $str .= $t80->posLineaBlanco();
 

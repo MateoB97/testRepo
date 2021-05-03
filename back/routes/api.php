@@ -329,34 +329,32 @@ Route::group(['prefix' => 'ingresos', 'middleware' => 'auth'], function(){
 });
 
 
-Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
-	Route::get('/productosporlote/{id}', 'InventariosController@GetProductosPorLotePDF');
-});
-
-
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
 
     Route::get('/reportes/testing', 'ReportesGeneradosController@testing');
 
     Route::get('/reportes/compilejrxml', 'ReportesGeneradosController@compileJrXml');
-    Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
+
+    // cartera
+    Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
     Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
     Route::get('/reportes/saldocarteratr', 'ReportesGeneradosController@saldosCarteraTR');
-	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
+
+    // facturacion
+    Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');
+    Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
+    Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
+    Route::get('/reportefiscal', 'ReportesGeneradosController@reporteFiscalPos');
+    Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
+    Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
     Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
-    Route::get('/reportes/pesoplantalote/{lote_id}', 'ReportesGeneradosController@pesoPlantaLote');
+    Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
 
-    Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
-    Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
-
-    Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');
-    Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
-
-    Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
-
-    Route::get('/reportefiscal/{fechaini}/{fechafin}', 'ReportesGeneradosController@reporteFiscalPos');
+    // produccion
+    Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');
+    Route::get('/pesoplantalote', 'ReportesGeneradosController@pesoPlantaLote');
 });
 
 

@@ -73,6 +73,41 @@ export const helperFacturacionScanerLineas = {
         app.$q.loading.hide()
       }
     },
+    buscarLineasEtiquetaProducto () {
+      var app = this
+      var tiquete = {
+        codigo: null,
+        peso: null
+      }
+      tiquete.codigo = app.num_tiquete.substr(2, 5)
+      tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
+      const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(tiquete.codigo))
+      const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
+      if (productoImpuesto !== undefined) {
+        var newProduct = {
+          id: app.itemsCounter,
+          producto: productoImpuesto.nombre,
+          producto_id: productoImpuesto.id,
+          producto_codigo: productoImpuesto.codigo,
+          cantidad: tiquete.peso,
+          precio: parseInt(productoPrecio.precio) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
+          iva: productoImpuesto.impuesto,
+          gen_iva_id: productoImpuesto.gen_iva_id,
+          desc: 0.00,
+          descporcentaje: 0.00,
+          despacho: false,
+          num_tiquete: app.num_tiquete,
+          num_linea_tiquete: 0
+        }
+        app.dataResumen.push(newProduct)
+        app.itemsCounter = app.itemsCounter + 1
+        app.numLineas = app.numLineas + 1
+      } else {
+        app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(tiquete.codigo) + ' no esta creado.' })
+      }
+      app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
+      app.num_tiquete = null
+    },
     buscarLineasDespacho () {
       var app = this
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readdespacho/' + app.num_tiquete).then(

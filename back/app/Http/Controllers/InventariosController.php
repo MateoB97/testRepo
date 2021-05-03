@@ -297,8 +297,11 @@ class InventariosController extends Controller
         return $data[0]->cantidad;
     }
 
-    public function GetProductosPorLotePDF($idlote)
+    public function GetProductosPorLotePDF()
     {
+
+        $idlote = $_GET['lote_id'];
+
         $data = Inventario::productosPorLote($idlote);
 
         $itemsSumatoria = array();

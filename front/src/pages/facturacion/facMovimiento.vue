@@ -207,6 +207,7 @@
                 <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras()" label="Escanear..."  />
                 <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa()" label="Escanear..."  />
                 <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho()" label="Escanear..." />
+                <q-input v-if="empresa.tipo_escaner == 6" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasEtiquetaProducto()" label="Escanear..." />
               </div>
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input filled v-model="orden" ref="scan" v-on:keyup.enter="buscarLineasOrden" label="Orden..." />

@@ -403,6 +403,10 @@ export default {
         {
           label: 'Despacho',
           value: '5'
+        },
+        {
+          label: 'Etiqueta por producto',
+          value: '6'
         }
       ],
       departamentos: [],

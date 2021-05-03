@@ -37,6 +37,10 @@
                   v-if="tipoDocFilter"
                   v-model="datos.tiposdoc_id"
                 />
+                <LoteFilter
+                  v-if="loteFilter"
+                  v-model="datos.lote_id"
+                />
               </div>
               <div class="row q-col-gutter-sm">
               </div>
@@ -60,6 +64,7 @@ import DateFilterComponent from 'components/filters/dataFilterComponent.vue'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
 import MultiSelectGrupoProducto from 'components/filters/MultiSelectGrupoProducto.vue'
 import GrupoSubgrupoProductoFilter from 'components/filters/GrupoSubgrupoProductoFilter.vue'
+import LoteFilter from 'components/filters/LoteFilter.vue'
 import SelectTipoDoc from 'components/filters/SelectTipoDoc.vue'
 
 export default {
@@ -69,12 +74,14 @@ export default {
     DateFilterComponent,
     MultiSelectGrupoProducto,
     SelectTipoDoc,
-    GrupoSubgrupoProductoFilter
+    GrupoSubgrupoProductoFilter,
+    LoteFilter
   },
   props: [
     'datesFilter',
     'tercerosFilter',
     'gruposFilter',
+    'loteFilter',
     'productosFilter',
     'tipoDocFilter',
     'dateUnique',
@@ -94,7 +101,8 @@ export default {
         grupos_id: null,
         grupo_id: null,
         subgrupo_id: null,
-        producto_id: null
+        producto_id: null,
+        lote_id: null
       },
       isVisible: false,
       params: ''
@@ -157,7 +165,8 @@ export default {
           grupos_id: null,
           grupo_id: null,
           subgrupo_id: null,
-          producto_id: null
+          producto_id: null,
+          lote_id: null
         }
       }
     }

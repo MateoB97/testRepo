@@ -376,7 +376,7 @@ class ReportesGenerados extends Model
 
     public static function efectivosRecibos($fecha){
         return 
-        DB::statement("
+        DB::select("
         select
             fac_formas_pago.nombre,
             sum(fac_pivot_forma_recibo.valor) as Valor
@@ -385,7 +385,7 @@ class ReportesGenerados extends Model
         inner join fac_formas_pago on  fac_pivot_forma_recibo.fac_formas_pago_id = fac_formas_pago.id
         where fac_recibos_caja.fecha_recibo = '$fecha'
         group by fac_formas_pago.nombre
-        ")
+        ");
 
     }
 
