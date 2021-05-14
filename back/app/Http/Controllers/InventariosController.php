@@ -114,7 +114,7 @@ class InventariosController extends Controller
                 $prodTerminado->save();
 
                 // $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
-                // $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
                 return 'doneNoRestore';
             } else {

@@ -87,7 +87,7 @@ class GenEtiqueta extends Model
         $printer->text($etiqueta);
         $printer->close();
 
-        return $etiqueta;
+        // return $etiqueta;
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
