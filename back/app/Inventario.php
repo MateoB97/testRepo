@@ -92,6 +92,7 @@ class Inventario extends Model
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
+                'producto_terminados.num_piezas as num_piezas',
                 'prod_grupos.registro_sanitario as registro_sanitario',
                 'prod_grupos.nombre as grupo',
                 'prod_subgrupos.nombre as subgrupo_nombre',

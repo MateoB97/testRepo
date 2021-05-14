@@ -17,6 +17,9 @@
                 <div class="col">
                     <q-input v-model="storeItems.nombre" label="Nombre Subgrupo"/>
                 </div>
+                <div class="col-3">
+                    <q-checkbox v-model="storeItems.encabezado_etiqueta" left-label label="Producto Carnico Comestible ?" />
+                </div>
             </div>
             <div class="row q-mt-md">
               <div class="col-3">
@@ -101,6 +104,11 @@ export default {
     },
     preSave () {
       this.storeItems.prodGrupo_id = this.storeItems.prodGrupo_id.id
+      if (this.storeItems.encabezado_etiqueta === true) {
+        this.storeItems.encabezado_etiqueta = 1
+      } else {
+        this.storeItems.encabezado_etiqueta = 0
+      }
     },
     postEdit () {
     }

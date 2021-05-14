@@ -659,7 +659,7 @@ export default {
           index = i
         }
       })
-      this.dataResumen[index].descporcentaje = (this.dataResumen[index].desc / (this.dataResumen[index].precio) * 100).toFixed(2)
+      this.dataResumen[index].descporcentaje = (this.dataResumen[index].desc / (this.dataResumen[index].precio) * 100).toFixed(0)
     },
     setPrecio (v) {
       var index
@@ -681,7 +681,7 @@ export default {
           index = i
         }
       })
-      this.dataResumen[index].desc = ((this.dataResumen[index].precio) * (this.dataResumen[index].descporcentaje / 100)).toFixed(2)
+      this.dataResumen[index].desc = ((this.dataResumen[index].precio) * (this.dataResumen[index].descporcentaje / 100)).toFixed(0)
       this.verTabla = true
       // console.log(this.dataResumen[index])
     },
@@ -874,21 +874,24 @@ export default {
     subtotal: function () {
       var response = 0
       this.dataResumen.forEach(function (element, i) {
-        response = (Math.round(element.precio) * element.cantidad) + parseInt(response)
+        var quantity = (Math.round(element.precio)) * element.cantidad
+        response += Math.round(parseFloat(quantity))
       })
-      return response
+      return response.toFixed(0)
     },
     descuento: function () {
       var response = 0
       this.dataResumen.forEach(function (element, i) {
-        response = (element.desc * element.cantidad) + parseInt(response)
+        var quantity = (Math.round(element.desc)) * element.cantidad
+        response += Math.round(parseFloat(quantity))
+        // response = (Math.round(element.desc) * element.cantidad) + parseFloat(response)
       })
-      return response
+      return response.toFixed(0)
     },
     ivatotal: function () {
       var responseIVA = 0
       this.arrayImpuestos.forEach(function (impuesto, i) {
-        responseIVA = parseInt(impuesto[1]) * ((parseInt(impuesto[0]) / 100)) + parseInt(responseIVA)
+        responseIVA = Math.round(impuesto[1]) * ((Math.round(impuesto[0]) / 100)) + parseFloat(responseIVA)
       })
       return responseIVA
     },
@@ -925,7 +928,7 @@ export default {
         var app = this
         this.dataResumen.forEach(function (element, i) {
           element.descporcentaje = parseInt(app.descuentoGnal)
-          element.desc = ((element.precio) * (element.descporcentaje / 100)).toFixed(2)
+          element.desc = ((Math.round(element.precio)) * (element.descporcentaje / 100)).toFixed(2)
         })
       }
     },
@@ -944,7 +947,10 @@ export default {
           const list = app.dataResumen.filter(v => v.iva === item)
           var subtotal = 0
           list.forEach(function (itemList, i) {
-            subtotal = subtotal + ((Math.round(itemList.precio) - parseInt(itemList.desc)) * parseFloat(itemList.cantidad))
+            var desc = (Math.round(itemList.precio)) - itemList.desc
+            var quantity = Math.round(desc) * itemList.cantidad
+            subtotal += Math.round(parseFloat(quantity))
+            // subtotal = subtotal + ((Math.round(itemList.precio) - parseFloat(itemList.desc)) * parseFloat(itemList.cantidad))
           })
           app.arrayImpuestos.push([item, subtotal])
         })

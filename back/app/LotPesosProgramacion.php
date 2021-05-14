@@ -18,4 +18,5 @@ class LotPesosProgramacion extends Model
     public function getDateFormat()
     {
         return dateTimeSql();
+    }
 }

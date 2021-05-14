@@ -19,7 +19,7 @@ class ProdSubgrupo extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','prodGrupo_id','activo'];
+    protected $fillable = ['nombre','prodGrupo_id','activo', 'encabezado_etiqueta'];
 
     /**
      * ProdSubgrupo belongs to ProdGrupo.
@@ -45,11 +45,11 @@ class ProdSubgrupo extends Model
 
     protected $columns = array('id','nombre','prodGrupo_id','activo','created_at','updated_at'); // add all columns from you table
 
-    public function scopeExclude($query,$value = array()) 
+    public function scopeExclude($query,$value = array())
     {
         return $query->select( array_diff( $this->columns,(array) $value) );
     }
-    
+
 
     public function getDateFormat()
     {
