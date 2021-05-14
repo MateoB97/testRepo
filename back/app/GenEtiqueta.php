@@ -16,16 +16,16 @@ class GenEtiqueta extends Model
 
     public static function imprimirEtiqueta($impresora, $item, $marinado) {
 
-    	$marinado = true;
-
         $almace ='';
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
-        // $connector = new WindowsPrintConnector($nombre_impresora);
-        // $printer = new Printer($connector);
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
+
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
+
         $data = Inventario::GetDataEtiqueta($item->id)->first();
         $lote = Lote::find($data->lote);
         $producto = Producto::where('id','=',$item->producto_id)->get();
@@ -42,10 +42,10 @@ class GenEtiqueta extends Model
         // $titulo = "CARNE DE ".strtoupper($data->grupo);
         $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
         $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-        if ($marinado && $lote->producto_empacado && $data->encabezado_etiqueta >0) {
-            $proceso = "^FT50,550^A0N,30^FH\^CI28^FDPROCESADO Y DISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-        } elseif ($lote->producto_empacado || $data->encabezado_etiqueta == 0) {
+        if ($lote->producto_empacado || $data->encabezado_etiqueta == 0) {
             $proceso = "^FT130,550^A0N,30^FH\^CI28^FDDISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
+        } elseif ($marinado && $lote->producto_empacado && $data->encabezado_etiqueta >0) {//($lote->producto_empacado || $data->encabezado_etiqueta == 0) {
+            $proceso = "^FT50,550^A0N,30^FH\^CI28^FDPROCESADO Y DISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";//$proceso = "^FT130,550^A0N,30^FH\^CI28^FDDISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
         }
         $etiqueta = "
                 ^XA
@@ -55,13 +55,16 @@ class GenEtiqueta extends Model
                 ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28"
                 .$titulo
                 .self::headersEtiquetas($data)."
-                ^FT35,350^A0N,20,20^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
+                ^FT35,295^A0N,20,20^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
                 ^FPH,1^FT30,126^A0N,43,43^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28"
                 .self::logoEtiqueta()."
                 ^BY3,3,80^FT250,480^BCN,,Y,N
                 ^FH\^FD>:".$item->id."^FS";
+        if($data->producto_aprobado != null ){
+            $etiqueta .= "^FT610,230^A0N,24,24^FH\^CI28^FD - Aprobado^FS^CI28";
+        }
 
-        if(!$lote->producto_empacado){// LOTES JH
+        if(!$lote->producto_empacado){ //LOTES JH
 
             $etiqueta .= self::fechasEtiqueta($data);
 
@@ -75,27 +78,27 @@ class GenEtiqueta extends Model
         if ($marinado) {
 
         	$etiqueta .= self::marinadoEtiquetas($porcMarinado)."
-                ^FPH,1^FT30,175^ARN,27,27^FH\^FDReg. RSA  ".$data->registro_sanitario."^FS^CI28";
+                ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data->registro_sanitario."^FS^CI28";
         }
 
         $etiqueta .="
             ^XZ";
-        // $printer->text($etiqueta);
-        // $printer->close();
+
+        $printer->text($etiqueta);
+        $printer->close();
 
         return $etiqueta;
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
-        $titulo = '';
-        if($encabezado > 0 || $encabezado != null || $encabezado != "null"){
+        if($encabezado > 0 ) {
             if(!$marinado){
-                return $titulo = "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                return  "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
             }else{
-                return $titulo = "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
+                return  "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
             }
         }else{
-            return $titulo = '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+            return  '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
         }
     }
 
@@ -127,12 +130,14 @@ class GenEtiqueta extends Model
 
     public static function headersEtiquetas ($data) {
 
-        return "^FT430,220^ARN,1^FH\^CI28^FDPeso:^FS^CI28
-                    ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT520,220^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
-                    ^FT515,260^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
-                    ^FT510,300^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28";
+        return "^FT470,170^ARN,1^FH\^CI28^FDPeso:^FS^CI28
+                    ^FT470,200^ARN,1^FH\^CI28^FDMarca:^FS^CI28
+                    ^FT470,230'^ARN,1^FH\^CI28^FDLote:^FS^CI28
+                    ^FT470,260'^ARN,1^FH\^CI28^FDPiezas:^FS^CI28
+                    ^FT570,170^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
+                    ^FT570,200^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
+                    ^FT540,230^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28
+                    ^FT570,260^A0N,24,24^FH\^CI28^FD".$data->num_piezas."^FS^CI28";
 
     }
 }

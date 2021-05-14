@@ -61,6 +61,8 @@ use App\SalPivotSalProducto;
 use App\ReportesT80;
 use App\LotProgramacion;
 use Illuminate\Support\Collection;
+use App\LotPesosProgramacion;
+use App\ProductoTerminado;
 
 class ReportesGeneradosController extends Controller
 {
@@ -683,10 +685,6 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
-    public static function testing(){
-       dd(getdate());
-    }
-
     public function reporteFiscalPos(){
 
         $fechaIni = $_GET['fecha_inicial'];
@@ -697,7 +695,7 @@ class ReportesGeneradosController extends Controller
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
-        
+
         $t80 = new ReportesT80(48);
 
         $str = '';
@@ -709,10 +707,10 @@ class ReportesGeneradosController extends Controller
         $str .= $t80->posLineaDerecha('Fecha Inicial: '. $fechaIni);
 
         $str .= $t80->posLineaBlanco();
-        
+
         $str .= $t80->posLineaCentro('OPERACIONES    VALOR   NRO');
 
-        // VENTAS 
+        // VENTAS
         $str .= $t80->posLineaDerecha('VENTAS');
 
         $ventas = ReportesGenerados::ventasContadoCredito($fechaIni);
@@ -818,5 +816,13 @@ class ReportesGeneradosController extends Controller
         $printer->cut();
         $printer->close();
     }
+
+    public static function testing(){
+        // $marinado = ProductoTerminado::where('invent_id',639042)->get()->first();
+        $data = Inventario::GetDataEtiqueta(639044)->first();
+        dd($data);
+        // tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
+     }
+
 
 }

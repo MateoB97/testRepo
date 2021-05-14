@@ -37,7 +37,7 @@ export const helperFacturacionScanerLineas = {
                     producto_id: productoImpuesto.id,
                     producto_codigo: productoImpuesto.codigo,
                     cantidad: element[1],
-                    precio: parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
+                    precio: (parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100))).toFixed(0),
                     iva: productoImpuesto.impuesto,
                     gen_iva_id: productoImpuesto.gen_iva_id,
                     desc: 0.00,
@@ -80,10 +80,15 @@ export const helperFacturacionScanerLineas = {
         peso: null
       }
       tiquete.codigo = app.num_tiquete.substr(2, 5)
-      tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
       const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(tiquete.codigo))
       const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
+      tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
       if (productoImpuesto !== undefined) {
+        if (parseInt(productoImpuesto.unidades) === 1) {
+          tiquete.peso = parseInt(app.num_tiquete.substr(7, 5)) / 1000
+        } else {
+          tiquete.peso = parseInt(app.num_tiquete.substr(7, 5))
+        }
         var newProduct = {
           id: app.itemsCounter,
           producto: productoImpuesto.nombre,

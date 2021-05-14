@@ -25,11 +25,11 @@ Route::get('/backupsql', function() {
     return "backup done";
 });
 
-// Route::get('/migrate-refresh-seed', function() {
-//     Artisan::call('migrate:refresh --seed');
-// Artisan::call('db:seed --class=SoenacSeeder');
-//     return "Migration done";
-// });
+Route::get('/migrate-refresh-seed', function() {
+    Artisan::call('migrate:refresh --seed');
+Artisan::call('db:seed --class=SoenacSeeder');
+    return "Migration done";
+});
 
 Route::get('/migrate', function() {
     Artisan::call('migrate');
