@@ -92,6 +92,8 @@ class InventariosController extends Controller
             if (count(ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get()) > 0 || $lote->producto_empacado) {
 
                 $item = new Inventario($request->all());
+                $item->cantidad = str_replace('=', ' ', strval($item->cantidad));
+                $item->cantidad = floatval($item->cantidad);
                 $item->estado = 1;
                 $item->costo_promedio = 1;
                 $item->tipo_invent = 2;
@@ -202,10 +204,8 @@ class InventariosController extends Controller
 
         $item = Inventario::find($request->etiqueta);
 
-        // $r = self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
-        $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
-
-        return $r;
+        self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+        // $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
     }
 
     public function GetInfoSalMercancia($id)
@@ -336,15 +336,14 @@ class InventariosController extends Controller
 
     public static function imprimirEtiqueta($impresora, $item, $marinado) {
 
-        $marinado = true;
         $almace ='';
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
-        // $connector = new WindowsPrintConnector($nombre_impresora);
-        // $printer = new Printer($connector);
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
         $data = Inventario::GetDataEtiqueta($item->id)->first();
         $lote = Lote::find($data->lote);
         $producto = Producto::where('id','=',$item->producto_id)->get();
@@ -472,10 +471,10 @@ class InventariosController extends Controller
         }
             $etiqueta .="
                 ^XZ";
-        // $printer->text($etiqueta);
-        // $printer->close();
+        $printer->text($etiqueta);
+        $printer->close();
 
-                return $etiqueta;
+        return $etiqueta;
     }
 
     public function imprimirEtiquetaInterna(Request $request)
