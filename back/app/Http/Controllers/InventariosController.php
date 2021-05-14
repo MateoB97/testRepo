@@ -102,6 +102,7 @@ class InventariosController extends Controller
                 $prodTerminado = new ProductoTerminado($request->all());
                 $prodTerminado->invent_id = $item->id;
                 $prodTerminado->num_piezas = $request->num_piezas;
+                $prodTerminado->marinado = $request->marinado;
 
                 if ($lote->producto_empacado) {
                     $prodTerminado->almacenamiento = 0;
@@ -114,7 +115,8 @@ class InventariosController extends Controller
 
                 $prodTerminado->save();
 
-                $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                // $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
                 return 'doneNoRestore';
             } else {
@@ -203,9 +205,12 @@ class InventariosController extends Controller
     public function reimprimir (Request $request) {
 
         $item = Inventario::find($request->etiqueta);
+        $marinado = ProductoTerminado::where('invent_id',$request->etiqueta)->get()->first();
+        // $r = self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+        $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $marinado->marinado);
+        // $r = $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
-        self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
-        // $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+        return $r;
     }
 
     public function GetInfoSalMercancia($id)
