@@ -107,7 +107,6 @@ class InventariosController extends Controller
                 $prodTerminado->marinado = $request->marinado;
 
                 if ($lote->producto_empacado) {
-                    // self::almacLoteTerceroStore($lote->id, $nombre_almacenamiento, $request->fecha_vencimiento);
                     // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);
@@ -556,8 +555,8 @@ class InventariosController extends Controller
                 }
             if (!$request->marinado) {
                 $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT27,170^A0N,50,50^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT27,170^A0N,50,50^FH\^FD".$titulo."^FS^CI28
                     ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
                     ^FT515,260^A0N,22,22^FH\^CI28^FD".$data_marca."^FS^CI28
@@ -574,8 +573,8 @@ class InventariosController extends Controller
                     ^FT270,300^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28";
             }else{
                 $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".$titulo."^FS^CI28
                     ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data_registro_sanitario."^FS^CI28
                     ^FT430,210^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,235^ARN,1^FH\^CI28^FDLote:^FS^CI28
@@ -619,25 +618,19 @@ class InventariosController extends Controller
     public static function validarTitulo($encabezado, $grupo, $marinado){
         if($encabezado > 0 ){
             if(!$marinado){
-                return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                // return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                return "CARNE DE ".strtoupper($grupo);
             }else{
-                return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
+                return "CARNE DE ".strtoupper($grupo)." MARINADA";
+                // return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
             }
         }else{
-            return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+            return 'PRODUCTO CARNICO COMESTIBLE';
+            // return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
         }
     }
 
     public static function logoEtiqueta () {
         return '';
     }
-
-    // // public static function almacLoteTerceroStore($lote_id, $almacenamiento, $fecha_vencimiento){
-    // //     $fecha = str_replace('/','-',$fecha_vencimiento);
-    // //     $pivotAlmacLoteTercero = new FacPivotAlmacenamientoLoteTercero ();
-    // //     $pivotAlmacLoteTercero->nombre = $almacenamiento;
-    // //     $pivotAlmacLoteTercero->lote_id = $lote_id;
-    // //     $pivotAlmacLoteTercero->fecha_vencimiento = $fecha;
-    // //     $pivotAlmacLoteTercero->save();
-    // // }
 }

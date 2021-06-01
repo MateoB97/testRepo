@@ -691,10 +691,10 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
-    public static function reporteFiscalPos(){
+    public static function reporteFiscalPos($fechaIni){
 
         // $fechaIni = $_GET['fecha_inicial'];
-        $fechaIni = '2021-05-17';
+        // $fechaIni = '2021-05-17';
         $user = User::find(2);
 
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
@@ -823,8 +823,7 @@ class ReportesGeneradosController extends Controller
         $printer->close();
     }
 
-    public static function printPOS(){
-        $id = 69838;
+    public static function printPOS($id){
         $nuevoItem = FacMovimiento::find($id);
         // $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);

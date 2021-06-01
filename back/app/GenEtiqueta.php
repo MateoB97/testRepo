@@ -52,11 +52,11 @@ class GenEtiqueta extends Model
                 ^CF0,80
                 ^CI28
                 ".$proceso."
-                ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28"
-                .$titulo
+                ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28
+                ^FPH,1^FT20,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28"
                 .self::headersEtiquetas($data)."
                 ^FT35,295^A0N,20,20^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                ^FPH,1^FT30,126^A0N,43,43^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28"
+                ^FPH,1^FT30,126^A0N,43,43^FD".$titulo."^FS^CI28"
                 .self::logoEtiqueta()."
                 ^BY3,3,80^FT250,480^BCN,,Y,N
                 ^FH\^FD>:".$item->id."^FS";
@@ -87,18 +87,18 @@ class GenEtiqueta extends Model
         $printer->text($etiqueta);
         $printer->close();
 
-        // return $etiqueta;
+        return $etiqueta;
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
         if($encabezado > 0 ) {
             if(!$marinado){
-                return  "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                return  "CARNE DE ".strtoupper($grupo);
             }else{
-                return  "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
+                return  "CARNE DE ".strtoupper($grupo)." MARINADA";
             }
         }else{
-            return  '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+            return  'PRODUCTO CARNICO COMESTIBLE';
         }
     }
 
