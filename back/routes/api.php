@@ -25,11 +25,11 @@ Route::get('/backupsql', function() {
     return "backup done";
 });
 
-// Route::get('/migrate-refresh-seed', function() {
-//     Artisan::call('migrate:refresh --seed');
-// Artisan::call('db:seed --class=SoenacSeeder');
-//     return "Migration done";
-// });
+Route::get('/migrate-refresh-seed', function() {
+    Artisan::call('migrate:refresh --seed');
+Artisan::call('db:seed --class=SoenacSeeder');
+    return "Migration done";
+});
 
 Route::get('/migrate', function() {
     Artisan::call('migrate');
@@ -351,6 +351,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
+    Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
 
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');

@@ -321,6 +321,15 @@
                     :dateUnique="1"
                   />
                 </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Pesos Totales - Productos"
+                    url="api/reportesgenerados/pesostotalesproductos"
+                    :datesFilter="true"
+                    :productosFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
             </div>
             <div class="row q-col-gutter-md">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Produccion</h4></div>

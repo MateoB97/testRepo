@@ -21,6 +21,7 @@ use App\GenEmpresa;
 use App\GenEtiqueta;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\FacPivotAlmacenamientoLoteTercero;
 
 class InventariosController extends Controller
 {
@@ -92,6 +93,9 @@ class InventariosController extends Controller
             if (count(ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get()) > 0 || $lote->producto_empacado) {
 
                 $item = new Inventario($request->all());
+                if(!$request->cantidad){
+                    $item->cantidad = 1;
+                }
                 $item->estado = 1;
                 $item->costo_promedio = 1;
                 $item->tipo_invent = 2;
@@ -103,9 +107,15 @@ class InventariosController extends Controller
                 $prodTerminado->marinado = $request->marinado;
 
                 if ($lote->producto_empacado) {
-                    $prodTerminado->almacenamiento = 0;
+                    // self::almacLoteTerceroStore($lote->id, $nombre_almacenamiento, $request->fecha_vencimiento);
+                    // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
+                    $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
+                    $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);
+                    // // $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
+                    // $prodTerminado->almacenamiento = 0;
                     $prodTerminado->dias_vencimiento = 0;
                 } else {
+                    $prodTerminado->fecha_vencimiento = null;
                     $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
@@ -621,4 +631,13 @@ class InventariosController extends Controller
     public static function logoEtiqueta () {
         return '';
     }
+
+    // // public static function almacLoteTerceroStore($lote_id, $almacenamiento, $fecha_vencimiento){
+    // //     $fecha = str_replace('/','-',$fecha_vencimiento);
+    // //     $pivotAlmacLoteTercero = new FacPivotAlmacenamientoLoteTercero ();
+    // //     $pivotAlmacLoteTercero->nombre = $almacenamiento;
+    // //     $pivotAlmacLoteTercero->lote_id = $lote_id;
+    // //     $pivotAlmacLoteTercero->fecha_vencimiento = $fecha;
+    // //     $pivotAlmacLoteTercero->save();
+    // // }
 }

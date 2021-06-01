@@ -58,7 +58,7 @@ class ProdSubgrupo extends Model
 
     public static function todosConGrupos(){
     return DB::table('prod_subgrupos')
-            ->select('prod_subgrupos.nombre As nombre','prod_subgrupos.id As id','prod_grupos.nombre as grupo', 'prod_subgrupos.activo as activo')
+            ->select('prod_subgrupos.nombre As nombre','prod_subgrupos.id As id','prod_grupos.nombre as grupo', 'prod_subgrupos.activo as activo', 'prod_subgrupos.encabezado_etiqueta')
             ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
             ->get();
     }
