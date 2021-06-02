@@ -23,18 +23,29 @@ export default function (/* { store, ssrContext } */) {
   })
 
   Router.beforeEach((to, from, next) => {
-    var user = JSON.parse(localStorage.user)
-    const permisos = user.permisos.permisos.split(',')
-    if (to.matched.some(v => v.meta.permisoRequerido)) {
-      if (permisos.indexOf(to.matched[1].meta.permisoRequerido) > -1) {
-        next()
-      } else {
-        next({
-          path: '/'
-        })
-      }
+    if (to.name === 'login') {
+      next()
     } else {
-      next() // make sure to always call next()!
+      var user = localStorage.user
+      if (user === undefined) {
+        next({
+          path: '/login'
+        })
+      } else {
+        user = JSON.parse(user)
+        const permisos = user.permisos.permisos.split(',')
+        if (to.matched.some(v => v.meta.permisoRequerido)) {
+          if (permisos.indexOf(to.matched[1].meta.permisoRequerido) > -1) {
+            next()
+          } else {
+            next({
+              path: '/'
+            })
+          }
+        } else {
+          next() // make sure to always call next()!
+        }
+      }
     }
   })
 

@@ -174,7 +174,8 @@ export default {
       app.$q.loading.show()
       var data = {
         name: app.name,
-        role: app.role,
+        role: app.user_rol_id.nombre,
+        user_rol_id: app.user_rol_id.id,
         gen_impresora_id: app.gen_impresora_id.id
       }
       axios.post(this.$store.state.jhsoft.url + this.urlAPI + '/' + app.storeItems.user.id, data).then(

@@ -273,7 +273,7 @@
         </q-expansion-item>
         <div class="q-mt-md row box-buttons-menu">
           <div v-if="$auth.check()" class="text-center col-12">
-              Usuario: {{ $auth.user() }}
+              Usuario: {{ $auth.user().name }}
           </div>
         </div>
         <div class="row q-col-gutter-md" style="padding:10px">
@@ -369,9 +369,6 @@ export default {
           app.cuadreAbierto = response.data
         }
       )
-    },
-    storeUserInLocalStorage () {
-      localStorage.user = JSON.stringify(this.$auth.user())
     }
   },
   created: function () {
@@ -381,7 +378,6 @@ export default {
     this.globalGetForSelect('api/facturacion/tiposrecibocaja', 'docRecibos')
     this.globalGetForSelect('api/ordenes/tipos', 'docOrdenes')
     this.verificarEstadoCaja()
-    this.storeUserInLocalStorage()
   }
 }
 </script>

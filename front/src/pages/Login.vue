@@ -45,7 +45,8 @@ export default {
           email: app.email + '@jhsoftlite.com',
           password: app.password
         },
-        success: function () {
+        success: function (data) {
+          localStorage.user = JSON.stringify(this.$auth.user())
           this.$q.loading.hide()
           this.$router.push({ name: 'home' })
         },
