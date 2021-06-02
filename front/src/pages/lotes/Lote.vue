@@ -571,6 +571,9 @@
                   <div class="col-4">
                     <strong>Fecha Sacrificio:</strong> {{ show.fecha_sacrificio }}
                   </div>
+                  <div v-if="this.storeItems.producto_empacado" class="col-4">
+                    <strong>Fecha Empaque Lote Tercero:</strong> {{ show.fecha_empaque_lote_tercero }}
+                  </div>
                 </div>
                 <div class="row q-col-gutter-sm">
                   <div class="column col-12 q-mt-lg">
@@ -702,7 +705,8 @@
                     </q-select>
                 </div>
                 <div class="col-3">
-                    <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" @input="showForAnimalsMethod()" left-label label="Producto terminado" />
+                    <!-- <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" @input="showForAnimalsMethod()" left-label label="Producto terminado" /> -->
+                    <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" left-label label="Producto terminado" />
                 </div>
                 <div v-if="showForAnimals" class="col-3">
                     <q-checkbox class="q-mt-md" v-model="storeItems.marinado" left-label label="Es Marinado?" />
@@ -729,6 +733,17 @@
                         <q-icon name="event" class="cursor-pointer">
                           <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
                             <q-date v-model="storeItems.fecha_sacrificio" @input="() => $refs.qDateProxy1.hide()" />
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                </div>
+                <div v-if="this.storeItems.producto_empacado" class="col-6">
+                    <q-input label="Fecha Empaque Lote Tercero" v-model="storeItems.fecha_empaque_lote_tercero" mask="date" :rules="['date']">
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
+                            <q-date v-model="storeItems.fecha_empaque_lote_tercero" @input="() => $refs.qDateProxy1.hide()" />
                           </q-popup-proxy>
                         </q-icon>
                       </template>
@@ -913,7 +928,8 @@ export default {
         pcc: null,
         num_animales: null,
         programaciones: [],
-        ProdGrupo_id: null
+        ProdGrupo_id: null,
+        fecha_empaque_lote_tercero: null
       },
       datos: {
         entrada_id: null
@@ -1018,7 +1034,11 @@ export default {
   mixins: [globalFunctions],
   methods: {
     preSave () {
-      console.log(this.storeItems.producto_aprobado)
+      if (this.storeItems.fecha_empaque_lote_tercero) {
+        this.storeItems.fecha_empaque_lote_tercero = this.storeItems.fecha_empaque_lote_tercero
+      } else {
+        this.storeItems.fecha_empaque_lote_tercero = '1900/01/01'
+      }
       this.storeItems.producto_aprobado = this.storeItems.producto_aprobado
       this.storeItems.ProdGrupo_id = this.storeItems.ProdGrupo_id.id
       if (this.storeItems.transportador_id.id) {
@@ -1279,9 +1299,9 @@ export default {
     },
     showForAnimals: function () {
       var response = 1
-      if (this.storeItems.producto_empacado) {
-        response = 0
-      }
+      // if (this.storeItems.producto_empacado) {
+      //   response = 0
+      // }
       return response
     },
     costoCanal: function () {

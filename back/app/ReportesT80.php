@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\Printer;
+use Mike42\Escpos\EscposImage;
 
 class ReportesT80 extends Model
 {
@@ -103,7 +106,7 @@ class ReportesT80 extends Model
 
 	public function posLineaBlanco () {
 
-		return str_pad("", $this->caractLinea, " ", STR_PAD_BOTH);
+		return str_pad("", $this->caractLinea, ' ', STR_PAD_BOTH);
 	}
 
 	public function posLineaGuion () {
@@ -188,5 +191,12 @@ class ReportesT80 extends Model
 
 	}
 
+    public function printLogoT80($printer){
+        $empresa = GenEmpresa::find(1);
+        if ($empresa->print_logo_pos) {
+            $img = EscposImage::load("../public/images/logo1.png");
+            return $printer->graphics($img);
+        }
+    }
 
 }
