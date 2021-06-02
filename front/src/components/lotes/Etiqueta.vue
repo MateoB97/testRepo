@@ -4,7 +4,6 @@
             <div class="row q-col-gutter-md">
                 <div class="col-3">
                     <q-select
-                      v-if="type == 0"
                       label="Seleccione tipo de almacenamiento"
                       v-model="storeItems.prodAlmacenamiento_id"
                       :options="almacenamientos"

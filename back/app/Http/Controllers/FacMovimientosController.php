@@ -684,8 +684,6 @@ class FacMovimientosController extends Controller
 
         // $printer->setJustification(Printer::JUSTIFY_CENTER);
 
-
-
         if ($tipoDoc->naturaleza == 4) {
 
             $caractPorlinea = caracteres_linea_pos();
@@ -876,6 +874,8 @@ class FacMovimientosController extends Controller
             $etiqueta .= str_pad("Nit: 901389565-8", $caractPorlinea, " ", STR_PAD_BOTH);
 
             $etiqueta .= str_pad("GRACIAS POR SU COMPRA !!", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
 
             $printer->text($etiqueta);
             $printer->feed(2);
@@ -887,8 +887,9 @@ class FacMovimientosController extends Controller
 
             for ($i = 0; $i < 1 ; $i++) {
 
-                $etiqueta = str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
-
+                // $etiqueta = str_pad("Fecha Impresion " . date('d-m-Y H:i:s'), 48, " ", STR_PAD_RIGHT);
+                $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
                 // ENCABEZADO
                 if ($tipoDoc->formato_impresion == 1) {
                     $img = EscposImage::load("../public/images/logo1.png");
@@ -1002,6 +1003,8 @@ class FacMovimientosController extends Controller
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
                 $etiqueta .= str_pad("Nombre y Sello del cliente", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
 
                 $printer->text($etiqueta);
                 $printer->feed(2);

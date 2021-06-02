@@ -146,7 +146,7 @@
 				<tr>
 					<td>{{ $element->producto }}</td>
 					<td style="text-align: right;">{{ $element->lote	}}</td>
-					<td style="text-align: right;">{{ $element->peso	}}</td>
+					<td style="text-align: right;">{{ number_format($element->peso,2,',','.')	}}</td>
 					<td style="text-align: right;">{{ $element->canastas }}</td>
 					<td style="text-align: right;">{{ $element->fecha_sacrificio }}</td>
 					<td style="text-align: right;">{{ $element->fecha_desposte }}</td>

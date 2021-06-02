@@ -19,7 +19,7 @@ class Lote extends Model
      *
      * @var array
      */
-    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado'];
+    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado', 'fecha_empaque_lote_tercero'];
 
     public function TerceroSucursal()
     {
