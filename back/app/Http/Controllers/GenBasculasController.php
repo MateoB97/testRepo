@@ -103,7 +103,7 @@ class GenBasculasController extends Controller
 
         // dd($fechaIni , $fechaFin);
 
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete')->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
         $lineasFacturadas = array();
 

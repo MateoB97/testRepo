@@ -34,8 +34,8 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgctesting/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.6/sgcdev/back/public/api'
-  Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
+  Vue.axios.defaults.baseURL = 'http://192.168.1.2/sgcdev/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 
   axios.interceptors.request.use(function (config) {
     return config
@@ -58,6 +58,9 @@ export default ({ Vue }) => {
     if (error.response.status === 401) {
       console.log('sgc_jwt_token')
       Vue.auth.refresh()
+    }
+    if (error.response.status === 403) {
+      window.location.replace('http://' + location.host)
     }
   })
 }

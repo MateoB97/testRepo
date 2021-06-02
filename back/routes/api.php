@@ -63,6 +63,11 @@ Route::group(['prefix' => 'users', 'middleware' => 'auth:api'], function(){
     Route::get('estado/{id}/{cambio}', 'UserController@estado')->middleware('isAdmin');
     Route::get('reinitpassword/{id}', 'UserController@reiniciarPassword')->middleware('isAdmin');
     Route::post('/editar/cambiarpass', 'UserController@cambiarPass')->middleware('isAdminOrSelf');
+    Route::apiResource('/permisos/categorias-permisos', 'UserPermisosCategoriasController');
+    Route::apiResource('permisos/items', 'UserPermisosController')->middleware('permisos:10');
+    Route::apiResource('permisos/roles', 'UserRolesController');
+    Route::get('permisos/permisos-rol', 'UserPermisosController@permisosPorRol');
+    Route::get('permisos/permisos-agrupados-categorias', 'UserPermisosController@permisosAgrupadosCategorias');
 });
 
 Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){

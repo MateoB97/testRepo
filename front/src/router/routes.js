@@ -146,6 +146,16 @@ const routes = [
     ]
   },
   {
+    path: '/usuarios',
+    component: () => import('layouts/MyLayout.vue'),
+    children: [
+      { path: 'categorias-permisos', meta: { permisoRequerido: '11' }, component: () => import('pages/user/CategoriasPermisos.vue') },
+      { path: 'permisos', meta: { permisoRequerido: '10' }, component: () => import('pages/user/PermisosUsuarios.vue') },
+      { path: 'roles', component: () => import('pages/user/RolesUsuarios.vue') },
+      { path: 'asociar-permisos-rol', component: () => import('pages/user/AsociarPermisosRol.vue') }
+    ]
+  },
+  {
     path: '/despachos',
     component: () => import('layouts/MyLayout.vue'),
     children: [

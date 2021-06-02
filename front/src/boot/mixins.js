@@ -172,7 +172,6 @@ export const globalFunctions = {
       }
       if (itemNull !== 1) {
         this.$q.notify({ color: 'warning', message: 'Guardando item...' })
-        app.validarDocumentosNotas(id)
         axios.put(this.$store.state.jhsoft.url + this.urlAPI + '/' + id, this.storeItems).then(
           function (response) {
             if (response.data === 'done') { // si se desea restaurar el formulario el api debe devolver "done"
@@ -206,16 +205,15 @@ export const globalFunctions = {
           }
         ).catch(function (error) {
           app.$q.notify({ color: 'negative', message: 'Hubo un error no se pudo guardar!' })
-          console.log('Joder!')
           console.log(error)
         }).finally(function () {
           app.showForUpdate = false
+          if (callback !== 0) {
+            app.postSave(callback)
+          } else {
+            app.postSave()
+          }
         })
-      }
-      if (callback !== 0) {
-        app.postSave(callback)
-      } else {
-        app.postSave()
       }
     },
     globalGetForSelect (url, objeto, objUpdate) {

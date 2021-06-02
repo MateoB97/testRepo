@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\UserRoles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -30,6 +31,7 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->role = $request->role;
         $user->gen_impresora_id = $request->gen_impresora_id;
+        $user->user_rol_id = $request->user_rol_id;
         $user->activo = 1;
         $user->password =  Hash::make($request->password);
         $user->save();
@@ -38,7 +40,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // dd($request);
         $user = User::where('email','=', $request->email)->get();
 
         if ($user[0]->activo == 1) {
@@ -64,6 +65,7 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user = User::find(Auth::user()->id);
+        $user->permisos = UserRoles::find($user->user_rol_id);
         return response()->json([
             'status' => 'success',
             'data' => $user
