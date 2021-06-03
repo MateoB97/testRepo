@@ -14,7 +14,7 @@ class UserPermisos extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','permisos_categoria_id'];
+    protected $fillable = ['nombre','permisos_categoria_id','consecutivo'];
 
     public function getDateFormat()
     {
@@ -27,6 +27,7 @@ class UserPermisos extends Model
             ->select(
                 'user_permisos.id As id',
                 'user_permisos.nombre As nombre',
+                'user_permisos.consecutivo As consecutivo',
                 'user_permisos_categorias.nombre As categoria',
                 'user_permisos.permisos_categoria_id as permisos_categoria_id')
             ->join('user_permisos_categorias', 'user_permisos.permisos_categoria_id', '=', 'user_permisos_categorias.id')
@@ -38,6 +39,7 @@ class UserPermisos extends Model
             ->select(
                 'user_permisos.id As id',
                 'user_permisos.nombre As nombre',
+                'user_permisos.consecutivo As consecutivo',
                 'user_permisos_categorias.nombre As categoria')
             ->whereIn('user_permisos.id', $permisos)
             ->get();

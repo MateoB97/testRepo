@@ -41,6 +41,11 @@ Route::get('/seedsoenac', function() {
     return "seed done";
 });
 
+Route::get('/seedpermisos', function() {
+    Artisan::call('db:seed --class=UserPermisosSeeder');
+    return "seed done";
+});
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -357,6 +362,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
+    Route::get('/testing', 'ReportesGeneradosController@testing');
 
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');

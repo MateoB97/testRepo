@@ -823,10 +823,13 @@ class ReportesGeneradosController extends Controller
         $printer->close();
     }
 
-    public static function printPOS($id){
+    public static function printPOS(){
+        $id = 69842;
         $nuevoItem = FacMovimiento::find($id);
         // $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);
+        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get();
+        // dd($lineas2);
         // dd($lineas);
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
         $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
@@ -904,9 +907,9 @@ class ReportesGeneradosController extends Controller
             foreach ($lineas as $linea) {
                 $str .= $t80->posDosItemsExtremos($linea->producto_codigo. ' '. $linea->producto_nombre,  $t80->toNumber($linea->detail_precio) * $linea->detail_cantidad.  ' | '. $linea->detail_iva);
                 if(($linea->detail_desc > 0 && $caractPorlinea > 40)){
-                    $str .= $t80->posLineaDerecha('   '.$linea->detail_cantidad. ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio). '  Desc  '. $t80->toNumber($linea->detail_desc).' %');
+                    $str .= $t80->posLineaDerecha('   '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio). '  Desc  '. $t80->toNumber($linea->detail_desc).' %');
                 }else{
-                    $str .= $t80->posLineaDerecha('     '.$linea->detail_cantidad. ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio));
+                    $str .= $t80->posLineaDerecha('     '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio));
                 }
 
                 $totales_por_unidad[$linea->uni_medida_abrev_pos] += $linea->detail_cantidad;
@@ -936,32 +939,41 @@ class ReportesGeneradosController extends Controller
 
             // DESCRIPCION IMPUESTOS
             $str .= $t80->posLineaCentro("impuestos", "-");
-            $str .= $t80->posLineaCentro("imp           base            iva");
+
+            $str .= $t80->multiItemsFromArray([
+                ['IMP', 0, ' ', 1],
+                ['BASE', 12, ' ', 1],
+                ['IVA', 12, ' ', 1],
+            ]);
+
+            // $str .= $t80->posLineaCentro("imp           base            iva");
             $arrayIvas = [];
             $arrayImpuestos = [];
 
-            foreach ($lineas as $linea) {
+            foreach ($lineas2 as $linea2) {
 
-                if (array_search($linea->detail_iva, $arrayIvas) === false) {
-                    array_push($arrayIvas, $linea->detail_iva);
+                if (array_search($linea2->iva, $arrayIvas) === false) {
+                    array_push($arrayIvas, $linea2->iva);
                 }
             }
-
             foreach ($arrayIvas as $item) {
                 $subtotal = 0;
-                foreach ($lineas as $linea) {
-                    if ($linea['iva'] == $item){
-                        $subtotal = $subtotal + intval(((intval($linea->detail_precio) - ( intval($linea->detail_precio) * ( intval($linea->detail_desc)/100) ))) * floatval($linea->detail_cantidad));
+                foreach ($lineas2 as $linea2) {
+                    if ($linea2->iva == $item){
+                        $subtotal = $subtotal + intval(((intval($linea2->precio) - ( intval($linea2->precio) * ( intval($linea2->descporcentaje)/100) ))) * floatval($linea2->cantidad));
                     }
                 }
-
-                $str .= str_pad(number_format($item, 0, ',', '.').'%', 3, " ", STR_PAD_LEFT);
-                $str .= str_pad("", 12, " ", STR_PAD_RIGHT);
-                $str .= str_pad(number_format(intval($subtotal), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-                $str .= str_pad("", 13, " ", STR_PAD_RIGHT);
-                $str .= str_pad(number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+                $str .= $t80->multiItemsFromArray([
+                    [$item, 0, ' ', 1],
+                    [$subtotal, 12, ' ', 1],
+                    [number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 12, ' ', 1],
+                ]);
             }
+            $str .= $t80->posLineaBlanco();
+            $str .= $t80->posLineaBlanco();
 
+        } else {
+            dd($id);
         }
 
         $printer->text($str);
@@ -971,32 +983,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public static function testing(){
-    //     $user = User::find(2);
-
-    //     $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-    //     $connector = new WindowsPrintConnector($nombre_impresora);
-    //     $printer = new Printer($connector);
-    //     $data =  [
-    //             "doc" => "007",
-    //             "tipo" => "Fac",
-    //             "total" => 1000
-    //             multiItemsFromArray()
-    //     ];
-    //     $t80 = new ReportesT80(48);
-    //     $t80->
-    //     $str = '';
-        // $data = Carbon::parse($data->fecha_empaque)->toDateString();
-
-        $objDateTime = new DateTime('NOW');
-
-        $fecha_vencimiento = "2021/05/31";
-        $fecha = str_replace('/','-',$fecha_vencimiento);
-        // date('Y-m-d',$fecha);
-        // $fecha = date('Y-m-d',$fecha_vencimiento);
-        // $time_input = strtotime('2011/05/21');
-        // $date_input = getDate($time_input);
-        dd($fecha);
-        // self::printPOS();
+        self::printPOS();
      }
 
 

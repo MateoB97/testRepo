@@ -366,8 +366,8 @@ class InventariosController extends Controller
         $almaCongelado = strrpos($prodTerminado->almacenamiento, "Congelado");
         if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F"; }
         if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
-        if ($data->grupo !== 'Res') { $porcMarinado = "10%"; }
-        if ($data->grupo !== 'Cerdo') { $porcMarinado = "12%"; }
+        if ($data->grupo === 'Res') { $porcMarinado = "10%"; }
+        if ($data->grupo ==='Cerdo') { $porcMarinado = "12%"; }
         // $titulo = "CARNE DE ".strtoupper($data->grupo);
         $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
         $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
