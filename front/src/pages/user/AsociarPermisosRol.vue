@@ -21,7 +21,7 @@
               <ul id="example-2">
                 {{ key }}
                 <li v-for="permiso in categoria" :key="permiso.id">
-                  <q-checkbox v-model="storeItems.permisos" :val="permiso.id" :label="permiso.nombre" />
+                  <q-checkbox v-model="storeItems.permisos" :val="permiso.consecutivo" :label="permiso.nombre" />
                 </li>
               </ul>
             </div>
@@ -79,6 +79,7 @@ export default {
       } else {
         this.storeItems.permisos = []
       }
+      console.log(this.storeItems.permisos)
     }
   },
   created: function () {
