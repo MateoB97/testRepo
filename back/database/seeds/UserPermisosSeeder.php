@@ -30,7 +30,8 @@ class UserPermisosSeeder extends Seeder
         ];
 
         $cat['recibos_de_caja'] = [
-            [ 'consecutivo' => 4, 'nombre' => 'crear recibo de caja'  ]
+            [ 'consecutivo' => 4, 'nombre' => 'crear recibo de caja'  ],
+            [ 'consecutivo' => 71, 'nombre' => 'anular recibos'  ]
         ];
 
         $cat['despachos'] = [
@@ -134,7 +135,8 @@ class UserPermisosSeeder extends Seeder
             [ 'consecutivo' => 66, 'nombre' => 'general'  ],
             [ 'consecutivo' => 67, 'nombre' => 'configuracion'  ],
             [ 'consecutivo' => 68, 'nombre' => 'reportes'  ],
-            [ 'consecutivo' => 69, 'nombre' => 'lotes'  ]
+            [ 'consecutivo' => 69, 'nombre' => 'lotes'  ],
+            [ 'consecutivo' => 70, 'nombre' => 'abrir caja'  ]
         ];
 
         foreach($cat as $categoria => $permisos){
@@ -157,7 +159,7 @@ class UserPermisosSeeder extends Seeder
         $rol = App\UserRoles::find(1);
 
         if (!$rol) {
-            App\UserRoles::create([
+            $rol = App\UserRoles::create([
                 'nombre' => 'Administrador',
                 'permisos' => $allPermisos
             ]);

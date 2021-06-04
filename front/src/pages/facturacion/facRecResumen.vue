@@ -39,7 +39,7 @@
                 <q-td slot="body-cell-actions" slot-scope="props" :props="props">
                     <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/recibocaja/imprimir/'+ props.value +'?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs" icon="assignment" color="primary"></q-btn> </a>
                     <q-btn class="q-ml-xs" color="primary" @click="printPOS(props.value)"> POS </q-btn>
-                    <q-btn v-if="validarEstado(props.value) && $auth.user().role === 'cajero'" class="q-ml-xs" color="negative" @click="anular(props.value)"> anular </q-btn>
+                    <q-btn v-if="validarEstado(props.value) && globalValidarPermiso(71)" class="q-ml-xs" color="negative" @click="anular(props.value)"> anular </q-btn>
                 </q-td>
             </q-table>
         </div>

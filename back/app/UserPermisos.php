@@ -21,7 +21,6 @@ class UserPermisos extends Model
         return dateTimeSql();
     }
 
-
     public static function indexConCategorias(){
     return DB::table('user_permisos')
             ->select(
