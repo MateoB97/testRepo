@@ -163,11 +163,18 @@ class SalMercanciaController extends Controller
         foreach ($items as $element) {
 
             $flag = 0;
-            $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
-            $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
-            $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
-            $element->peso = number_format($element->peso, 2, '.', '');
-            $totalKilos += $element->peso;
+            if (!$element->producto_empacado > 0) {
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                $element->peso = number_format($element->peso, 2, '.', '');
+                $totalKilos += $element->peso;
+            } else {
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                $element->fecha_vencimiento = Carbon::parse($element->prod_term_fecha_vencimiento)->toDateString();
+            }
+
 
             foreach ($itemsSumatoria  as $elementSumatoria) {
                 if (($element->lote == $elementSumatoria->lote) && ($element->producto_id == $elementSumatoria->producto_id) && ($element ->almacenamiento ==  $elementSumatoria->almacenamiento)) {
@@ -184,7 +191,7 @@ class SalMercanciaController extends Controller
                 array_push($itemsSumatoria, $element);
             }
         }
-
+        // dd($itemsSumatoria);
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
         $pdf = PDF::loadView('despachos.certificado', $data);
         // return view('certificados.pdf');

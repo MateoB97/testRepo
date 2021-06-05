@@ -77,6 +77,12 @@
                 <div class="col">
                     <q-checkbox class="q-mt-md" v-model="storeItems.traslado" left-label label="Es traslado?" />
                 </div>
+                <div class="col">
+                    <q-checkbox class="q-mt-md" v-model="storeItems.estado" left-label label="Habilitar Documento" />
+                </div>
+                <div class="col">
+                    <q-checkbox class="q-mt-md" v-model="storeItems.legal" left-label label="Es oficial ?" />
+                </div>
             </div>
             <div class="row q-col-gutter-md q-mt-xs gutter-x-sm gutter-y-l">
                 <div class="col-3">
@@ -211,6 +217,8 @@ export default {
         mueveInventario: false,
         despacho: false,
         traslado: false,
+        estado: false,
+        legal: false,
         primario: false,
         naturaleza: null
       },

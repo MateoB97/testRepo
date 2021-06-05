@@ -34,7 +34,8 @@ class GenEmpresa extends Model
     	'ruta_archivo_precios_epelsa',
         'fact_grupo',
         'print_logo_pos',
-        'email_backup_fact_elect'
+        'email_backup_fact_elect',
+        'cantidad_caracteres'
     ];
 
     public function getDateFormat()

@@ -301,11 +301,52 @@
                       :productosFilter="true"
                       :dateUnique="0"
                     />
-                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Peso Factura - Ventas - Devoluciones - Notas"
+                    url="api/reportesgenerados/reportes/pesoporfechaventasdevsnotas"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
                 </div>
                 <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
                 </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Reporte Fiscal"
+                    url="api/reportesgenerados/reportefiscal"
+                    :datesFilter="true"
+                    :dateUnique="1"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Pesos Totales - Productos"
+                    url="api/reportesgenerados/pesostotalesproductos"
+                    :datesFilter="true"
+                    :productosFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+            </div>
+            <div class="row q-col-gutter-md">
+              <div class="col-12 q-mt-md"><h4 style="margin:0px">Produccion</h4></div>
+                <div class="col-4">
+                    <GlobalFiltersComponent
+                    titleBtn="Productos por Lote"
+                    url="api/reportesgenerados/productosporlote"
+                    :loteFilter="true"
+                  />
+                </div>
+                <div class="col-4">
+                    <GlobalFiltersComponent
+                    titleBtn="Peso planta por Lote"
+                    url="api/reportesgenerados/pesoplantalote"
+                    :loteFilter="true"
+                  />
+                </div>
             </div>
         </div>
     </q-page>

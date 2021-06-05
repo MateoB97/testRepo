@@ -103,7 +103,7 @@ class GenBasculasController extends Controller
 
         // dd($fechaIni , $fechaFin);
 
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete')->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
         $lineasFacturadas = array();
 
@@ -528,12 +528,9 @@ class GenBasculasController extends Controller
             $arrayLines = $this->marquesPDF($fecha);
 
         } else  {
-
             $arrayLines = $this->epelsaDibalPDF($fecha);
         }
-
         $data = ['etiqueta' => $arrayLines];
-        // dd($data);
         $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
 
         return $pdf->stream();
@@ -752,8 +749,8 @@ class GenBasculasController extends Controller
                             'producto' => 'PRODUCTO NO EXISTENTE',
                             'total' => $total,
                             'cantidad' => $arrayItem[1],
-                            'unidades' => '',
-                            'precio' => ''
+                            'unidades' => 0,
+                            'precio' => 0
                         ));
                     }
                     if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){

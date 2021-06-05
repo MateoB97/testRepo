@@ -19,7 +19,7 @@ class ProdSubgrupo extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','prodGrupo_id','activo'];
+    protected $fillable = ['nombre','prodGrupo_id','activo', 'encabezado_etiqueta'];
 
     /**
      * ProdSubgrupo belongs to ProdGrupo.
@@ -45,11 +45,11 @@ class ProdSubgrupo extends Model
 
     protected $columns = array('id','nombre','prodGrupo_id','activo','created_at','updated_at'); // add all columns from you table
 
-    public function scopeExclude($query,$value = array()) 
+    public function scopeExclude($query,$value = array())
     {
         return $query->select( array_diff( $this->columns,(array) $value) );
     }
-    
+
 
     public function getDateFormat()
     {
@@ -58,7 +58,7 @@ class ProdSubgrupo extends Model
 
     public static function todosConGrupos(){
     return DB::table('prod_subgrupos')
-            ->select('prod_subgrupos.nombre As nombre','prod_subgrupos.id As id','prod_grupos.nombre as grupo', 'prod_subgrupos.activo as activo')
+            ->select('prod_subgrupos.nombre As nombre','prod_subgrupos.id As id','prod_grupos.nombre as grupo', 'prod_subgrupos.activo as activo', 'prod_subgrupos.encabezado_etiqueta')
             ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
             ->get();
     }

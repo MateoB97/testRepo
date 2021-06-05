@@ -24,7 +24,7 @@ class FacTipoDocController extends Controller
 
     public function facturas()
     {
-        $list = FacTipoDoc::where('naturaleza', 1)->get();
+        $list = FacTipoDoc::whereIn('naturaleza', [1,4])->get();
         return $list;
     }
 

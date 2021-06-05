@@ -17,6 +17,9 @@
                 <div class="col">
                     <q-input v-model="storeItems.nombre" label="Nombre Subgrupo"/>
                 </div>
+                <div class="col-3">
+                    <q-checkbox v-model="encabezado" left-label label="Producto Carnico Comestible ?" />
+                </div>
             </div>
             <div class="row q-mt-md">
               <div class="col-3">
@@ -75,6 +78,7 @@ export default {
   data: function () {
     return {
       showForUpdate: false,
+      encabezado: false,
       urlAPI: 'api/productos/subgrupos',
       tableData: [],
       grupos: [],
@@ -84,6 +88,7 @@ export default {
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'nombre', required: true, label: 'Nombre', align: 'left', field: 'nombre', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'grupo', required: true, label: 'Grupo', align: 'left', field: 'grupo', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'encabezado', required: true, label: 'encabezado', align: 'left', field: 'encabezado_etiqueta', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       visibleColumns: ['id', 'nombre', 'grupo', 'actions'],
@@ -101,6 +106,11 @@ export default {
     },
     preSave () {
       this.storeItems.prodGrupo_id = this.storeItems.prodGrupo_id.id
+      if (this.encabezado === true) {
+        this.storeItems.encabezado_etiqueta = this.encabezado
+      } else {
+        this.storeItems.encabezado_etiqueta = this.encabezado
+      }
     },
     postEdit () {
     }

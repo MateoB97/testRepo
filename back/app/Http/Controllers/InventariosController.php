@@ -21,6 +21,7 @@ use App\GenEmpresa;
 use App\GenEtiqueta;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\FacPivotAlmacenamientoLoteTercero;
 
 class InventariosController extends Controller
 {
@@ -92,6 +93,8 @@ class InventariosController extends Controller
             if (count(ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get()) > 0 || $lote->producto_empacado) {
 
                 $item = new Inventario($request->all());
+                $item->cantidad = str_replace('=', ' ', strval($item->cantidad));
+                $item->cantidad = floatval($item->cantidad);
                 $item->estado = 1;
                 $item->costo_promedio = 1;
                 $item->tipo_invent = 2;
@@ -100,11 +103,17 @@ class InventariosController extends Controller
                 $prodTerminado = new ProductoTerminado($request->all());
                 $prodTerminado->invent_id = $item->id;
                 $prodTerminado->num_piezas = $request->num_piezas;
+                $prodTerminado->marinado = $request->marinado;
 
                 if ($lote->producto_empacado) {
-                    $prodTerminado->almacenamiento = 0;
+                    // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
+                    $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
+                    $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);
+                    // // $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
+                    // $prodTerminado->almacenamiento = 0;
                     $prodTerminado->dias_vencimiento = 0;
                 } else {
+                    $prodTerminado->fecha_vencimiento = null;
                     $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
@@ -112,7 +121,8 @@ class InventariosController extends Controller
 
                 $prodTerminado->save();
 
-                $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                // $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
                 return 'doneNoRestore';
             } else {
@@ -201,9 +211,10 @@ class InventariosController extends Controller
     public function reimprimir (Request $request) {
 
         $item = Inventario::find($request->etiqueta);
-
+        $marinado = ProductoTerminado::where('invent_id',$request->etiqueta)->get()->first();
         // $r = self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
-        $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+        $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $marinado->marinado);
+        // $r = $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
         return $r;
     }
@@ -297,8 +308,11 @@ class InventariosController extends Controller
         return $data[0]->cantidad;
     }
 
-    public function GetProductosPorLotePDF($idlote)
+    public function GetProductosPorLotePDF()
     {
+
+        $idlote = $_GET['lote_id'];
+
         $data = Inventario::productosPorLote($idlote);
 
         $itemsSumatoria = array();
@@ -333,15 +347,14 @@ class InventariosController extends Controller
 
     public static function imprimirEtiqueta($impresora, $item, $marinado) {
 
-        $marinado = true;
         $almace ='';
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
-        // $connector = new WindowsPrintConnector($nombre_impresora);
-        // $printer = new Printer($connector);
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+        $printer->setJustification(Printer::JUSTIFY_CENTER);
         $data = Inventario::GetDataEtiqueta($item->id)->first();
         $lote = Lote::find($data->lote);
         $producto = Producto::where('id','=',$item->producto_id)->get();
@@ -353,8 +366,8 @@ class InventariosController extends Controller
         $almaCongelado = strrpos($prodTerminado->almacenamiento, "Congelado");
         if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F"; }
         if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
-        if ($data->grupo !== 'Res') { $porcMarinado = "10%"; }
-        if ($data->grupo !== 'Cerdo') { $porcMarinado = "12%"; }
+        if ($data->grupo === 'Res') { $porcMarinado = "10%"; }
+        if ($data->grupo ==='Cerdo') { $porcMarinado = "12%"; }
         // $titulo = "CARNE DE ".strtoupper($data->grupo);
         $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
         $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
@@ -469,10 +482,10 @@ class InventariosController extends Controller
         }
             $etiqueta .="
                 ^XZ";
-        // $printer->text($etiqueta);
-        // $printer->close();
+        $printer->text($etiqueta);
+        $printer->close();
 
-                return $etiqueta;
+        return $etiqueta;
     }
 
     public function imprimirEtiquetaInterna(Request $request)
@@ -540,8 +553,8 @@ class InventariosController extends Controller
                 }
             if (!$request->marinado) {
                 $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT27,170^A0N,50,50^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT27,170^A0N,50,50^FH\^FD".$titulo."^FS^CI28
                     ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
                     ^FT515,260^A0N,22,22^FH\^CI28^FD".$data_marca."^FS^CI28
@@ -558,8 +571,8 @@ class InventariosController extends Controller
                     ^FT270,300^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28";
             }else{
                 $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
+                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".$titulo."^FS^CI28
                     ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data_registro_sanitario."^FS^CI28
                     ^FT430,210^ARN,1^FH\^CI28^FDMarca:^FS^CI28
                     ^FT430,235^ARN,1^FH\^CI28^FDLote:^FS^CI28
@@ -603,12 +616,15 @@ class InventariosController extends Controller
     public static function validarTitulo($encabezado, $grupo, $marinado){
         if($encabezado > 0 ){
             if(!$marinado){
-                return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                // return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
+                return "CARNE DE ".strtoupper($grupo);
             }else{
-                return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
+                return "CARNE DE ".strtoupper($grupo)." MARINADA";
+                // return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
             }
         }else{
-            return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+            return 'PRODUCTO CARNICO COMESTIBLE';
+            // return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
         }
     }
 

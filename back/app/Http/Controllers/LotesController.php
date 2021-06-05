@@ -30,6 +30,9 @@ class LotesController extends Controller
         if ( (count($request->programaciones) > 0) ){
 
             $nuevoItem = new Lote($request->all());
+            if (($request->producto_empacado  == 0 || $request->producto_empacado == '0')) {
+                $nuevoItem->fecha_empaque_lote_tercero = null;
+            }
             $nuevoItem->estado = 1;
             $nuevoItem->save();
 
@@ -106,7 +109,7 @@ class LotesController extends Controller
 
                 if (strrpos($products->almacenamiento, "vacio")) {
                     $vacioTotal = $vacioTotal + $products->peso;
-                }   
+                }
             }
 
             $vacioTotal = number_format($vacioTotal, 2, '.', '');
@@ -119,7 +122,7 @@ class LotesController extends Controller
                      'procedencia' => $procedencia
                     ];
 
-            return $data;   
+            return $data;
 
         } else {
             if (count($productos) < 1) {

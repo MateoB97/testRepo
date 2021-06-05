@@ -172,7 +172,6 @@ export const globalFunctions = {
       }
       if (itemNull !== 1) {
         this.$q.notify({ color: 'warning', message: 'Guardando item...' })
-        app.validarDocumentosNotas(id)
         axios.put(this.$store.state.jhsoft.url + this.urlAPI + '/' + id, this.storeItems).then(
           function (response) {
             if (response.data === 'done') { // si se desea restaurar el formulario el api debe devolver "done"
@@ -206,16 +205,15 @@ export const globalFunctions = {
           }
         ).catch(function (error) {
           app.$q.notify({ color: 'negative', message: 'Hubo un error no se pudo guardar!' })
-          console.log('Joder!')
           console.log(error)
         }).finally(function () {
           app.showForUpdate = false
+          if (callback !== 0) {
+            app.postSave(callback)
+          } else {
+            app.postSave()
+          }
         })
-      }
-      if (callback !== 0) {
-        app.postSave(callback)
-      } else {
-        app.postSave()
       }
     },
     globalGetForSelect (url, objeto, objUpdate) {
@@ -333,11 +331,12 @@ export const globalFunctions = {
               'type_liability_id': response.data.cliente.soenac_responsabilidad,
               'type_organization_id': response.data.cliente.soenac_tipo_organizacion,
               'type_document_identification_id': response.data.cliente.soenac_tipo_documento,
-              'merchant_registration': response.data.cliente.tercero.registro_mercantil
+              'merchant_registration': response.data.cliente.tercero.registro_mercantil,
+              'municipality_id': 1
             },
             'legal_monetary_totals': {
               'line_extension_amount': parseFloat(lineasAmountTotal).toFixed(2),
-              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount + restaBolsa).toFixed(2),
+              'tax_exclusive_amount': parseFloat(lineasAmountTotal - restaTaxInclusiveAmount).toFixed(2),
               'tax_inclusive_amount': parseFloat(lineasAmountTotal + ivaTotal + restaBolsa).toFixed(2),
               'allowance_total_amount': '0.00',
               'charge_total_amount': '0.00',
@@ -460,6 +459,15 @@ export const globalFunctions = {
           }
         }
       )
+    },
+    globalValidarPermiso (permiso) {
+      var user = this.$auth.user().permisos.permisos
+      var pos = user.indexOf(permiso)
+      if (pos > 0) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   filters: {

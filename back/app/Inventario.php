@@ -92,6 +92,7 @@ class Inventario extends Model
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
+                'producto_terminados.num_piezas as num_piezas',
                 'prod_grupos.registro_sanitario as registro_sanitario',
                 'prod_grupos.nombre as grupo',
                 'prod_subgrupos.nombre as subgrupo_nombre',
@@ -152,7 +153,7 @@ class Inventario extends Model
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             ->orderBy('inventarios.id','desc')
-            ->take(1000)
+            ->take(100)
             ->get();
     }
 

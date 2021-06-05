@@ -41,6 +41,11 @@ Route::get('/seedsoenac', function() {
     return "seed done";
 });
 
+Route::get('/seedpermisos', function() {
+    Artisan::call('db:seed --class=UserPermisosSeeder');
+    return "seed done";
+});
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -63,6 +68,11 @@ Route::group(['prefix' => 'users', 'middleware' => 'auth:api'], function(){
     Route::get('estado/{id}/{cambio}', 'UserController@estado')->middleware('isAdmin');
     Route::get('reinitpassword/{id}', 'UserController@reiniciarPassword')->middleware('isAdmin');
     Route::post('/editar/cambiarpass', 'UserController@cambiarPass')->middleware('isAdminOrSelf');
+    Route::apiResource('/permisos/categorias-permisos', 'UserPermisosCategoriasController');
+    Route::apiResource('permisos/items', 'UserPermisosController')->middleware('permisos:10');
+    Route::apiResource('permisos/roles', 'UserRolesController');
+    Route::get('permisos/permisos-rol', 'UserPermisosController@permisosPorRol');
+    Route::get('permisos/permisos-agrupados-categorias', 'UserPermisosController@permisosAgrupadosCategorias');
 });
 
 Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){
@@ -329,34 +339,34 @@ Route::group(['prefix' => 'ingresos', 'middleware' => 'auth'], function(){
 });
 
 
-Route::group(['prefix' => 'informes', 'middleware' => 'auth'], function(){
-	Route::get('/productosporlote/{id}', 'InventariosController@GetProductosPorLotePDF');
-});
-
-
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
 
     Route::get('/reportes/testing', 'ReportesGeneradosController@testing');
 
     Route::get('/reportes/compilejrxml', 'ReportesGeneradosController@compileJrXml');
-    Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
+
+    // cartera
+    Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
     Route::get('/reportes/saldocartera', 'ReportesGeneradosController@saldosCartera');
     Route::get('/reportes/saldocarteratr', 'ReportesGeneradosController@saldosCarteraTR');
-	Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
+
+    // facturacion
+    Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');
+    Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
+    Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
+    Route::get('/reportefiscal', 'ReportesGeneradosController@reporteFiscalPos');
+    Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
+    Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
     Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
 	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
-    Route::get('/reportes/pesoplantalote/{lote_id}', 'ReportesGeneradosController@pesoPlantaLote');
+    Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
+    Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
+    Route::get('/testing', 'ReportesGeneradosController@testing');
 
-    Route::get('/cxct80', 'ReportesGeneradosController@saldosEnCarteraT80');
-    Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
-
-    Route::get('/ventasnetasporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@ventasNetasPorFecha');
-    Route::get('/recaudoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@recaudoPorFecha');
-
-    Route::get('/formasdepagopormovimientoporfecha/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosConFormaPagoPorFecha');
-
-    Route::get('/reportefiscal/{fechaini}/{fechafin}', 'ReportesGeneradosController@reporteFiscalPos');
+    // produccion
+    Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');
+    Route::get('/pesoplantalote', 'ReportesGeneradosController@pesoPlantaLote');
 });
 
 
