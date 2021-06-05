@@ -12,9 +12,10 @@ class ReportesT80 extends Model
 
 	private $caractLinea;
 
-	public function __construct ($caractLinea) {
+	public function __construct () {
 
-		$this->caractLinea = $caractLinea;
+        $empresa = GenEmpresa::find(1);
+		$this->caractLinea = $empresa->cantidad_caracteres;
 
 	}
 

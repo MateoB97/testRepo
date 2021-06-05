@@ -52,7 +52,7 @@
 
       <q-list>
         <q-expansion-item
-          v-if="$auth.user().role === 'cajero' && cuadreAbierto === 1"
+          v-if="globalValidarPermiso(71) && cuadreAbierto === 1"
           class="expansion-block"
           expand-separator
           icon="storefront"
@@ -69,7 +69,7 @@
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="$auth.user().role === 'operario' && this.$store.state.jhsoft.lotes"
+          v-if="globalValidarPermiso(54) && this.$store.state.jhsoft.lotes"
           class="expansion-block"
           expand-separator
           icon="business_center"
@@ -108,7 +108,7 @@
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="$auth.user().role === 'cajero' && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
+          v-if="globalValidarPermiso(71) && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
           class="expansion-block"
           expand-separator
           icon="attach_money"
@@ -226,8 +226,6 @@
               <q-card-section>
                 <router-link to="/generales/impresoras" class="menuItem">Impresoras</router-link>
                 <router-link to="/generales/basculas" class="menuItem">Basculas</router-link>
-                <router-link to="/register" class="menuItem">Usuarios</router-link>
-                <router-link to="/changepass" class="menuItem">Cambiar Contraseña</router-link>
                 <router-link to="/generales/empresa" class="menuItem">Empresa</router-link>
                 <router-link v-if="this.$store.state.jhsoft.lotes" to="/generales/generalidades" class="menuItem">Generalidades</router-link>
               </q-card-section>
@@ -241,6 +239,8 @@
                 <router-link to="/usuarios/permisos" class="menuItem">Permisos</router-link>
                 <router-link to="/usuarios/roles" class="menuItem">Roles</router-link>
                 <router-link to="/usuarios/asociar-permisos-rol" class="menuItem">Asociar Permisos a Rol</router-link>
+                <router-link to="/register" class="menuItem">Usuarios</router-link>
+                <router-link to="/changepass" class="menuItem">Cambiar Contraseña</router-link>
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -277,7 +277,7 @@
           </div>
         </div>
         <div class="row q-col-gutter-md" style="padding:10px">
-          <div class="text-center col-6" v-if="$auth.user().role === 'cajero'">
+          <div class="text-center col-6" v-if="globalValidarPermiso(71)">
             <q-btn v-if="cuadreAbierto === 0"  class="btn-coral" @click="openAbrirCaja = true">Abrir Caja</q-btn>
             <q-btn v-if="cuadreAbierto === 1"  class="btn-coral" @click="openCerrarCaja = true">Cerrar Caja</q-btn>
           </div>

@@ -171,6 +171,20 @@
                   <q-btn @click="importProductos()">Importar Productos</q-btn>
                 </div> -->
                 <div class="col-12">
+                  <h5 class="no-margin">Configuración impresora POS</h5>
+                </div>
+                <div class="col-12">
+                    <q-input
+                      ref="input"
+                      v-model="storeItems.cantidad_caracteres"
+                      label="Cantidad de caracteres"
+                      bottom-slots
+                      hint="use / en vez de \"
+                      error-message="Ha usado \ y no es valido"
+                      :error="!isValid"
+                    ></q-input>
+                </div>
+                <div class="col-12">
                   <h5 class="no-margin">Configuración Bascula Dibal</h5>
                 </div>
                 <div class="col-12">
@@ -382,7 +396,8 @@ export default {
         tipoEscaner: null,
         producto_bolsa_id: null,
         resolucion_soenac_id: null,
-        test_id_fe: null
+        test_id_fe: null,
+        cantidad_caracteres: 0
       },
       tipos_escaner: [
         { label: 'Bascula Dibal',

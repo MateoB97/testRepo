@@ -63,6 +63,7 @@ use App\LotProgramacion;
 use Illuminate\Support\Collection;
 use App\LotPesosProgramacion;
 use App\ProductoTerminado;
+use App\UserPermisos;
 
 class ReportesGeneradosController extends Controller
 {
@@ -846,7 +847,7 @@ class ReportesGeneradosController extends Controller
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
-        $t80 = new ReportesT80(48);
+        $t80 = new ReportesT80();
         $str = '';
 
         if ($tipoDoc->naturaleza == 4) {
