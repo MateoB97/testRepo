@@ -27,7 +27,12 @@ class InventariosController extends Controller
 {
     public function index()
     {
-        $list = Inventario::todosConCodigoProducto();
+        $tipo_invent = 1;
+        $list = Inventario::todosConCodigoProducto($tipo_invent);
+
+        foreach ($list as $value) {
+            $value->cantidad_cierre = 0;
+        }
 
         return $list;
 
@@ -35,23 +40,9 @@ class InventariosController extends Controller
 
     public function inventarioProduccion()
     {
-        $index= Inventario::todosConDatos();
+        $index= Inventario::todosConDatosProduccion();
         return $index;
     }
-
-    public function inventarioVentas()
-    {
-        $list = Inventario::todosConCodigoProducto();
-
-        return $list;
-
-    }
-
-    //     public function index()
-    // {
-    //     $index= Inventario::todosConDatos();
-    //     return $index;
-    // }
 
     public function indexFilter($lote,$fecha_ini,$fecha_fin,$producto_id,$estado)
     {

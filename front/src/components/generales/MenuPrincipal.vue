@@ -249,14 +249,28 @@
           class="expansion-block"
           expand-separator
           icon="assessment"
+          label="Inventario"
+          expand-icon-class="text-white"
+          :content-inset-level="0.5"
+        >
+          <q-card>
+            <q-card-section>
+              <router-link v-if="this.$store.state.jhsoft.inventario" to="/inventario/inventario" class="menuItem">Inventario</router-link>
+              <router-link v-if="this.$store.state.jhsoft.lotes" to="/inventario/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
+              <router-link to="/inventario/cierre-inventario" class="menuItem">Cierre Inventario</router-link>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+        <q-expansion-item
+          class="expansion-block"
+          expand-separator
+          icon="assessment"
           label="Reportes"
           expand-icon-class="text-white"
           :content-inset-level="0.5"
         >
           <q-card>
             <q-card-section>
-              <router-link v-if="this.$store.state.jhsoft.inventario" to="/reportes/inventario" class="menuItem">Inventario</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
               <router-link to="/facturacion/movimientos" class="menuItem">Movimientos</router-link>
               <router-link v-if="this.$store.state.jhsoft.recibos" to="/facturacion/recibos" class="menuItem">Recibos</router-link>
               <router-link v-if="this.$store.state.jhsoft.compras" to="/compras/items" class="menuItem">Compras</router-link>
