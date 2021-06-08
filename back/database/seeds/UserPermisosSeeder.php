@@ -139,6 +139,10 @@ class UserPermisosSeeder extends Seeder
             [ 'consecutivo' => 70, 'nombre' => 'abrir caja'  ]
         ];
 
+        $cat['inventarios'] = [
+            [ 'consecutivo' => 72, 'nombre' => 'cerrar inventario'  ]
+        ];
+
         foreach($cat as $categoria => $permisos){
 
             $categoria = App\UserPermisosCategorias::create([

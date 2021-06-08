@@ -22,20 +22,26 @@ class Inventario extends Model
         return $this->belongsTo('App\Producto', 'producto_id');
     }
 
-	public static function todosConCodigoProducto(){
+	public static function todosConCodigoProducto($tipo_invent){
     return DB::table('inventarios')
             ->select(
             	'productos.id As id',
-            	'productos.nombre As nombre',
+                'productos.nombre As nombre',
+            	'productos.id As producto_id',
             	'prod_subgrupos.nombre As subgrupo',
             	'prod_grupos.nombre As grupo',
             	'inventarios.costo_promedio As costo_promedio',
-            	'inventarios.cantidad As cantidad',
-            	'productos.codigo As codigo'
+                'inventarios.cantidad As cantidad',
+            	'productos.codigo As codigo',
+                'prod_pivot_lista_productos.precio as precio'
             )
             ->join('productos', 'productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos', 'productos.prod_subgrupo_id', '=', 'prod_subgrupos.id')
             ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
+            ->join('prod_pivot_lista_productos', 'productos.id', '=', 'prod_pivot_lista_productos.producto_id')
+            ->where('tipo_invent', $tipo_invent)
+            ->where('prod_pivot_lista_productos.prodListaPrecio_id', 1)
+            ->orderBy('codigo', 'asc')
             ->get();
     }
 
@@ -133,7 +139,7 @@ class Inventario extends Model
             ->get();
     }
 
-    public static function todosConDatos(){
+    public static function todosConDatosProduccion(){
     return DB::table('inventarios')
             ->select(
                 'inventarios.id as id',
@@ -153,6 +159,7 @@ class Inventario extends Model
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             ->orderBy('inventarios.id','desc')
+            ->where('tipo_invent',2)
             ->take(100)
             ->get();
     }

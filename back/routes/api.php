@@ -232,6 +232,7 @@ Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
 // Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
 Route::group(['prefix' => 'inventario'], function(){
 	Route::apiResource('items', 'InventariosController');
+	Route::apiResource('cierre-inventario', 'InvCierreInventariosController');
 	Route::get('produccion', 'InventariosController@inventarioProduccion');
 	Route::put('produccion/{id}', 'InventariosController@update');
 	Route::get('produccion/{id}', 'InventariosController@show');

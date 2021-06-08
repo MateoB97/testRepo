@@ -41,8 +41,6 @@ const routes = [
     },
     children: [
       { path: 'reportes-pdf', meta: { permisoRequerido: '68' }, component: () => import('pages/reportes/ReportesPDF.vue') },
-      { path: 'inventario-produccion', meta: { permisoRequerido: '42' }, component: () => import('pages/reportes/InventarioProduccion.vue') },
-      { path: 'inventario', meta: { permisoRequerido: '41' }, component: () => import('pages/reportes/Inventario.vue') },
       { path: 'peso-planta', meta: { permisoRequerido: '52' }, component: () => import('pages/reportes/pesoplanta.vue') },
       { path: 'productos-lote', meta: { permisoRequerido: '53' }, component: () => import('pages/reportes/productosporlote.vue') }
     ]
@@ -163,6 +161,15 @@ const routes = [
       { path: 'listado', meta: { permisoRequerido: '6' }, component: () => import('pages/despacho/ListadoSalMercancia.vue') },
       { path: 'crearporlote', meta: { permisoRequerido: '7' }, component: () => import('pages/despacho/DespachoPorLote.vue') },
       { path: 'pesodespacho', meta: { permisoRequerido: '8' }, component: () => import('pages/despacho/PesoPorDespacho.vue') }
+    ]
+  },
+  {
+    path: '/inventario',
+    component: () => import('layouts/MyLayout.vue'),
+    children: [
+      { path: 'cierre-inventario', meta: { permisoRequerido: '5' }, component: () => import('pages/inventario/CierreInventario.vue') },
+      { path: 'inventario-produccion', meta: { permisoRequerido: '42' }, component: () => import('pages/inventario/InventarioProduccion.vue') },
+      { path: 'inventario', meta: { permisoRequerido: '41' }, component: () => import('pages/inventario/Inventario.vue') }
     ]
   },
   {
