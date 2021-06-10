@@ -10,11 +10,11 @@
         option-disable="inactive"
         emit-value
         map-options
-        @input="getPeso()"
+        @input="activeGetPeso()"
       />
     </div>
     <div class="col-6">
-      <q-input v-if="bascula != 'Manual'" ref="peso" v-model="peso" label="Peso" />
+      <q-input v-if="bascula != 'Manual'" ref="peso" v-model="peso" label="Peso" @focus="getPeso()" @blur="desactiveGetPeso()"/>
       <q-input v-if="bascula == 'Manual'" ref="peso" v-model="peso" label="Peso" @input="$emit('input', peso)" />
     </div>
   </div>
@@ -36,7 +36,7 @@ import { globalFunctions } from 'boot/mixins.js'
 const axios = require('axios')
 
 export default {
-  props: ['withBasculaSelect', 'basculaIp'],
+  props: ['withBasculaSelect', 'basculaIp', 'inicioAutomatico'],
   name: 'basculaComponent',
   data () {
     return {
@@ -60,7 +60,16 @@ export default {
           )
         }, 1000)
       } else {
-        console.log('holi')
+        this.stopGetPeso()
+      }
+    },
+    activeGetPeso () {
+      if (this.inicioAutomatico) {
+        this.getPeso()
+      }
+    },
+    desactiveGetPeso () {
+      if (!this.inicioAutomatico) {
         this.stopGetPeso()
       }
     },
