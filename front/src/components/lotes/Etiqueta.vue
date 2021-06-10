@@ -120,6 +120,7 @@
                             ref="basculaComponent"
                             v-model="storeItems.cantidad"
                             :withBasculaSelect="true"
+                            :inicioAutomatico="false"
                           />
                       </div>
                     </div>

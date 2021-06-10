@@ -461,7 +461,7 @@ export const globalFunctions = {
       )
     },
     globalValidarPermiso (permiso) {
-      var user = this.$auth.user().permisos.permisos
+      var user = this.$auth.user().permisos.permisos.split(',')
       var pos = user.indexOf(permiso)
       if (pos > 0) {
         return true
