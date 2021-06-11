@@ -312,7 +312,7 @@ export default {
           if (app.datos.faltantes >= numPiezas) {
             app.globalStoreItem(0)
           } else {
-            app.$q.notify({ color: 'negative', message: 'Error: supera el limite de piezas maximo de la programacion' })
+            app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
           }
         }
       ).catch(function (error) {
