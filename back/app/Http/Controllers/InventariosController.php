@@ -338,151 +338,25 @@ class InventariosController extends Controller
 
     public function imprimirEtiquetaInterna(Request $request)
     {
-        return $request;
-    }
-
-   
-    public function imprimirEtiquetaInternaa(Request $request)
-    {
-        $empresa = GenEmpresa::find(1);
-        $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
-        $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-        $producto = Producto::find($request->producto_id);
-        $data_producto = $producto->nombre;
-        $data_grupo = $producto->prodSubgrupo->prodGrupo->nombre;
-        $data_registro_sanitario = $producto->prodSubgrupo->prodGrupo->registro_sanitario;
-        $data_fecha_empaque = Carbon::now()->toDateString();
-        $programacion = LotProgramacion::find($request->prog_lotes_id);
-        $data_fecha_desposte = $programacion->fecha_desposte;
-        $data_lote = $programacion->lote_id;
-        $data_marca = $programacion->lote->marca;
-        $data_fecha_sacrificio = $programacion->lote->fecha_sacrificio;
-
-        $almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id);
-
-        $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
-
-        $data_fecha_vencimiento = Carbon::parse($data_fecha_sacrificio)->addDays($dias_vencimiento[0]->dias_vencimiento)->toDateString();
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($request->impresora));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-        $almace="";
 
         $eti_interna = new LotEtiquetaInterna;
-        $eti_interna->prog_lotes_id = $programacion->id;
+        $eti_interna->prog_lotes_id = $request->prog_lotes_id;
         $eti_interna->reimpresion = $request->reimpresion;
-        $eti_interna->producto_id = $producto->id;
+        $eti_interna->producto_id = $request->producto_id;
         $eti_interna->cantidad = $request->numEtiquetas;
 
         for ($i = 0; $i < $request->numEtiquetas ; $i++) {
+        
+            $etiqueta = GenEtiqueta::imprimirEtiqueta($request->impresora, $request, $request->marinado, true);
 
-            $almaRefrigerado = strrpos($almacenamiento, "Refrigerado");
-            $almaCongelado = strrpos($almacenamiento, "Congelado");
-
-            if ($data_grupo !== 'Res') { $porcMarinado = "10%"; }
-            if ($data_grupo !== 'Cerdo') { $porcMarinado = "12%"; }
-
-            // if ($almaRefrigerado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^FS"; }
-            // if ($almaCongelado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE CONGELADO A -18\F8C ^FS"; }
-            if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F8C"; }
-            if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
-
-            // $titulo = "CARNE DE ".strtoupper($data_grupo);
-            $titulo =  self::validarTitulo($producto->prodSubgrupo->encabezado_etiqueta, $data_grupo, $request->marinado);
-            $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-            $etiqueta = "
-                ^XA~TA000~JSN^LT0^MNW^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD15^JUS^LRN^CI0^XZ
-                ^XA
-                ^MMT
-                ^PW799
-                ^LL0639
-                ^LS0
-                ".$proceso."
-                ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^CI28";
-                if($programacion->lote->producto_aprobado > 0 && !$request->marinado){
-                    $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
-                }elseif($programacion->lote->producto_aprobado > 0 &&  $request->marinado){
-                    $etiqueta .= "^FT595,235^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
-                }
-            if (!$request->marinado) {
-                $etiqueta .= "
-                    ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
-                    ^FPH,1^FT27,170^A0N,50,50^FH\^FD".$titulo."^FS^CI28
-                    ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT515,260^A0N,22,22^FH\^CI28^FD".$data_marca."^FS^CI28
-                    ^FT510,300^A0N,24,24^FH\^CI28^FD".$data_lote."^FS^CI28
-                    ^FT20,395^A0N,20,20^FH\^CI28^FD REQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                    ".self::logoEtiqueta()."
-                    ^FT30,225^ARN,1^FH\^CI28^FDFecha Sacrificio:^FS^CI28
-                    ^FT30,250^ARN,5,5^FH\^CI28^FDFecha empaque:^FS^CI28
-                    ^FT30,275^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
-                    ^FT30,300^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT235,225^A0N,24,24^FH\^CI28^FD".$data_fecha_sacrificio."^FS^CI28
-                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
-                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
-                    ^FT270,300^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28";
-            }else{
-                $etiqueta .= "
-                ^FPH,1^FT30,80^ARN,53,53^FH\^FD".strtoupper(eliminar_acentos($data_producto))."^FS^CI28
-                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".$titulo."^FS^CI28
-                    ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data_registro_sanitario."^FS^CI28
-                    ^FT430,210^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT430,235^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT515,210^A0N,22,22^FH\^CI28^FD".$data_marca."^FS^CI28
-                    ^FT515,235^A0N,24,24^FH\^CI28^FD".$data_lote."^FS^CI28
-                    ^FT35,285^A0N,20,20^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                    ^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
-                    ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyecci\A2n, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
-                    ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
-                    ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28
-                    ".self::logoEtiqueta()."
-                    ^FT30,185^ARN,1^FH\^CI28^FDFecha Sacrificio:^FS^CI28
-                    ^FT30,210^ARN,5,5^FH\^CI28^FDFecha empaque:^FS^CI28
-                    ^FT30,235^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
-                    ^FT30,260^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT235,185^A0N,24,24^FH\^CI28^FD".$data_fecha_sacrificio."^FS^CI28
-                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data_fecha_empaque."^FS^CI28
-                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data_fecha_desposte."^FS^CI28
-                    ^FT270,260^A0N,24,24^FH\^CI28^FD".$data_fecha_vencimiento."^FS^CI28
-                    ^PQ1,0,1,Y
-                    ^XZ";
-            }
-
-            $etiqueta .="
-            ^PQ1,0,1,Y
-            ^XZ";
-            $printer->text($etiqueta);
-
-            /*
-                Para imprimir realmente, tenemos que "cerrar"
-                la conexión con la impresora. Recuerda incluir esto al final de todos los archivos
-            */
-            $done = $printer->close();
         }
 
         $eti_interna->save();
 
-        return 'doneNoRestore';
-    }
-
-    public static function validarTitulo($encabezado, $grupo, $marinado){
-        if($encabezado > 0 ){
-            if(!$marinado){
-                // return "^FPH,1^FT150,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)."^FS^CI28";
-                return "CARNE DE ".strtoupper($grupo);
-            }else{
-                return "CARNE DE ".strtoupper($grupo)." MARINADA";
-                // return "^FPH,1^FT20,80^ARN,60,60^FH\^FDCARNE DE ".strtoupper($grupo)." MARINADA^FS^CI28";
-            }
-        }else{
-            return 'PRODUCTO CARNICO COMESTIBLE';
-            // return '^FPH,1^FT180,80^ARN,60,40^FH\^FDPRODUCTO CARNICO COMESTIBLE^FS^CI28';
+        if (strtoupper($request->impresora) != 'MANUAL') {
+            return 'doneNoRestore';
+        } else {
+            return $etiqueta;
         }
-    }
-
-    public static function logoEtiqueta () {
-        return '';
     }
 }

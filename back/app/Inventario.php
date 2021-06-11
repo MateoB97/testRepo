@@ -103,7 +103,10 @@ class Inventario extends Model
                 'prod_grupos.nombre as grupo',
                 'prod_subgrupos.nombre as subgrupo_nombre',
                 'prod_subgrupos.encabezado_etiqueta',
-                'lotes.producto_aprobado'
+                'lotes.producto_aprobado',
+                'lotes.producto_empacado',
+                'producto_terminados.dias_vencimiento as dias_vencimiento',
+                'producto_terminados.almacenamiento as almacenamiento'
             )
             ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
             ->join('lot_programaciones','lot_programaciones.id', '=', 'producto_terminados.prog_lotes_id')
