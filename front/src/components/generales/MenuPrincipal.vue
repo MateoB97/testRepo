@@ -52,7 +52,7 @@
 
       <q-list>
         <q-expansion-item
-          v-if="globalValidarPermiso(71) && cuadreAbierto === 1"
+          v-if="globalValidarPermiso('71') && cuadreAbierto === 1"
           class="expansion-block"
           expand-separator
           icon="storefront"
@@ -69,7 +69,7 @@
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="globalValidarPermiso(54) && this.$store.state.jhsoft.lotes"
+          v-if="globalValidarPermiso('54') && this.$store.state.jhsoft.lotes"
           class="expansion-block"
           expand-separator
           icon="business_center"
@@ -108,7 +108,7 @@
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="globalValidarPermiso(71) && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
+          v-if="globalValidarPermiso('71') && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
           class="expansion-block"
           expand-separator
           icon="attach_money"
@@ -291,7 +291,7 @@
           </div>
         </div>
         <div class="row q-col-gutter-md" style="padding:10px">
-          <div class="text-center col-6" v-if="globalValidarPermiso(71)">
+          <div class="text-center col-6" v-if="globalValidarPermiso('71')">
             <q-btn v-if="cuadreAbierto === 0"  class="btn-coral" @click="openAbrirCaja = true">Abrir Caja</q-btn>
             <q-btn v-if="cuadreAbierto === 1"  class="btn-coral" @click="openCerrarCaja = true">Cerrar Caja</q-btn>
           </div>
