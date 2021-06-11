@@ -171,6 +171,7 @@ class SalMercanciaController extends Controller
                 $totalKilos += $element->peso;
             } else {
                 $element->fecha_empaque = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
+                $element->fecha_desposte = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
                 $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
                 $element->fecha_vencimiento = Carbon::parse($element->prod_term_fecha_vencimiento)->toDateString();
             }
@@ -191,7 +192,6 @@ class SalMercanciaController extends Controller
                 array_push($itemsSumatoria, $element);
             }
         }
-        // dd($itemsSumatoria);
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
         $pdf = PDF::loadView('despachos.certificado', $data);
         // return view('certificados.pdf');

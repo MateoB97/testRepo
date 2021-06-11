@@ -705,8 +705,7 @@
                     </q-select>
                 </div>
                 <div class="col-3">
-                    <!-- <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" @input="showForAnimalsMethod()" left-label label="Producto terminado" /> -->
-                    <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" left-label label="Producto terminado" />
+                    <q-checkbox class="q-mt-md" v-model="storeItems.producto_empacado" @input="showForAnimalsMethod()" left-label label="Producto terminado" />
                 </div>
                 <div v-if="showForAnimals" class="col-3">
                     <q-checkbox class="q-mt-md" v-model="storeItems.marinado" left-label label="Es Marinado?" />
@@ -1300,9 +1299,9 @@ export default {
     },
     showForAnimals: function () {
       var response = 1
-      // if (this.storeItems.producto_empacado) {
-      //   response = 0
-      // }
+      if (this.storeItems.producto_empacado) {
+        response = 0
+      }
       return response
     },
     costoCanal: function () {
