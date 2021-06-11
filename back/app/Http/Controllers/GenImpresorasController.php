@@ -9,7 +9,7 @@ class GenImpresorasController extends Controller
 {
     public function index()
     {
-        $index= GenImpresora::orderBy('created_at', 'desc')->get();
+        $index= GenImpresora::where('activo', '!=', 0)->orderBy('created_at', 'desc')->get();
         return $index;
     }
 
@@ -37,7 +37,7 @@ class GenImpresorasController extends Controller
     public function estado($id, $cambio)
     {
          $model = GenImpresora::find($id);
-         
+
          $modificacion = ($cambio == 'activar') ? $model->activo = 1 : $model->activo =0;
          $validate = $model->save();
          $return = $validate ? 'true' : 'false';

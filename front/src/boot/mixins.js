@@ -461,8 +461,8 @@ export const globalFunctions = {
       )
     },
     globalValidarPermiso (permiso) {
-      var user = this.$auth.user().permisos.permisos
-      var pos = user.indexOf(permiso)
+      var user = this.$auth.user().permisos.permisos.split(',')
+      var pos = user.find(element => parseInt(element) === parseInt(permiso))
       if (pos > 0) {
         return true
       } else {

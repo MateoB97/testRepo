@@ -469,6 +469,7 @@ export default {
       })
     },
     addPrecio () {
+      // const item = this.storeItems.precios.find(v => parseInt(v.prodListaPrecio_id) === parseInt(this.tempPrecio.prod_lista_precio.id))
       this.storeItems.precios.push({
         id: 'nuevo' + this.precio_counter,
         prodListaPrecio_id: this.tempPrecio.prod_lista_precio.id,
