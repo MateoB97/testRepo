@@ -132,7 +132,7 @@ class Inventario extends Model
 
     public static function GetDataExistentes($idproducto, $idprogramacion){
     return DB::table('inventarios')
-            ->select(DB::raw('count(*) as existentes_counter'))
+            ->select(DB::raw('sum(producto_terminados.num_piezas) as existentes'))
             ->join('producto_terminados','producto_terminados.invent_id', '=', 'inventarios.id')
             ->where('inventarios.producto_id','=', $idproducto)
             ->where('producto_terminados.prog_lotes_id','=', $idprogramacion)

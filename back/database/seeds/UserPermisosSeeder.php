@@ -26,7 +26,8 @@ class UserPermisosSeeder extends Seeder
         $cat['facturacion'] = [
             [ 'consecutivo' => 1, 'nombre' => 'crear factura'  ],
             [ 'consecutivo' => 2, 'nombre' => 'crear ingreso efectivo'  ],
-            [ 'consecutivo' => 3, 'nombre' => 'crear egreso de efectivo'  ]
+            [ 'consecutivo' => 3, 'nombre' => 'crear egreso de efectivo'  ],
+            [ 'consecutivo' => 70, 'nombre' => 'abrir caja'  ]
         ];
 
         $cat['recibos_de_caja'] = [
@@ -87,8 +88,6 @@ class UserPermisosSeeder extends Seeder
         $cat['general'] = [
             [ 'consecutivo' => 31, 'nombre' => 'impresora'  ],
             [ 'consecutivo' => 32, 'nombre' => 'bascula'  ],
-            [ 'consecutivo' => 33, 'nombre' => 'usuarios'  ],
-            [ 'consecutivo' => 34, 'nombre' => 'cambiar contraseña'  ],
             [ 'consecutivo' => 35, 'nombre' => 'empresa'  ],
             [ 'consecutivo' => 36, 'nombre' => 'generalidades'  ]
         ];
@@ -97,7 +96,9 @@ class UserPermisosSeeder extends Seeder
             [ 'consecutivo' => 37, 'nombre' => 'categoria permisos'  ],
             [ 'consecutivo' => 38, 'nombre' => 'permisos'  ],
             [ 'consecutivo' => 39, 'nombre' => 'roles'  ],
-            [ 'consecutivo' => 40, 'nombre' => 'asociar permiso a rol'  ]
+            [ 'consecutivo' => 40, 'nombre' => 'asociar permiso a rol'  ],
+            [ 'consecutivo' => 33, 'nombre' => 'usuarios'  ],
+            [ 'consecutivo' => 34, 'nombre' => 'cambiar contraseña'  ]
         ];
 
         $cat['reportes'] = [
@@ -126,7 +127,7 @@ class UserPermisosSeeder extends Seeder
             [ 'consecutivo' => 60, 'nombre' => 'peso marinacion'  ],
         ];
 
-        $cat['menu_lotes'] = [
+        $cat['menus'] = [
             [ 'consecutivo' => 61, 'nombre' => 'facturacion'  ],
             [ 'consecutivo' => 62, 'nombre' => 'despachos'  ],
             [ 'consecutivo' => 63, 'nombre' => 'recibos de caja'  ],
@@ -135,12 +136,12 @@ class UserPermisosSeeder extends Seeder
             [ 'consecutivo' => 66, 'nombre' => 'general'  ],
             [ 'consecutivo' => 67, 'nombre' => 'configuracion'  ],
             [ 'consecutivo' => 68, 'nombre' => 'reportes'  ],
-            [ 'consecutivo' => 69, 'nombre' => 'lotes'  ],
-            [ 'consecutivo' => 70, 'nombre' => 'abrir caja'  ]
+            [ 'consecutivo' => 69, 'nombre' => 'lotes'  ]
         ];
 
         $cat['inventarios'] = [
-            [ 'consecutivo' => 72, 'nombre' => 'cerrar inventario'  ]
+            [ 'consecutivo' => 72, 'nombre' => 'cerrar inventario'  ],
+            [ 'consecutivo' => 73, 'nombre' => 'Eliminar item inventario produccion'  ],
         ];
 
         foreach($cat as $categoria => $permisos){

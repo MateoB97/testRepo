@@ -113,9 +113,9 @@ class InventariosController extends Controller
                 $prodTerminado->save();
 
                 // $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
-                GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                $response = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
-                return 'doneNoRestore';
+                return $response;
             } else {
                 return 'Error: Este producto no tiene este tipo de almacenamiento registrado';
             }
@@ -336,150 +336,13 @@ class InventariosController extends Controller
         return $pdf->stream();
     }
 
-    public static function imprimirEtiqueta($impresora, $item, $marinado) {
-
-        $almace ='';
-        $empresa = GenEmpresa::find(1);
-        $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
-        $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-        $data = Inventario::GetDataEtiqueta($item->id)->first();
-        $lote = Lote::find($data->lote);
-        $producto = Producto::where('id','=',$item->producto_id)->get();
-        $prodTerminado = ProductoTerminado::where('invent_id',$item->id)->get()->first();
-        $data->fecha_vencimiento = Carbon::parse($data->fecha_sacrificio)->addDays($prodTerminado->dias_vencimiento)->toDateString();
-        $data->fecha_empaque = Carbon::parse($data->fecha_empaque)->toDateString();
-        $data->peso = number_format($data->peso, 3, '.', '');
-        $almaRefrigerado = strrpos($prodTerminado->almacenamiento, "Refrigerado");
-        $almaCongelado = strrpos($prodTerminado->almacenamiento, "Congelado");
-        if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4\F"; }
-        if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
-        if ($data->grupo === 'Res') { $porcMarinado = "10%"; }
-        if ($data->grupo ==='Cerdo') { $porcMarinado = "12%"; }
-        // $titulo = "CARNE DE ".strtoupper($data->grupo);
-        $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
-        $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-        if ($marinado && $lote->producto_empacado && $data->encabezado_etiqueta >0) {
-            $proceso = "^FT50,550^A0N,30^FH\^CI28^FDPROCESADO Y DISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-        } elseif ($lote->producto_empacado || $data->encabezado_etiqueta == 0) {
-            $proceso = "^FT130,550^A0N,30^FH\^CI28^FDDISTRIBUIDO POR: ".strtoupper($empresa->razon_social)."^FS^CI28";
-        }
-        $etiqueta = "
-                ^XA
-                ^CF0,80
-                ^CI28
-                ".$proceso."
-                ^FT140,590^ARN,24,24^FH\^CI28^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS^^CI28";
-        if($data->producto_aprobado != null && !$lote->producto_empacado && !$marinado){
-            $etiqueta .= "^FT580,300^A0N,24,24^FH\^CI28^FDAprobado^FS^CI28";
-        }elseif($data->producto_aprobado != null && $lote->producto_empacado){
-            $etiqueta .= "^FT200,260^A0N,30,30^FH\^CI28^FD|Aprobado^FS^CI28";
-        }
-        if(!$lote->producto_empacado){// LOTES JH
-            if(!$marinado){
-                $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT27,170^A0N,50,50^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28
-                    ^FT430,220^ARN,1^FH\^CI28^FDPeso:^FS^CI28
-                    ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT430,300^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT520,220^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
-                    ^FT515,260^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
-                    ^FT510,300^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28
-                    ^FT20,350^A0N,22,22^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                    ".self::logoEtiqueta()."
-                    ^BY3,3,80^FT250,480^BCN,,Y,N
-                    ^FH\^FD>:".$item->id."^FS
-                    ^FT30,225^ARN,1^FH\^CI28^FDFecha Sacrificio:^FS^CI28
-                    ^FT30,250^ARN,5,5^FH\^CI28^FDFecha empaque:^FS^CI28
-                    ^FT30,275^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
-                    ^FT30,300^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT235,225^A0N,24,24^FH\^CI28^FD".$data->fecha_sacrificio."^FS^CI28
-                    ^FT235,250^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
-                    ^FT235,275^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
-                    ^FT270,300^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28";
-            }else{
-                $etiqueta .= "
-                    ".$titulo."
-                    ^FPH,1^FT30,126^A0N,43,43^FH\^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28
-                    ^FPH,1^FT30,155^ARN,27,27^FH\^FDReg. RSA  ".$data->registro_sanitario."^FS^CI28
-                    ^FT430,180^ARN,1^FH\^CI28^FDPeso:^FS^CI28
-                    ^FT430,210^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT430,235^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT515,180^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
-                    ^FT515,210^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
-                    ^FT515,235^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28
-                    ^FT35,285^A0N,20,20^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                    ^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
-                    ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyecci\A2n, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
-                    ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
-                    ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28
-                    ".self::logoEtiqueta()."
-                    ^BY3,3,80^FT250,480^BCN,,Y,N
-                    ^FH\^FD>:".$item->id."^FS
-                    ^FT30,185^ARN,1^FH\^CI28^FDFecha Sacrificio:^FS^CI28
-                    ^FT30,210^ARN,5,5^FH\^CI28^FDFecha empaque:^FS^CI28
-                    ^FT30,235^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28
-                    ^FT30,260^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT235,185^A0N,24,24^FH\^CI28^FD".$data->fecha_sacrificio."^FS^CI28
-                    ^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28
-                    ^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
-                    ^FT270,260^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28
-                    ^PQ1,0,1,Y
-                    ^XZ";
-            }
-        }else{
-            if(!$marinado){// LOTES TERCEROS
-                $etiqueta .= "
-                    ".self::logoEtiqueta()."
-                    ^FT440,220^ARN,1^FH\^CI28^FDPeso:^FS^CI28
-                    ^FT440,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                    ^FT30,260^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                    ^FT530,220^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
-                    ^FT525,260^A0N,30,30^FH\^CI28^FD".$data->marca."^FS^CI28
-                    ^FT120,260^A0N,30,30^FH\^CI28^FD".$data->lote."^FS^CI28
-                    ^FT40,325^A0N,30,30^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                    ^FT30,220^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT270,220^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28
-                    ".$titulo."
-                    ^FPH,1^FT30,145^A0N,50,50^FH\^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28
-                    ^BY3,3,80^FT250,440^BCN,,Y,N
-                    ^FH\^FD>:".$item->id."^FS";
-        }else{
-            $etiqueta .= "
-                ".self::logoEtiqueta()."
-                ^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
-                ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyeccion, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
-                ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
-                ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28
-                ^FT430,220^ARN,1^FH\^CI28^FDPeso:^FS^CI28
-                ^FT430,260^ARN,1^FH\^CI28^FDMarca:^FS^CI28
-                ^FT30,260^ARN,1^FH\^CI28^FDLote:^FS^CI28
-                ^FT520,220^A0N,40,40^FH\^CI28^FD".$data->peso."^FS^CI28
-                ^FT515,260^A0N,22,22^FH\^CI28^FD".$data->marca."^FS^CI28
-                ^FT120,260^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28
-                ^FT30,285^A0N,22,22^FH\^CI28^FDREQUIERE COCCION ANTES DE CONSUMIR ".$almace."^FS^CI28
-                ^FT30,220^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                ^FT270,220^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28
-                ".$titulo."
-                ^FPH,1^FT27,145^A0N,50,50^FH\^FD".strtoupper(eliminar_acentos($data->producto))."^FS^CI28
-                ^FPH,1^FT30,175^ARN,27,27^FH\^FDReg. RSA  ".$data->registro_sanitario."^FS^CI28
-                ^BY3,3,80^FT250,480^BCN,,Y,N
-                ^FH\^FD>:".$item->id."^FS";
-          }
-        }
-            $etiqueta .="
-                ^XZ";
-        $printer->text($etiqueta);
-        $printer->close();
-
-        return $etiqueta;
+    public function imprimirEtiquetaInterna(Request $request)
+    {
+        return $request;
     }
 
-    public function imprimirEtiquetaInterna(Request $request)
+   
+    public function imprimirEtiquetaInternaa(Request $request)
     {
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;

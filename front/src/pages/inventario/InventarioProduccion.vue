@@ -234,7 +234,7 @@
 
                 <q-td slot="body-cell-actions" slot-scope="props" :props="props">
                     <q-btn class="q-ml-xs" icon="edit" v-on:click="globalValidate('editar', props.value)" color="warning"></q-btn>
-                    <q-btn class="q-ml-xs" icon="delete" v-on:click="globalValidate('eliminar', props.value)" color="negative"></q-btn>
+                    <q-btn class="q-ml-xs" v-if="globalValidarPermiso('73')" icon="delete" v-on:click="globalValidate('eliminar', props.value)" color="negative"></q-btn>
                     <q-btn class="q-ml-xs" icon="remove_red_eye" v-on:click="validateReimprimir(props.value)" color="positive"></q-btn>
                     <q-btn class="q-ml-xs" v-on:click="showDividir = true, temp.cantidad = null, canastaId = props.value" color="primary">Dividir</q-btn>
                 </q-td>

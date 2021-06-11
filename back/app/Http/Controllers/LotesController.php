@@ -152,6 +152,7 @@ class LotesController extends Controller
         $model->marinado = ($model->marinado == 1) ? true : false;
         $model->producto_empacado = ($model->producto_empacado == 1) ? true : false;
         $model->genero = ($model->genero == 1) ? true : false;
+        $model->producto_aprobado = ($model->producto_aprobado == 1) ? true : false;
 
         $model->consec_compra = ComCompra::find($model->com_compras_id)->consecutivo;
 

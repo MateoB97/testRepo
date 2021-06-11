@@ -919,6 +919,7 @@ export default {
         fecha_sacrificio: null,
         fecha_peso_pie: null,
         marinado: false,
+        producto_aprobado: false,
         genero: false,
         productos: [],
         marca: null,
@@ -1039,7 +1040,6 @@ export default {
       } else {
         this.storeItems.fecha_empaque_lote_tercero = '1900/01/01'
       }
-      this.storeItems.producto_aprobado = this.storeItems.producto_aprobado
       this.storeItems.ProdGrupo_id = this.storeItems.ProdGrupo_id.id
       if (this.storeItems.transportador_id.id) {
         this.storeItems.transportador_id = this.storeItems.transportador_id.id
@@ -1061,7 +1061,8 @@ export default {
         producto_empacado: false,
         num_animales: null,
         programaciones: [],
-        ProdGrupo_id: null
+        ProdGrupo_id: null,
+        producto_aprobado: false
       }
     },
     postGetShowItem () {
