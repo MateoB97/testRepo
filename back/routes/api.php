@@ -220,13 +220,18 @@ Route::group(['prefix' => 'basculas'/*, 'middleware' => 'auth'*/], function(){
 
 });
 
-Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
+// Route::group(['prefix' => 'terceros', 'middleware' => 'auth'], function(){
+    Route::group(['prefix' => 'terceros'], function(){
 	Route::apiResource('items', 'TerceroController');
 	Route::get('/items/estado/{id}/{cambio}', 'TerceroController@estado');
 	Route::get('/items/estado/activos', 'TerceroController@activos');
 
 	Route::apiResource('sucursales', 'TerceroSucursalController');
 	Route::get('/sucursales/tercerofilter/{id}', 'TerceroSucursalController@terceroFilter');
+
+    // Route::get('/validarfacturasterceros', 'TerceroController@validarFacturasTerceros');
+    Route::get('/validarfacturasterceros/{tercero_id}', 'TerceroController@validarFacturasTerceros');
+
 });
 
 // Route::group(['prefix' => 'inventario', 'middleware' => 'auth'], function(){
@@ -293,6 +298,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 	Route::get('/datafacturacionelectronica/{id}', 'FacMovimientosController@dataFacturaElectronica');
 	Route::post('/agregarcufe/{id}', 'FacMovimientosController@agregarCufe');
 	Route::post('/enviarfacturasoenac','FacMovimientosController@sendFactToSoenac');
+
 
 });
 

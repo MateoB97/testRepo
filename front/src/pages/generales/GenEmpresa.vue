@@ -82,6 +82,7 @@
                 <div class="col-3">
                     <q-checkbox v-model="storeItems.fact_grupo" label="Factura por Grupos"></q-checkbox>
                     <q-checkbox v-model="storeItems.print_logo_pos" label="POS con logo"></q-checkbox>
+                    <q-checkbox v-model="storeItems.bloquear_tercero" label="Bloquear Tercero?"></q-checkbox>
                 </div>
                 <div class="col-6">
                   <q-select

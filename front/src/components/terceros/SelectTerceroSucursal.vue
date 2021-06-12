@@ -64,12 +64,13 @@ const axios = require('axios')
 import { globalFunctions } from 'boot/mixins.js'
 
 export default {
-  props: ['columnas', 'labelTercero', 'editor'],
+  props: ['columnas', 'labelTercero', 'editor', 'validateTercero'],
   name: 'SelectTerceroSucursal',
   data: function () {
     return {
       terceros: [],
       sucursales: [],
+      empresa: [],
       datos: {
         tercero_id: null,
         sucursal: null
@@ -84,8 +85,37 @@ export default {
   methods: {
     selectedTercero () {
       var app = this
+      var consecs = ''
+      var i = 0
       this.$emit('tercero_id', this.datos.tercero_id.id)
       this.datos.sucursal = null
+      if (!this.validateTercero === true) {
+        axios.get(this.$store.state.jhsoft.url + 'api/terceros/validarfacturasterceros/' + this.datos.tercero_id.id).then(
+          function (response) {
+            console.log(response.data.length)
+            if (response.data.length > 0) {
+              for (i = 0; i < response.data.length; i++) {
+                consecs += response.data[i]['consecutivo'] + ','
+              }
+              console.log(consecs)
+              app.sucursales = []
+              app.$q.notify({ color: 'negative', message: 'El cliente tiene facturas pendientes por pagar.' + consecs })
+              if (app.empresa.bloquear_tercero === true) {
+                app.sucursales = []
+              } else {
+                app.filterByTerceroId()
+              }
+            } else {
+              app.filterByTerceroId()
+            }
+          }
+        )
+      } else {
+        app.filterByTerceroId()
+      }
+    },
+    filterByTerceroId () {
+      var app = this
       axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursales/tercerofilter/' + this.datos.tercero_id.id).then(
         function (response) {
           app.sucursales = response.data
@@ -112,6 +142,7 @@ export default {
   created: function () {
     this.globalGetForSelect('api/terceros/items/estado/activos', 'terceros')
     this.globalGetForSelect('api/terceros/sucursales', 'sucursales')
+    this.globalGetForSelect('api/generales/empresa', 'empresa')
   },
   computed: {
     sucursalActiva: function () {

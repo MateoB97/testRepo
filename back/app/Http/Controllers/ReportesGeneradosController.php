@@ -692,9 +692,9 @@ class ReportesGeneradosController extends Controller
         return $pdf->stream();
     }
 
-    public static function reporteFiscalPos($fechaIni){
+    public static function reporteFiscalPos(){
 
-        // $fechaIni = $_GET['fecha_inicial'];
+        $fechaIni = $_GET['fecha_inicial'];
         // $fechaIni = '2021-05-17';
         $user = User::find(2);
 
@@ -702,8 +702,7 @@ class ReportesGeneradosController extends Controller
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
-
-        $t80 = new ReportesT80(48);
+        $t80 = new ReportesT80();
 
         $str = '';
 
@@ -784,7 +783,11 @@ class ReportesGeneradosController extends Controller
 
         // CONSECUTIVOS
         $str .= $t80->posLineaDerecha('CONSECUTIVOS');
-        $str .= $t80->posLineaCentro('INICIAL               FINAL');
+        // $str .= $t80->posLineaCentro('INICIAL               FINAL');
+        $str .= $t80->multiItemsFromArray([
+            ['INICIAL', 0, ' ', 1],
+            ['FINAL', 24, ' ', 1]
+        ]);
 
         $str .= $t80->posLineaDerecha('- Facturas');
 
@@ -984,7 +987,8 @@ class ReportesGeneradosController extends Controller
     }
 
     public static function testing(){
-        self::printPOS();
+        dd(Tercero::validarFacturasTerceros());
+        // self::printPOS();
      }
 
 

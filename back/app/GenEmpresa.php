@@ -35,7 +35,8 @@ class GenEmpresa extends Model
         'fact_grupo',
         'print_logo_pos',
         'email_backup_fact_elect',
-        'cantidad_caracteres'
+        'cantidad_caracteres',
+        'bloquear_tercero'
     ];
 
     public function getDateFormat()
