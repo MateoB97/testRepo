@@ -168,13 +168,14 @@ class SalMercanciaController extends Controller
                 $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
                 $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
                 $element->peso = number_format($element->peso, 2, '.', '');
-                $totalKilos += $element->peso;
             } else {
                 $element->fecha_empaque = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
                 $element->fecha_desposte = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
                 $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
                 $element->fecha_vencimiento = Carbon::parse($element->prod_term_fecha_vencimiento)->toDateString();
             }
+
+            $totalKilos += $element->peso;
 
 
             foreach ($itemsSumatoria  as $elementSumatoria) {
