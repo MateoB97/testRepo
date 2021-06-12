@@ -250,6 +250,28 @@ export default {
         this.getPiezasImpresas()
       }
     },
+    // printEtiquetas (numEtiquetas) {
+    //   this.$q.notify({ color: 'warning', message: 'Enviando Etiquetas!' })
+    //   this.storeItems.numEtiquetas = numEtiquetas
+    //   var app = this
+    //   axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + app.storeItems.producto_id + '/' + this.storeItems.prog_lotes_id).then(
+    //     function (response) {
+    //       var existentes = response.data[0].existentes
+    //       if (existentes === null) {
+    //         existentes = 0
+    //       }
+    //       app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
+    //       if (app.datos.faltantes >= numPiezas) {
+    //         app.globalStoreItem(0)
+    //       } else {
+    //         app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
+    //       }
+    //     }
+    //   ).catch(function (error) {
+    //     console.log(error)
+    //     app.$q.notify({ color: 'negative', message: 'Hubo un error al filtrar los productos!' })
+    //   })
+    // },
     async getPorGrupo (id) {
       this.$q.loading.show()
       try {

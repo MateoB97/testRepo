@@ -61,7 +61,7 @@
             <div class="row q-mt-md q-col-gutter-md">
                 <div class="col-5 col-lotes" >
                     <div class="q-pa-md q-gutter-md">
-                        <q-card class="my-card-prog" v-for="programacion in programaciones" :key="programacion.programacion_id" @click="selectedProgramacion(programacion)">
+                        <q-card class="my-card-prog" :class="cardActive == programacion.programacion_id ? 'card-active' : ''" v-for="programacion in programaciones" :key="programacion.programacion_id" @click="selectedProgramacion(programacion)">
                             <q-card-section>
                                <p class="no-margin">programación: {{ programacion.programacion_id }}</p>
                                <p v-if="type == 0" class="no-margin">Tercero: {{ programacion.tercero }}</p>
@@ -83,7 +83,7 @@
                         </q-card>
                     </div>
                     <div v-if="show.productos" class="q-pa-md row items-start q-gutter-md">
-                        <q-card class="my-card" v-for="producto in listas.productos" :key="producto.id" @click="selectedProducto(producto)">
+                        <q-card class="my-card" :class="productoActive == producto.id ? 'card-active' : ''" v-for="producto in listas.productos" :key="producto.id" @click="selectedProducto(producto)">
                             <q-card-section>
                                 <p>{{ producto.nombre }}</p>
                             </q-card-section>
@@ -185,6 +185,8 @@ export default {
       listas: [],
       almacenamientos: [],
       programaciones: [],
+      cardActive: null,
+      productoActive: null,
       storeItems: {
         prog_lotes_id: null,
         cantidad: null,
@@ -224,6 +226,7 @@ export default {
       this.cantidad = null
     },
     async selectedProgramacion (programacion) {
+      this.cardActive = programacion.programacion_id
       this.show.subgrupos = false
       this.show.productos = false
       this.show.noProductos = false
@@ -232,7 +235,6 @@ export default {
       this.datos.marca = programacion.marca
       this.datos.grupo = programacion.grupo
       this.datos.num_animales = programacion.num_animales_programacion
-      console.log(this.datos.num_animales)
       this.storeItems.prog_lotes_id = parseInt(programacion.programacion_id)
       try {
         let data = await axios.get(this.$store.state.jhsoft.url + 'api/productos/subgrupos/grupofilter/' + programacion.grupo_id)
@@ -263,19 +265,10 @@ export default {
       } finally {
       }
     },
-    async selectedProducto (producto) {
-      console.log(producto)
+    selectedProducto (producto) {
+      this.productoActive = producto.id
       this.storeItems.producto_id = producto.id
       this.datos.producto = producto.nombre
-      try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + producto.id + '/' + this.datos.programacion_id)
-        var tempData = data.data
-        var existentes = tempData[0].existentes_counter
-        this.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(this.datos.num_animales)) - parseInt(existentes)
-      } catch (error) {
-        this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar los productos!' })
-      } finally {
-      }
     },
     async getPorGrupo (id) {
       this.$q.loading.show()
@@ -307,11 +300,28 @@ export default {
     },
     printEtiquetas (numPiezas) {
       this.storeItems.num_piezas = numPiezas
-      this.globalStoreItem(0)
+      var producto = this.listas.productos.find(v => parseInt(v.id) === parseInt(this.storeItems.producto_id))
+      var app = this
+      axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + app.storeItems.producto_id + '/' + this.storeItems.prog_lotes_id).then(
+        function (response) {
+          var existentes = response.data[0].existentes
+          if (existentes === null) {
+            existentes = 0
+          }
+          app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
+          if (app.datos.faltantes >= numPiezas || app.type === '1') {
+            app.globalStoreItem(0)
+          } else {
+            app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
+          }
+        }
+      ).catch(function (error) {
+        console.log(error)
+        app.$q.notify({ color: 'negative', message: 'Hubo un error al filtrar los productos!' })
+      })
     }
   },
   created: function () {
-    console.log(this.type)
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + this.type, 'programaciones')
     this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')
@@ -335,6 +345,10 @@ export default {
   }
   .my-card-prog{
     cursor: pointer;
+  }
+  .card-active{
+    background-color: #26a69a;
+    color: white;
   }
   .my-card-prog:hover{
     background-color: #26a69a;
