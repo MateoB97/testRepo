@@ -309,7 +309,7 @@ export default {
             existentes = 0
           }
           app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
-          if (app.datos.faltantes >= numPiezas) {
+          if (app.datos.faltantes >= numPiezas || app.type === '1') {
             app.globalStoreItem(0)
           } else {
             app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
