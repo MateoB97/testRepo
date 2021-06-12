@@ -137,6 +137,7 @@
                       ref="basculaComponent"
                       v-model="temp.peso"
                       :withBasculaSelect="true"
+                      :inicioAutomatico="true"
                     />
                 </div>
                 <div class="col-3" v-if="showGrupoRes">
