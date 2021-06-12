@@ -13,6 +13,7 @@ class GenEmpresaController extends Controller
         $index= GenEmpresa::orderBy('created_at', 'desc')->get()->first();
 
         $index->fact_grupo = ($index->fact_grupo == 1) ? true : false;
+        $index->bloquear_tercero = ($index->bloquear_tercero == 1) ? true : false;
 
         return $index;
     }
@@ -21,6 +22,7 @@ class GenEmpresaController extends Controller
     {
         $model = GenEmpresa::find($id);
         $model->fact_grupo = ($model->fact_grupo == 1) ? true : false;
+        $model->bloquear_tercero = ($model->bloquear_tercero == 1) ? true : false;
 
         return $model;
     }
@@ -44,7 +46,7 @@ class GenEmpresaController extends Controller
     public function obtenerMAC()
     {
         echo exec('getmac');
-        
+
     }
 
 }

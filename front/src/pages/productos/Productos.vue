@@ -469,7 +469,10 @@ export default {
       })
     },
     addPrecio () {
-      // const item = this.storeItems.precios.find(v => parseInt(v.prodListaPrecio_id) === parseInt(this.tempPrecio.prod_lista_precio.id))
+      const item = this.storeItems.precios.find(v => parseInt(v.prodListaPrecio_id) === parseInt(this.tempPrecio.prod_lista_precio.id))
+      if (item) {
+        return this.$q.notify({ color: 'negative', message: 'Ya existe una lista de precio Asociada a este producto' })
+      }
       this.storeItems.precios.push({
         id: 'nuevo' + this.precio_counter,
         prodListaPrecio_id: this.tempPrecio.prod_lista_precio.id,
@@ -589,6 +592,10 @@ export default {
       })
     },
     addVencimiento () {
+      const item = this.storeItems.vencimientos.find(v => parseInt(v.prodAlmacenamiento_id) === parseInt(this.tempVencimiento.prod_almacenamiento.id))
+      if (item) {
+        return this.$q.notify({ color: 'negative', message: 'Ya existe una lista de almacenamiento Asociada a este producto' })
+      }
       this.storeItems.vencimientos.push({
         id: 'nuevo' + this.vencimientos_counter,
         prodAlmacenamiento_id: this.tempVencimiento.prod_almacenamiento.id,

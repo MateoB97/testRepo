@@ -181,7 +181,7 @@ class GenCuadreCajaController extends Controller
 
         $caracLinea = caracteres_linea_pos();
 
-        $t80 = new ReportesT80(caracteres_linea_pos());
+        $t80 = new ReportesT80();
 
         $user = User::find(Auth::user()->id);
 
@@ -242,7 +242,7 @@ class GenCuadreCajaController extends Controller
 
         $etiqueta .= $t80->posLineaDerecha('NOTAS CREDITO');
 
-        foreach ($notasCredito as $notaCredito) { 
+        foreach ($notasCredito as $notaCredito) {
           $etiqueta .= $t80->posDosItemsExtremos('- '. $notaCredito->consecutivo, $t80->toNumber($notaCredito->total));
 
           $totalNotasCredito += $notaCredito->total;
