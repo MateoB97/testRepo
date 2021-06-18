@@ -149,10 +149,13 @@
                       @input="selectedSubgrupo()"
                     />
                 </div>
-                <div v-if="showProducto" class="col-3">
+                <div v-if="showProducto" class="col-2">
                     <q-input v-model="storeItems.codigo" label="Codigo"/>
                 </div>
-                <div v-if="showProducto" class="col-3">
+                <div v-if="showProducto" class="col-2">
+                    <q-input v-model="storeItems.cod_prod_padre" label="Codigo Padre"/>
+                </div>
+                <div v-if="showProducto" class="col-2">
                     <q-select
                       label="Seleccione Unidades"
                       v-model="storeItems.gen_unidades_id"
@@ -362,6 +365,7 @@ export default {
         precios: [],
         gen_iva_id: null,
         gen_unidades_id: null,
+        cod_prod_padre: '',
         vencimientos: []
       },
       showAnimales: true,
@@ -450,6 +454,9 @@ export default {
       }
     },
     preSave () {
+      if (this.storeItems.cod_prod_padre === null) {
+        delete this.storeItems.cod_prod_padre
+      }
       this.storeItems.prod_subgrupo_id = this.storeItems.prod_subgrupo_id.id
       this.storeItems.gen_iva_id = this.storeItems.gen_iva_id.id
       this.storeItems.gen_unidades_id = this.storeItems.gen_unidades_id.id

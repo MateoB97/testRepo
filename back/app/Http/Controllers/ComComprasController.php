@@ -239,6 +239,12 @@ class ComComprasController extends Controller
             $cantidad = -floatval($cantidad);//Venta
         }
 
+        $producto = Producto::find($producto_id);
+
+        if (!is_null($producto->cod_prod_padre)) {
+            $producto_id = Producto::where('codigo', $producto->cod_prod_padre)->get()->first()->id;
+        }
+
         $itemInventario = Inventario::where('producto_id', $producto_id)->where('tipo_invent','!=',2)->get()->first();
         if ($itemInventario) {
             $itemInventario->cantidad += $cantidad;
