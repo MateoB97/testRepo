@@ -126,7 +126,7 @@
 									@endif
 								</td>
 								<td class="text-center">
-									<p>{{ $movimiento->fecha_facturacion }}</p>
+									<p>{{ $movimiento->created_at }}</p>
 								</td>
 							</tr>
 

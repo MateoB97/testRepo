@@ -83,6 +83,15 @@ class ReportesT80 extends Model
 
 	}
 
+    public function posFooterSgc(){
+        $footer = array(
+            'Impreso desde SGC de Byteco S.A.S.',
+            'Nit: 901389565-8',
+            'Fecha Impresion: '. date('Y-m-d H:i:s')
+        );
+        $string = $this->posArrayCentro($footer);
+		return $string;
+    }
 
 	public function posHeaderEmpresa(){
 

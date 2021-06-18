@@ -72,7 +72,6 @@ class GenCuadreIngresoEfectivoController extends Controller
         $caractPorlinea = caracteres_linea_pos();
 
         $ingreso = GenCuadreIngresoEfectivo::porId($id);
-
         $ingreso->created_at = formato_fecha($ingreso->created_at);
 
         $cuadre = GenCuadreCaja::find($ingreso->gen_cuadre_caja_id);

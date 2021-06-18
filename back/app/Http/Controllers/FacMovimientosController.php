@@ -972,38 +972,6 @@ class FacMovimientosController extends Controller
 
                     $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
                 }
-                // foreach ($lineas as $linea) {
-                //     // linea 1
-                //     $etiqueta .= str_pad(Producto::find($linea->producto_id)->codigo, 3, "0", STR_PAD_LEFT);
-                //     $etiqueta .= ' ';
-                //     $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
-                //     $nombre = str_replace('ñ', 'N', $nombre);
-                //     $etiqueta .= str_pad($nombre, 29, " ", STR_PAD_RIGHT);
-                //     $etiqueta .= ' ';
-                //     $total = intval($linea['precio']) * floatval($linea['cantidad']);
-                //     $total =  number_format($total, 0, ',', '.');
-                //     $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                //     $etiqueta .= ' |';
-                //     $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
-                //     // linea 2
-                //     $etiqueta .= '    ';
-                //     $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
-                //     $etiqueta .= ' ';
-                //     $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
-                //     $etiqueta .= ' ';
-                //     $etiqueta .= 'X';
-                //     $etiqueta .= ' ';
-                //     $etiqueta .= '$';
-                //     $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
-                //     $etiqueta .= ' ';    //22
-                //     if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
-                //         $etiqueta .= 'Desc ';
-                //         $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
-                //         $etiqueta .= str_pad('%', 13, " ", STR_PAD_RIGHT);
-                //     } else {
-                //         $etiqueta .= '                      ';
-                //     }
-                // }
 
                 // TOTAL
                 $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
