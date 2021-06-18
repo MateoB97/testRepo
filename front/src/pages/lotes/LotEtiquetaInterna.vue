@@ -275,7 +275,7 @@ export default {
     async getPorGrupo (id) {
       this.$q.loading.show()
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporgrupo/' + id)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporgrupo/' + id + '/0')
         this.programaciones = data.data
       } catch (error) {
         this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar las programaciones!' })
