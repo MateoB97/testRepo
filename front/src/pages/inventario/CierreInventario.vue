@@ -1,7 +1,55 @@
 <template>
   <div>
     <q-page padding>
+        <!-- inicio popup ver pesadas -->
+          <q-dialog v-model="openedVerPesadas" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 400px; max-width: 800px" class="bg-white">
+              <q-header class="bg-primary">
+                <q-toolbar>
+                  <q-btn flat v-close-popup round dense icon="close" />
+                </q-toolbar>
+              </q-header>
 
+              <q-page-container>
+                <q-page padding>
+                  <h3>Canastas pesadas</h3>
+                  <div class="overflow-hidden">
+                    <div class="row q-col-gutter-sm">
+                      <div class="row col-12">
+                        <div class="col-3">
+                          <p>PESO BASCULA</p>
+                        </div>
+                        <div class="col-3">
+                          <p>TARA</p>
+                        </div>
+                        <div class="col-3">
+                          <p>PESO NETO</p>
+                        </div>
+                        <div class="col-3">
+                          <p>ELIMINAR</p>
+                        </div>
+                      </div>
+                      <div v-for="pesada in temp.pesadas" v-bind:key='pesada.idPesada' class="row col-12">
+                        <div class="col-3">
+                          {{ pesada.pesoBascula }}
+                        </div>
+                        <div class="col-3">
+                          {{ pesada.tara }}
+                        </div>
+                        <div class="col-3">
+                          {{ pesada.pesoNeto }}
+                        </div>
+                        <div class="col-3">
+                          <q-btn icon="remove_circle" @click="eliminarPesada(pesada.idPesada)"  color="negative"></q-btn>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popup ver pesadas -->
         <h3>Cierre de inventario</h3>
         <div class="row">
             <div class="col-6">
@@ -43,17 +91,20 @@
               <li>{{ temp.producto }}</li>
             </ul>
           </div>
-          <div class="col-3">
+          <div class="col-2">
             <ul class="mg-tp-0">
-              <li class="ft-20"><strong>Cantidad Stock</strong></li>
+              <li class="ft-20"><strong>Cant. Stock</strong></li>
               <li>{{ parseFloat(temp.cantidad_stock).toFixed(3) }}</li>
             </ul>
           </div>
-          <div class="col-3">
+          <div class="col-2">
             <ul class="mg-tp-0">
-              <li class="ft-20"><strong>Cantidad Cierre</strong></li>
-              <li>{{ temp.cantidad_cierre }}</li>
+              <li class="ft-20"><strong>Cant. Cierre</strong></li>
+              <li>{{ temp.cantidad_cierre.toFixed(3) }}</li>
             </ul>
+          </div>
+          <div class="col-2">
+            <q-btn class="w-100" color="positive" v-on:click="openedVerPesadas = true" label="Ver pesadas" />
           </div>
         </div>
         <div class="row q-mt-sm q-col-gutter-sm">
@@ -65,10 +116,13 @@
               :inicioAutomatico="true"
             />
           </div>
-          <div class="col-3">
+          <div class="col-2">
+            <q-input label="Tara" v-model="temp.tara"></q-input>
+          </div>
+          <div class="col-2">
             <q-btn class="w-100" color="positive" v-on:click="modifyPesoCierre('+')" label="+" />
           </div>
-          <div class="col-3">
+          <div class="col-2">
             <q-btn class="w-100" color="negative" v-on:click="modifyPesoCierre('-')" label="-" />
           </div>
         </div>
@@ -140,8 +194,11 @@ export default {
         codigo_producto: null,
         producto: null,
         cantidad_stock: 0,
-        cantidad_cierre: 0
+        cantidad_cierre: 0,
+        tara: 0,
+        pesadas: []
       },
+      openedVerPesadas: false,
       tableData: [],
       columns: [
         { name: 'codigo', required: true, label: 'Codigo', align: 'left', field: 'codigo', sortable: true, classes: 'my-class', style: 'width: 200px' },
@@ -189,20 +246,49 @@ export default {
         tempItem.cantidad_cierre = 0
       }
       this.temp.cantidad_cierre = tempItem.cantidad_cierre
+      this.temp.pesadas = tempItem.pesadas
     },
     modifyPesoCierre (operator) {
+      var item = {
+        idPesada: '',
+        pesoBascula: this.temp.peso,
+        tara: this.temp.tara,
+        pesoNeto: this.temp.peso - this.temp.tara
+      }
       var tempItem = this.tableData.find(v => v.codigo === this.temp.codigo)
+      this.temp.peso = this.temp.peso - this.temp.tara
+      var status = 1
       if (operator === '+') {
-        tempItem.cantidad_cierre = parseInt(tempItem.cantidad_cierre) + parseInt(this.temp.peso)
-        this.temp.cantidad_cierre = parseInt(this.temp.cantidad_cierre) + parseInt(this.temp.peso)
+        tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) + parseFloat(this.temp.peso)
+        this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) + parseFloat(this.temp.peso)
       } else {
-        if (parseInt(this.temp.peso) <= parseInt(this.temp.cantidad_cierre)) {
-          tempItem.cantidad_cierre = parseInt(tempItem.cantidad_cierre) - parseInt(this.temp.peso)
-          this.temp.cantidad_cierre = parseInt(this.temp.cantidad_cierre) - parseInt(this.temp.peso)
+        if (parseFloat(this.temp.peso) <= parseFloat(this.temp.cantidad_cierre)) {
+          tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) - parseFloat(this.temp.peso)
+          this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) - parseFloat(this.temp.peso)
         } else {
+          status = 0
           this.$q.notify({ color: 'negative', message: 'Cantidad de cierre no puede ser negativo.' })
         }
       }
+      if (status === 1) {
+        if (!tempItem.pesadas) {
+          tempItem.pesadas = []
+          tempItem.totalPesadas = 0
+        }
+        tempItem.totalPesadas += 1
+        item.idPesada = tempItem.totalPesadas
+        tempItem.pesadas.push(item)
+      }
+      this.temp.pesadas = tempItem.pesadas
+      this.temp.tara = 0
+    },
+    eliminarPesada (id) {
+      var tempItem = this.tableData.find(v => v.codigo === this.temp.codigo)
+      var index = tempItem.pesadas.findIndex(v => v.idPesada === id)
+      tempItem.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) - parseFloat(tempItem.pesadas[index].pesoNeto)
+      this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) - parseFloat(tempItem.pesadas[index].pesoNeto)
+      tempItem.pesadas.splice(index, 1)
+      this.temp.pesadas = tempItem.pesadas
     },
     calcularPerdidaGanancia (id) {
       var tempItem = this.tableData.find(v => v.id === id)

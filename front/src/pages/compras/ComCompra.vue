@@ -144,7 +144,7 @@
         <div class="row q-col-gutter-md col-4">
             <h4 style="margin: 0px">{{ tipoCompra.nombre }}</h4>
             <div v-if="viewTerceros" class="col-12 row q-col-gutter-md">
-              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Proveedor'/>
+              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Proveedor' validateTercero="false"/>
             </div>
             <div class="col-12 row q-col-gutter-md">
               <!-- // -->
