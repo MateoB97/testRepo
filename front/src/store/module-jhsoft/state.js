@@ -1,5 +1,5 @@
 export default {
-  url: 'http://localhost/sgc/back/public/',
+  url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://192.168.100.6/sgc/back/public/',
   // url: 'http://sgc.estebangonzalez.xyz/back/',
