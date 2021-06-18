@@ -17,14 +17,34 @@
                 </div>
         </div>
         <div class="row">
-            <div v-for="(categoria, key) in permisosAgrupados" :key="key" class="col-12">
-              <ul id="example-2">
+          <q-list padding bordered class="col-6 rounded-borders">
+            <q-expansion-item
+              v-for="(categoria, key) in permisosAgrupados" :key="key"
+              dense
+              dense-toggle
+              expand-separator
+              icon="perm_identity"
+              :label="key"
+            >
+              <q-card>
+                <q-card-section>
+                  <ul id="example-2">
+                    <li v-for="permiso in categoria" :key="permiso.id">
+                      <q-checkbox v-model="storeItems.permisos" :val="permiso.consecutivo" :label="permiso.nombre" />
+                    </li>
+                  </ul>
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </q-list>
+            <!-- <div v-for="(categoria, key) in permisosAgrupados" :key="key" class="col-12"> -->
+              <!-- <ul id="example-2">
                 {{ key }}
                 <li v-for="permiso in categoria" :key="permiso.id">
                   <q-checkbox v-model="storeItems.permisos" :val="permiso.consecutivo" :label="permiso.nombre" />
                 </li>
               </ul>
-            </div>
+            </div> -->
         </div>
         <div class="row q-mt-sm">
             <div class="col-2">
