@@ -551,6 +551,9 @@ class FacMovimientosController extends Controller
                     $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
 
                     foreach ($lineas as $linea) {
+
+                        $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
+                        self::afectarInventario($linea['producto_id'], $linea['cantidad'], 1);
                         $linea->delete();
                     }
 

@@ -122,9 +122,6 @@
           <div class="col-2">
             <q-btn class="w-100" color="positive" v-on:click="modifyPesoCierre('+')" label="+" />
           </div>
-          <div class="col-2">
-            <q-btn class="w-100" color="negative" v-on:click="modifyPesoCierre('-')" label="-" />
-          </div>
         </div>
         <div class="row q-mt-xl">
             <q-table
@@ -261,14 +258,6 @@ export default {
       if (operator === '+') {
         tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) + parseFloat(this.temp.peso)
         this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) + parseFloat(this.temp.peso)
-      } else {
-        if (parseFloat(this.temp.peso) <= parseFloat(this.temp.cantidad_cierre)) {
-          tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) - parseFloat(this.temp.peso)
-          this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) - parseFloat(this.temp.peso)
-        } else {
-          status = 0
-          this.$q.notify({ color: 'negative', message: 'Cantidad de cierre no puede ser negativo.' })
-        }
       }
       if (status === 1) {
         if (!tempItem.pesadas) {
