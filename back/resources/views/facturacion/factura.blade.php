@@ -190,11 +190,11 @@
 			@foreach ($lineas as $linea)
 				<tr>
 					<td>{{ $linea->producto }}</td>
-					<td style="text-align: right">{{ number_format($linea->cantidad, 1, ',', '.') }}</td>
+					<td style="text-align: right">{{ number_format($linea->cantidad, 3, ',', '.') }}</td>
 					<td style="text-align: right">{{ number_format($linea->precio, 0, ',', '.') }}</td>
 					<td style="text-align: right">{{ $linea->iva	}}%</td>
 					<td style="text-align: right">{{ $linea->descporcentaje	}}</td>
-					<td style="text-align: right">{{  number_format( (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) + (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) * ($linea->iva/100))) * $linea->cantidad  , 0, ',', '.') }}</td>
+					<td style="text-align: right">{{  number_format( (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) + (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) * ($linea->iva/100))) * $linea->cantidad  , 3, ',', '.') }}</td>
 				</tr>
 			@endforeach
 

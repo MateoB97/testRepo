@@ -44,7 +44,7 @@ class GenEtiqueta extends Model
             $data = Inventario::GetDataEtiqueta($item->id)->first();
             $data->peso = number_format($data->peso, 3, '.', '');
         }
-        
+
         $data->fecha_vencimiento = Carbon::parse($data->fecha_sacrificio)->addDays($data->dias_vencimiento)->toDateString();
         $data->fecha_empaque = Carbon::parse($data->fecha_empaque)->toDateString();
 
@@ -60,7 +60,7 @@ class GenEtiqueta extends Model
 
         $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
 
-        $proceso = self::validarProceso($empresa->razon_social, $marinado, $data->producto_empacado, $data->encabezado_etiqueta);        
+        $proceso = self::validarProceso($empresa->razon_social, $marinado, $data->producto_empacado, $data->encabezado_etiqueta);
 
         $etiqueta = "
                 ^XA
@@ -114,12 +114,12 @@ class GenEtiqueta extends Model
             $printer->text($etiqueta);
             $printer->close();
 
-            return 'doneNoRestore';
+            return $etiqueta;
         } else {
             return $etiqueta;
         }
 
-        
+
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
