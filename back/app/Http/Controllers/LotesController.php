@@ -147,8 +147,6 @@ class LotesController extends Controller
     public function show($id)
     {
         $model = Lote::find($id);
-        // $model = Lote::where('consecutivo','=', $id)->get()->first();
-        // $model->programacion = LotProgramacion::find($model->id);
 
         $model->programaciones = $model->lotProgramacion;
 

@@ -121,7 +121,6 @@ class LotPesoPlantaController extends Controller
     public function GetData($idlote)
     {
         $data = LotPesoPlanta::where('lote_id','=',$idlote)->get();
-        // $data = LotPesoPlanta::where('consecutivo','=',$idlote)->get();
         foreach ($data as $item) {
             $item->peso = number_format($item->peso, 3, '.', '');
         }

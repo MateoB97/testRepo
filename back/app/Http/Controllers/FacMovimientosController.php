@@ -1255,30 +1255,4 @@ class FacMovimientosController extends Controller
             self::afectarInventario($linea->producto_id, $linea->cantidad, 1);
         }
     }
-
-    public static function div_string($str, $num_partes) {
-        $slong = strlen($str);
-        if(!intval($num_partes) <= 0){
-            $long_partes = intval($slong/$num_partes);
-        } else {
-            $long_partes = 1;
-            $num_partes = 1;
-        }
-        $sobrante = $slong % $num_partes;
-        $i = 0;
-        $start = 0;
-        $arr2 = array();
-        while($i < $num_partes) {
-            if($i < $slong) {
-                $offset = ($sobrante > 0) ? $long_partes+1 : $long_partes;
-                $arr2[] = substr($str, $start, $offset);
-                $start += $offset;
-                $sobrante--;
-            } else {
-                $arr2[] = '';
-            }
-            $i++;
-        }
-        return $arr2;
-    }
 }
