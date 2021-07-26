@@ -246,6 +246,9 @@ export default {
       this.temp.pesadas = tempItem.pesadas
     },
     modifyPesoCierre (operator) {
+      if (this.temp.tara < 0) {
+        return this.$q.notify({ color: 'negative', message: 'La Tara debe ser mayor a 0. Pesar nuevamente el producto' })
+      }
       var item = {
         idPesada: '',
         pesoBascula: this.temp.peso,
@@ -253,23 +256,32 @@ export default {
         pesoNeto: this.temp.peso - this.temp.tara
       }
       var tempItem = this.tableData.find(v => v.codigo === this.temp.codigo)
-      this.temp.peso = this.temp.peso - this.temp.tara
+      // this.temp.peso = this.temp.peso - this.temp.tara
       var status = 1
       if (operator === '+') {
-        tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) + parseFloat(this.temp.peso)
-        this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) + parseFloat(this.temp.peso)
-      }
-      if (status === 1) {
-        if (!tempItem.pesadas) {
-          tempItem.pesadas = []
-          tempItem.totalPesadas = 0
+        console.log(item)
+        if (!isNaN(this.temp.peso)) {
+          tempItem.cantidad_cierre = parseFloat(tempItem.cantidad_cierre) + parseFloat(item.pesoNeto)
+          this.temp.cantidad_cierre = parseFloat(this.temp.cantidad_cierre) + parseFloat(item.pesoNeto)
+        } else {
+          // tempItem.cantidad_cierre = 0
+          return this.$q.notify({ color: 'negative', message: 'La cantidad debe ser mayor a 0. Pesar nuevamente el producto' })
         }
-        tempItem.totalPesadas += 1
-        item.idPesada = tempItem.totalPesadas
-        tempItem.pesadas.push(item)
       }
-      this.temp.pesadas = tempItem.pesadas
-      this.temp.tara = 0
+      if (!isNaN(this.temp.peso)) {
+        if (status === 1) {
+          if (!tempItem.pesadas) {
+            tempItem.pesadas = []
+            tempItem.totalPesadas = 0
+          }
+          tempItem.totalPesadas += 1
+          item.idPesada = tempItem.totalPesadas
+          tempItem.pesadas.push(item)
+        }
+        console.log('Item ->' + item)
+        this.temp.pesadas = tempItem.pesadas
+        this.temp.tara = 0
+      }
     },
     eliminarPesada (id) {
       var tempItem = this.tableData.find(v => v.codigo === this.temp.codigo)

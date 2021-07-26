@@ -38,16 +38,29 @@ class Tercero extends Model
     }
 
     public static function validarFacturasTerceros($tercero_id){
-        return
-        DB::select("
-        select
-            fac_movimientos.consecutivo
-        from fac_movimientos
-        inner join tercero_sucursales on tercero_sucursales.id = fac_movimientos.cliente_id
-        inner join terceros on terceros.id = tercero_sucursales.tercero_id
-        where terceros.id = '$tercero_id'
-        AND estado = 1
-        AND fecha_vencimiento <= CAST(GETDATE() as date)");
+        return response()->json(['status' => 'success'], 404);
+        // DB::select("
+        // select
+        //     fac_movimientos.consecutivo
+        // from fac_movimientos
+        // inner join tercero_sucursales on tercero_sucursales.id = fac_movimientos.cliente_id
+        // inner join terceros on terceros.id = tercero_sucursales.tercero_id
+        // where terceros.id = '$tercero_id'
+        // AND estado = 1
+        // AND fecha_vencimiento <= CAST(GETDATE() as date)");
+    }
+
+    public static function exampleFactuasTerceros($tercero_id){
+        return DB::table('fac_movimientos')
+        ->select(
+            'fac_movimientos.consecutivo As consecutivo'
+        )
+        ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
+        ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+        ->where('fac_movimientos.estado', '=', 1)
+        ->where('terceros.id', '=', $tercero_id)
+        ->where('fac_movimientos.fecha_vencimiento', '<=', date('Y-m-d'))
+        ->get();
     }
 
 }

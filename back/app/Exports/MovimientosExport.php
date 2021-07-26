@@ -150,7 +150,7 @@ class MovimientosExport implements FromView
 
                 //         fwrite($fp, $linea.PHP_EOL);
                 //     }
-                    
+
                 // }
 
                 // fclose($fp);

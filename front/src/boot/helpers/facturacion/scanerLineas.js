@@ -79,39 +79,44 @@ export const helperFacturacionScanerLineas = {
         codigo: null,
         peso: null
       }
-      tiquete.codigo = app.num_tiquete.substr(2, 5)
-      const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(tiquete.codigo))
-      const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
-      tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
-      if (productoImpuesto !== undefined) {
-        if (parseInt(productoImpuesto.unidades) === 1) {
-          tiquete.peso = parseInt(app.num_tiquete.substr(7, 5)) / 1000
+      if (app.num_tiquete.length === 13) {
+        tiquete.codigo = app.num_tiquete.substr(2, 5)
+        const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(tiquete.codigo))
+        const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
+        tiquete.peso = app.num_tiquete.substr(7, 5) / 1000
+        if (productoImpuesto !== undefined) {
+          if (parseInt(productoImpuesto.unidades) === 1) {
+            tiquete.peso = parseInt(app.num_tiquete.substr(7, 5)) / 1000
+          } else {
+            tiquete.peso = parseInt(app.num_tiquete.substr(7, 5))
+          }
+          console.log('N°Tiquet: ' + app.num_tiquete + '   ProductCode: ' + tiquete.codigo + '   Quantity: ' + tiquete.peso + '    DateTime: ' + new Date().toLocaleString() + '    DV: ' + app.num_tiquete.substr(12, 1))
+          var newProduct = {
+            id: app.itemsCounter,
+            producto: productoImpuesto.nombre,
+            producto_id: productoImpuesto.id,
+            producto_codigo: productoImpuesto.codigo,
+            cantidad: tiquete.peso,
+            precio: parseInt(productoPrecio.precio) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
+            iva: productoImpuesto.impuesto,
+            gen_iva_id: productoImpuesto.gen_iva_id,
+            desc: 0.00,
+            descporcentaje: 0.00,
+            despacho: false,
+            num_tiquete: app.num_tiquete,
+            num_linea_tiquete: 0
+          }
+          app.dataResumen.push(newProduct)
+          app.itemsCounter = app.itemsCounter + 1
+          app.numLineas = app.numLineas + 1
         } else {
-          tiquete.peso = parseInt(app.num_tiquete.substr(7, 5))
+          app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(tiquete.codigo) + ' no esta creado.' })
         }
-        var newProduct = {
-          id: app.itemsCounter,
-          producto: productoImpuesto.nombre,
-          producto_id: productoImpuesto.id,
-          producto_codigo: productoImpuesto.codigo,
-          cantidad: tiquete.peso,
-          precio: parseInt(productoPrecio.precio) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-          iva: productoImpuesto.impuesto,
-          gen_iva_id: productoImpuesto.gen_iva_id,
-          desc: 0.00,
-          descporcentaje: 0.00,
-          despacho: false,
-          num_tiquete: app.num_tiquete,
-          num_linea_tiquete: 0
-        }
-        app.dataResumen.push(newProduct)
-        app.itemsCounter = app.itemsCounter + 1
-        app.numLineas = app.numLineas + 1
+        app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
+        app.num_tiquete = null
       } else {
-        app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(tiquete.codigo) + ' no esta creado.' })
+        return app.$q.notify({ color: 'negative', message: 'El Codigo debe ser Ean 13' })
       }
-      app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-      app.num_tiquete = null
     },
     buscarLineasDespacho () {
       var app = this
@@ -340,6 +345,7 @@ export const helperFacturacionScanerLineas = {
                             // console.log(element.numero)
                             if (parseInt(element.numero) === parseInt(app.num_tiquete.substr(6, 6))) {
                               const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
+                              const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
                               if (productoImpuesto !== undefined) {
                                 var newProduct = {
                                   id: app.itemsCounter,
@@ -347,7 +353,7 @@ export const helperFacturacionScanerLineas = {
                                   producto_id: productoImpuesto.id,
                                   producto_codigo: productoImpuesto.codigo,
                                   cantidad: element.quantidade,
-                                  precio: parseInt(element.preco_unit / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
+                                  precio: parseInt(productoPrecio.precio / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
                                   iva: productoImpuesto.impuesto,
                                   gen_iva_id: productoImpuesto.gen_iva_id,
                                   desc: 0.00,

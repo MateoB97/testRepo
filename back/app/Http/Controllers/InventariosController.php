@@ -346,7 +346,7 @@ class InventariosController extends Controller
         $eti_interna->cantidad = $request->numEtiquetas;
 
         for ($i = 0; $i < $request->numEtiquetas ; $i++) {
-        
+
             $etiqueta = GenEtiqueta::imprimirEtiqueta($request->impresora, $request, $request->marinado, true);
 
         }

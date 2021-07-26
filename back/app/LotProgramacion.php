@@ -57,6 +57,7 @@ class LotProgramacion extends Model
                 'lotes.id as lote_id',
                 'lotes.marca as marca',
                 'lotes.prodGrupo_id as grupo_id',
+                'lotes.consecutivo as consecutivo',
                 'prod_grupos.nombre as grupo',
                 'terceros.nombre as tercero',
                 'tercero_sucursales.id as tercero_sucursal_id',
@@ -115,6 +116,7 @@ class LotProgramacion extends Model
                 'lotes.id as lote_id',
                 'lotes.marca as marca',
                 'lotes.prodGrupo_id as grupo_id',
+                'lotes.consecutivo as consecutivo',
                 'prod_grupos.nombre as grupo',
                 'terceros.nombre as tercero',
                 'tercero_sucursales.id as tercero_sucursal_id',
@@ -127,7 +129,8 @@ class LotProgramacion extends Model
             ->leftJoin('tercero_sucursales', 'tercero_sucursales.id', '=', 'lot_programaciones.terceroSucursal_id')
             ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('lotes.estado','=', 1)
-            ->where('lotes.id', $loteId)
+            // ->where('lotes.id', $loteId)
+            ->where('lotes.consecutivo', $loteId)
             ->where('lotes.producto_empacado', $producto_empacado)
             ->orderBy('programacion_id','desc')
             ->get();

@@ -6,7 +6,8 @@ require '../vendor/autoload.php';
 
 use App\Exports\MovimientosExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Exports\CierreInventarioVariacion;
+use App\Exports\CierreInventarioPesadas;
 use Illuminate\Http\Request;
 use App\User;
 use App\FacMovimiento;
@@ -67,9 +68,12 @@ use App\UserPermisos;
 use App\GenCuadreIngresoEfectivo;
 use App\EgreEgreso;
 use App\EgreTipoEgreso;
+use App\Lote;
+use App\InvCierreInventario;
 
 class ReportesGeneradosController extends Controller
 {
+
 
     public static function executeJasper ($input,$params ){
 
@@ -116,7 +120,7 @@ class ReportesGeneradosController extends Controller
         dd($od);
     }
 
-    public function movimientosPorFechaCustomExcel($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id) {
+    public static function movimientosPorFechaCustomExcel($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id) {
 
         return Excel::download(new MovimientosExport($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id), 'invoices.xlsx');
     }
@@ -127,7 +131,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\ventasPesosTotales.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\FormasPagoMovsPorFecha.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -189,6 +193,12 @@ class ReportesGeneradosController extends Controller
     public function pesosTotalesProductos(){
         $params = $_GET;
         $input = 'ventasPesosTotales';
+        self::executeJasper($input, $params);
+    }
+
+    public function movimientoFormaPagoPorFecha(){
+        $params = $_GET;
+        $input = 'FormasPagoMovsPorFecha';
         self::executeJasper($input, $params);
     }
 
@@ -976,16 +986,8 @@ class ReportesGeneradosController extends Controller
         $str .= $t80->posLineaBlanco();
 
         if($nuevoItem->nota) {
-            $str .= $t80->posLineaCentro("nota", "-");
-            $empresa = GenEmpresa::find(1);
-            $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
-            $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
-            if($dataNotas) {
-                foreach($dataNotas as $nota) {
-                    $str.= $t80->posLineaDerecha($nota);
-                }
-            }
-            $str .= $t80->posLineaGuion();
+            $str .= $t80->posLineaCentro('Notas');
+            $str .= $t80->posLineaCentro($nuevoItem->nota);
         }
 
         $str.= $t80->posFooterSgc();
@@ -996,232 +998,18 @@ class ReportesGeneradosController extends Controller
         $printer->close();
     }
 
-    public static function printPOSRecibos(){
 
-        $id = 10578;
-        $recibo = FacReciboCaja::find($id);
-
-        $tipoRecCaja = $recibo->tipoRecCaja;
-        $sucursal = TerceroSucursal::find($recibo->tercero_sucursal_id);
-        $tercero = $sucursal->Tercero;
-        $lineas = FacPivotRecMov::getDataLineasPDF($id);
-        $pagos = FacPivotFormaRecibo::getDataLineasPDF($id);
-
-        $user = User::find(2);
-
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $t80 = new ReportesT80();
-        $str = '';
-
-        $str .= $t80->posLineaBlanco(' ');
-        $str .=$t80->printLogoT80($printer);
-        $str .= $t80->posLineaBlanco('-');
-        $str .= $t80->posHeaderEmpresa();
-        $str .= $t80->posLineaBlanco();
-        $str .= $t80->posLineaCentro($tipoRecCaja->nombre);
-        $str .= $t80->posLineaBlanco(' ');
-
-        $str .= $t80->posLineaCentro('No. '. $recibo->consecutivo);
-        $str .= $t80->posLineaCentro('fecha documento: '. $recibo->fecha_recibo);
-        $str .= $t80->posLineaGuion();
-
-        // DATOS DEL CLIENTE
-        $str .= $t80->posLineaDerecha($tercero->nombre);
-
-        if ($tercero->digito_verificacion) {
-            $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre.' - '.$tercero->digito_verificacion. ' - TEL: '.$sucursal->telefono);
-        } else {
-            $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre. ' - TEL: '.$sucursal->telefono);
-        }
-        $str .= $t80->posLineaDerecha("direccion: ".$sucursal->direccion);
-        $str .= $t80->posLineaGuion();
-
-        $str.= $t80->posLineaDerecha('No. Fac   Valor Factura    Valor Abono     Saldo');
-        $str .= $t80->posLineaGuion();
-
-        foreach ($lineas as $linea) {
-            $str .= str_pad($linea->consec_mov, 9, " ", STR_PAD_RIGHT);
-            $str .= str_pad('$ '.number_format(intval($linea->valor_factura), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
-            $str .= str_pad('$ '.number_format(intval($linea->valor), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
-            $str .= str_pad('$ '.number_format(intval($linea->saldo_mov), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
-        }
-
-        $str .= $t80->posLineaGuion();
-        $str .= $t80->posLineaBlanco();
-
-        $totalPagos = 0;
-
-        $str .= $t80->posLineaCentro('pagos', '-');
-
-        foreach ($pagos as $pago) {
-            if ($pago->valor > 0) {
-                $str.= $t80->posDosItemsExtremos($pago->forma_nombre, '$ '.$t80->toNumber( $pago->valor));
-                $totalPagos = intval($totalPagos) + intval($pago->valor);
-            }
-        }
-
-        $str .= $t80->posLineaIzquierda('----------');
-        $str.= $t80->posDosItemsExtremos('TOTAL PAGADO', '$ '.$t80->toNumber( $totalPagos));
-        $str .= $t80->posLineaGuion();
-        $str.= $t80->posFooterSgc();
-
-        $printer->text($str);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-
+    public static function toCollect($collect){
+        $details = collect($collect)->map(function ($item) {
+            return (object) $item;
+        });
+        return $details;
     }
 
+    //TESTING
+    public static function testing() {
 
-
-     public static function div_string($str, $num_partes) {
-        $slong = strlen($str);
-        if(!intval($num_partes) <= 0){
-            $long_partes = intval($slong/$num_partes);
-        } else {
-            $long_partes = 1;
-            $num_partes = 1;
-        }
-        $sobrante = $slong % $num_partes;
-        $i = 0;
-        $start = 0;
-        $arr2 = array();
-        while($i < $num_partes) {
-            if($i < $slong) {
-                $offset = ($sobrante > 0) ? $long_partes+1 : $long_partes;
-                $arr2[] = substr($str, $start, $offset);
-                $start += $offset;
-                $sobrante--;
-            } else {
-                $arr2[] = '';
-            }
-            $i++;
-        }
-        return $arr2;
-    }
-
-    public static function imprimirPOSEgresos(){
-
-        $id = 21257;
-        $egreso = EgreEgreso::porId($id);
-        // dd($egreso);
-        $user = User::find(2);
-        $t80 = new ReportesT80();
-        $str = '';
-
-        $egreso->created_at = formato_fecha($egreso->created_at);
-
-        $tipoEgreso = EgreTipoEgreso::find($egreso->egre_tipo_egreso_id);
-        $sucursal = TerceroSucursal::find($egreso->proveedor_id);
-        $tercero = $sucursal->tercero;
-
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $str .= $t80->posLineaBlanco(' ');
-        $str .=$t80->printLogoT80($printer);
-        $str .= $t80->posLineaBlanco('-');
-        $str .= $t80->posHeaderEmpresa();
-        $str .= $t80->posLineaBlanco();
-
-        $str .= $t80->posLineaCentro($tipoEgreso->nombre);
-        $str .= $t80->posLineaCentro('Consecutivo: ' .$egreso->consecutivo);
-        $str .= $t80->posLineaGuion();
-        $str.= $t80->posDosItemsExtremos('Cliente: ', $tercero->nombre);
-        $str.= $t80->posDosItemsExtremos('Sucursal: ', $sucursal->nombre);
-        $str.= $t80->posDosItemsExtremos('Fecha: ', $egreso->created_at);
-        $str.= $t80->posDosItemsExtremos('Valor: ', '$ ' .$t80->toNumber($egreso->valor));
-
-        if($egreso->descripcion) {
-            $str .= $t80->posLineaCentro("nota", "-");
-            $empresa = GenEmpresa::find(1);
-            if(strlen($egreso->descripcion) >= 49){
-            $num_partes = strlen($egreso->descripcion) / intval($empresa->cantidad_caracteres);
-            $dataNotas = self::div_string($egreso->descripcion, $num_partes);
-            if($dataNotas) {
-                foreach($dataNotas as $nota) {
-                    $str.= $t80->posLineaDerecha($nota);
-                }
-            }
-            $str .= $t80->posLineaGuion();
-        } else {
-            $str.= $t80->posLineaDerecha($egreso->descripcion);
-            $str .= $t80->posLineaGuion();
-            }
-        }
-
-        $str.= $t80->posFooterSgc();
-
-        $printer->text($str);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-
-        return "Impresión Realizada";
-
-    }
-
-    public static function imprimirPOSIngresos()
-    {
-        $id = 2;
-        $user = User::find(2);
-        $t80 = new ReportesT80();
-        $str = '';
-        $ingreso = GenCuadreIngresoEfectivo::porId($id);
-        // dd($ingreso);
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $t80 = new ReportesT80();
-        $str = '';
-
-        $str .= $t80->posLineaBlanco(' ');
-        $str .=$t80->printLogoT80($printer);
-        $str .= $t80->posLineaBlanco('-');
-        $str .= $t80->posHeaderEmpresa();
-        $str .= $t80->posLineaBlanco();
-
-        $str .= $t80->posLineaCentro('Ingreso de Efectivo', '-');
-        $str .= $t80->posLineaCentro('Consecutivo: '. $ingreso->id);
-        $str .= $t80->posLineaGuion();
-        $str.= $t80->posDosItemsExtremos('Fecha:', $ingreso->created_at);
-        $str.= $t80->posDosItemsExtremos('Valor:', $ingreso->valor);
-        if($ingreso->descripcion) {
-            $str .= $t80->posLineaCentro("nota", "-");
-            $empresa = GenEmpresa::find(1);
-            if(strlen($ingreso->descripcion) >= 49){
-            $num_partes = strlen($ingreso->descripcion) / intval($empresa->cantidad_caracteres);
-            $dataNotas = self::div_string($ingreso->descripcion, $num_partes);
-            if($dataNotas) {
-                foreach($dataNotas as $nota) {
-                    $str.= $t80->posLineaDerecha($nota);
-                }
-            }
-            $str .= $t80->posLineaGuion();
-        } else {
-            $str.= $t80->posLineaDerecha($ingreso->descripcion);
-            $str .= $t80->posLineaGuion();
-        }
-        }
-
-        $str.= $t80->posFooterSgc();
-
-        $printer->text($str);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-
-        return "Impresión Realizada";
-
-    }
-
-    public static function testing(){
-        self::imprimirPOSEgresos();
+       dd(FacMovimiento::todosConTipoSucursalGrupoTipo());
      }
 
 }

@@ -66,7 +66,8 @@ class SalPivotInventSalida extends Model
                 'sal_mercancias.consecutivo as consecutivo',
                 'producto_terminados.fecha_vencimiento as prod_term_fecha_vencimiento',
                 'lotes.producto_empacado',
-                'lotes.fecha_empaque_lote_tercero'
+                'lotes.fecha_empaque_lote_tercero',
+                'lotes.consecutivo As consecutivo',
             )
             ->join('inventarios', 'inventarios.id', '=', 'sal_pivot_invent_salidas.inventario_id')
             ->join('sal_mercancias', 'sal_mercancias.id', '=', 'sal_pivot_invent_salidas.salMercancia_id')

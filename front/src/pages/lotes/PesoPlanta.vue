@@ -8,7 +8,7 @@
                 <div class="col-3">
                     <q-select
                       label="Seleccione Lote"
-                      v-model="storeItems.lote_id"
+                      v-model="datos.lote"
                       :options="lotes"
                       @input="selectedLote"
                     >
@@ -18,7 +18,7 @@
                                 v-on="scope.itemEvents"
                             >
                                 <q-item-section>
-                                <q-item-label v-html="scope.opt.id" />
+                                <q-item-label v-html="scope.opt.consecutivo" />
                                 <q-item-label caption>Marca: {{ scope.opt.marca }} // Num animales: {{ scope.opt.num_animales }} </q-item-label>
                                 </q-item-section>
                             </q-item>
@@ -31,7 +31,7 @@
             </div>
             <div v-if="showDatosLote" class="row q-col-gutter-sm">
                 <div class="col-3">
-                    <p>Lote: {{ this.storeItems.lote_id }}</p>
+                    <p>Lote: {{ this.datos.consecutivo }}</p>
                 </div>
                 <div class="col-3">
                     <p>Marca: {{ this.datos.marca }}</p>
@@ -292,7 +292,8 @@ export default {
         traseros: [],
         canales: [],
         producto: null,
-        cerdox2: false
+        cerdox2: false,
+        lote: null
       },
       temp: {
         peso: null,
@@ -331,7 +332,6 @@ export default {
       return a - b
     },
     validarFaltantes () {
-      console.log(this.storeItems)
       if (this.datos.producto_empacado === '0') {
         if (this.datos.grupo === 'Res') {
           if ((this.datos.resTrasFaltante === 0) && (this.datos.resDelFaltante === 0)) {
@@ -512,12 +512,15 @@ export default {
       this.storeItems.productos = []
       this.showGrupoRes = false
       this.showGrupoCerdo = false
-      this.datos.marca = this.storeItems.lote_id.marca
-      this.datos.num_animales = this.storeItems.lote_id.num_animales
-      this.datos.grupo = this.storeItems.lote_id.grupo
-      this.datos.grupo_id = this.storeItems.lote_id.grupo_id
-      this.datos.producto_empacado = this.storeItems.lote_id.producto_empacado
-      this.storeItems.lote_id = this.storeItems.lote_id.id
+      this.datos.marca = this.datos.lote.marca
+      this.datos.num_animales = this.datos.lote.num_animales
+      this.datos.grupo = this.datos.lote.grupo
+      this.datos.grupo_id = this.datos.lote.grupo_id
+      this.datos.producto_empacado = this.datos.lote.producto_empacado
+      this.datos.consecutivo = this.datos.lote.consecutivo
+      this.storeItems.lote_id = this.datos.lote.id
+      this.datos.lote = this.datos.lote.consecutivo
+      console.log('StoreItems =' + this.storeItems)
       this.showDatosLote = true
       // mostrar faltantes
       if (this.datos.grupo === 'Cerdo') {

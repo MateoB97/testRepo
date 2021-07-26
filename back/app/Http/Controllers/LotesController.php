@@ -30,7 +30,7 @@ class LotesController extends Controller
 
         if ( (count($request->programaciones) > 0) ){
 
-            $lastSeed = Lote::max('id');
+            $lastSeed = intval(Lote::max('consecutivo'));
             $nuevoItem = new Lote($request->all());
             if($lastSeed > 0){
                 $nuevoItem->consecutivo = $lastSeed +1;
@@ -147,6 +147,8 @@ class LotesController extends Controller
     public function show($id)
     {
         $model = Lote::find($id);
+        // $model = Lote::where('consecutivo','=', $id)->get()->first();
+        // $model->programacion = LotProgramacion::find($model->id);
 
         $model->programaciones = $model->lotProgramacion;
 

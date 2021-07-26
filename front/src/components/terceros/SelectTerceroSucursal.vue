@@ -92,12 +92,10 @@ export default {
       if (!this.validateTercero === true) {
         axios.get(this.$store.state.jhsoft.url + 'api/terceros/validarfacturasterceros/' + this.datos.tercero_id.id).then(
           function (response) {
-            console.log(response.data.length)
             if (response.data.length > 0) {
               for (i = 0; i < response.data.length; i++) {
                 consecs += response.data[i]['consecutivo'] + ','
               }
-              console.log(consecs)
               app.sucursales = []
               app.$q.notify({ color: 'negative', message: 'El cliente tiene facturas pendientes por pagar.' + consecs })
               if (app.empresa.bloquear_tercero === true) {
@@ -108,6 +106,19 @@ export default {
             } else {
               app.filterByTerceroId()
             }
+          }
+        ).catch(
+          function (error) {
+            var logs = []
+            var today = new Date()
+            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+            var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds()
+            var dateTime = date + ' ' + time
+            var errorLog = 'Error:  ' + error.response + '  Fecha: ' + dateTime
+            logs.push(errorLog)
+            localStorage.logErrores = logs
+            console.log(errorLog)
+            app.filterByTerceroId()
           }
         )
       } else {

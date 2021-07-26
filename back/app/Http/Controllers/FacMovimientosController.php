@@ -637,11 +637,13 @@ class FacMovimientosController extends Controller
 
     public function generatePDF($id)
     {
-
         $movimiento = FacMovimiento::find($id);
+
         $data = null;
         $movimiento->qr = substr( $movimiento->qr, strpos($movimiento->qr, 'https://'));
         $tipoDoc = $movimiento->tipoDoc;
+
+        $fecha_facturacion = substr(strval($movimiento->created_at), 0 ,19);
 
         $empresa = GenEmpresa::find(1);
 
@@ -650,16 +652,22 @@ class FacMovimientosController extends Controller
         $sucursal = TerceroSucursal::find($movimiento->cliente_id);
         $tercero = $sucursal->tercero;
 
+        if($movimiento->estado == 3){
+            $tipoDoc->nombre_alt = 'Devolución '. $tipoDoc->nombre_alt;
+        }
+
+        $movimiento->created_at = Carbon::parse($movimiento->created_at)->toDateString();
+
         $IdPrincipal = FacCruce::where('fac_mov_secundario', $id)->get()->first();
         $relatedDocument = null;
         if ($IdPrincipal != null){
             $relatedDocument = FacMovimiento::find($IdPrincipal->fac_mov_principal);
-            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument];
+            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument, 'fecha_facturacion' => $fecha_facturacion];
             // dd($data);
         } else {
-            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument];
+            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument, 'fecha_facturacion' => $fecha_facturacion];
         }
-            // dd($data);
+        // dd($data);
         if ($tipoDoc->formato_impresion == 1) {
             $pdf = PDF::loadView('facturacion.factura', $data);
         } elseif ($tipoDoc->formato_impresion == 2) {
@@ -874,6 +882,12 @@ class FacMovimientosController extends Controller
                 $etiqueta .= str_pad(number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
             }
 
+            if($nuevoItem->nota) {
+                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+            }
+
             $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
 
             $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
@@ -900,8 +914,10 @@ class FacMovimientosController extends Controller
                 $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
                 // ENCABEZADO
                 if ($tipoDoc->formato_impresion == 1) {
-                    $img = EscposImage::load("../public/images/logo1.png");
-                    $printer -> graphics($img);
+                    if($empresa->print_logo_pos > 0){
+                        $img = EscposImage::load("../public/images/logo1.png");
+                        $printer -> graphics($img);
+                    }
                     $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                     $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
                     $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
@@ -1004,11 +1020,20 @@ class FacMovimientosController extends Controller
                 $etiqueta .= ' ';
                 $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
 
+                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                //NOTAS
+                $etiqueta .= str_pad("Notas: ", $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= str_pad(eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                if($nuevoItem->nota) {
+                    $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+                    $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+                }
                 $etiqueta .= str_pad("Nombre y Sello del cliente", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
@@ -1209,13 +1234,6 @@ class FacMovimientosController extends Controller
 
     public function testimpresioncxc(){
 
-        // $datos = FacMovimiento::todosConTipoSucursalGrupoTipoCustom();
-        // // $clientes  = $lineas->unique('documento')->sortBy('tercero');
-        // $quantityNotes = $datos->unique('id')->where('notescount', '>', 0)->count();
-        // $quantityReceipts = $datos->unique('id')->where('ReceipsCount','>', 0)->count();
-        // $print = 'Notas Globales  ' . $quantityNotes . '  Recibos Globales' . $quantityReceipts;
-        // return $print;
-        // ventasPorFechaTest
         $index= Producto::todosConGrupos();
         return $index;
     }
@@ -1234,7 +1252,33 @@ class FacMovimientosController extends Controller
     public static function  descargarDevolucionInventario($id){
         $lineas = FacPivotMovProducto::porMovimiento($id);
         foreach($lineas as $linea){
-            self::afectarInventario($linea->producto_id, $linea->cantidad, 0);
+            self::afectarInventario($linea->producto_id, $linea->cantidad, 1);
         }
+    }
+
+    public static function div_string($str, $num_partes) {
+        $slong = strlen($str);
+        if(!intval($num_partes) <= 0){
+            $long_partes = intval($slong/$num_partes);
+        } else {
+            $long_partes = 1;
+            $num_partes = 1;
+        }
+        $sobrante = $slong % $num_partes;
+        $i = 0;
+        $start = 0;
+        $arr2 = array();
+        while($i < $num_partes) {
+            if($i < $slong) {
+                $offset = ($sobrante > 0) ? $long_partes+1 : $long_partes;
+                $arr2[] = substr($str, $start, $offset);
+                $start += $offset;
+                $sobrante--;
+            } else {
+                $arr2[] = '';
+            }
+            $i++;
+        }
+        return $arr2;
     }
 }

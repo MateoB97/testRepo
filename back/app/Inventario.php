@@ -94,10 +94,12 @@ class Inventario extends Model
                 'productos.nombre As producto',
                 'inventarios.cantidad as peso',
                 'lotes.id as lote',
+                'lotes.consecutivo as consecutivo',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
+                'producto_terminados.fecha_vencimiento as prod_terminado_fecha_vencimiento',
                 'producto_terminados.num_piezas as num_piezas',
                 'prod_grupos.registro_sanitario as registro_sanitario',
                 'prod_grupos.nombre as grupo',
@@ -163,7 +165,6 @@ class Inventario extends Model
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             ->orderBy('inventarios.id','desc')
             ->where('tipo_invent',2)
-            ->take(100)
             ->get();
     }
 
@@ -195,7 +196,7 @@ class Inventario extends Model
                 'productos.nombre As producto',
                 'productos.id as producto_id',
                 'inventarios.cantidad as peso',
-                'lotes.id as lote',
+                'lotes.consecutivo as lote',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
@@ -210,7 +211,7 @@ class Inventario extends Model
             ->join('productos','productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
-            ->where('lotes.id', $id)
+            ->where('lotes.consecutivo', $id)
             ->get();
     }
 

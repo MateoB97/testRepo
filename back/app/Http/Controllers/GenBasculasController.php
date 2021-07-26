@@ -111,7 +111,7 @@ class GenBasculasController extends Controller
             array_push($lineasFacturadas, $item->num_linea_tiquete);
         }
 
-        if (substr($tiquete, 0, 1) == '2' && strlen($tiquete) > 6){ 
+        if (substr($tiquete, 0, 1) == '2' && strlen($tiquete) > 6){
             $seccion = '001';
             $tiquete = intval(substr($tiquete,6,6));
         } else {
@@ -354,6 +354,8 @@ class GenBasculasController extends Controller
         $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
         $etiqueta .= 'Total No Facturado:';
         $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
+        $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
+
 
         $printer->text($etiqueta);
         $printer->feed(2);
@@ -503,6 +505,7 @@ class GenBasculasController extends Controller
             $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
             $etiqueta .= 'Total No Facturado:';
             $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
+            $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
 
             $printer->text($etiqueta);
             $printer->feed(2);

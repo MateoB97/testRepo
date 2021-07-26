@@ -53,7 +53,7 @@ class Lote extends Model
 
     public static function todosConMarca(){
     return DB::table('lotes')
-            ->select('lotes.id As id','lotes.num_animales As num_animales','lotes.marca as marca','lotes.producto_empacado as producto_empacado','prod_grupos.nombre as grupo', 'prod_grupos.id as grupo_id', 'lotes.estado as estado')
+            ->select('lotes.id As id','lotes.num_animales As num_animales','lotes.marca as marca','lotes.producto_empacado as producto_empacado','prod_grupos.nombre as grupo', 'prod_grupos.id as grupo_id', 'lotes.estado as estado', 'lotes.consecutivo')
             ->join('prod_grupos','lotes.ProdGrupo_id', '=', 'prod_grupos.id')
             ->orderBy('id','desc')
             ->get();

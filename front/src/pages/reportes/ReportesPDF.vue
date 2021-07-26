@@ -255,8 +255,16 @@
             </div>
             <div class="row q-col-gutter-md">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Movimientos</h4></div>
-                <div class="col-4">
+                <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(3), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimiento Forma Pago x Fecha" />
+                </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimiento Forma Pago x Fecha"
+                      url="api/reportesgenerados/reportes/movimientoFormaPagoPorFecha"
+                      :datesFilter="true"
+                      :dateUnique="0"
+                    />
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent

@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -120,12 +120,12 @@
 									<p>N° {{ $movimiento->consecutivo }}</p>
 								</td>
 								<td class="text-center">
-									<p>{{ $movimiento->fecha_facturacion }}</p>
+									<p>{{ $fecha_facturacion }}</p>
 								</td>
 							</tr>
 							<tr style="margin-top:20px">
 								<td>
-									 
+
 								</td>
 							</tr>
 							<tr>

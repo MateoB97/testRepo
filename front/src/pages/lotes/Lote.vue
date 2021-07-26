@@ -552,7 +552,7 @@
 
             <q-page-container>
               <q-page v-if="show.id" padding>
-                <h3 style="margin: 5px 0px;">Lote: {{ show.id }}</h3>
+                <h3 style="margin: 5px 0px;">Lote: {{ show.consecutivo }}</h3>
                 <h4 style="margin: 5px 0px;">Marca: {{ show.marca }}</h4>
                 <h4 style="margin: 5px 0px;">Grupo: {{ show.ProdGrupo_id.nombre }}</h4>
               <div v-if="show.id" class="overflow-hidden">
@@ -956,7 +956,8 @@ export default {
       show: [],
       tableData: [],
       columns: [
-        { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'consecutivo', required: true, label: 'Conecutivo', align: 'left', field: 'consecutivo', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        // { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'grupo', required: true, label: 'Grupo', align: 'left', field: 'grupo', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'marca', required: true, label: 'Marca', align: 'left', field: 'marca', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'num_animales', required: true, label: 'N° Animales', align: 'left', field: 'num_animales', sortable: true, classes: 'my-class', style: 'width: 200px' },
