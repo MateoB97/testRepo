@@ -27,9 +27,16 @@ class LotesController extends Controller
 
     public function store(Request $request)
     {
+
         if ( (count($request->programaciones) > 0) ){
 
+            $lastSeed = intval(Lote::max('consecutivo'));
             $nuevoItem = new Lote($request->all());
+            if($lastSeed > 0){
+                $nuevoItem->consecutivo = $lastSeed +1;
+            } else {
+                $nuevoItem->consecutivo = 1 ;
+            }
             if (($request->producto_empacado  == 0 || $request->producto_empacado == '0')) {
                 $nuevoItem->fecha_empaque_lote_tercero = null;
             }

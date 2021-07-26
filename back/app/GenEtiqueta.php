@@ -28,7 +28,6 @@ class GenEtiqueta extends Model
             $connector = new WindowsPrintConnector($nombre_impresora);
             $printer = new Printer($connector);
             $printer->setJustification(Printer::JUSTIFY_CENTER);
-
         }
 
         if ($etiquetaInterna) {
@@ -44,7 +43,7 @@ class GenEtiqueta extends Model
             $data = Inventario::GetDataEtiqueta($item->id)->first();
             $data->peso = number_format($data->peso, 3, '.', '');
         }
-        
+
         $data->fecha_vencimiento = Carbon::parse($data->fecha_sacrificio)->addDays($data->dias_vencimiento)->toDateString();
         $data->fecha_empaque = Carbon::parse($data->fecha_empaque)->toDateString();
 
@@ -54,13 +53,13 @@ class GenEtiqueta extends Model
         if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4C\F"; }
         if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
 
-        if ($data->grupo !== 'Res') { $porcMarinado = "10%"; }
-        if ($data->grupo !== 'Cerdo') { $porcMarinado = "12%"; }
+        if ($data->grupo === 'Res') { $porcMarinado = "10%"; }
+        if ($data->grupo === 'Cerdo') { $porcMarinado = "12%"; }
         // $titulo = "CARNE DE ".strtoupper($data->grupo);
 
         $titulo =  self::validarTitulo($data->encabezado_etiqueta, $data->grupo, $marinado);
 
-        $proceso = self::validarProceso($empresa->razon_social, $marinado, $data->producto_empacado, $data->encabezado_etiqueta);        
+        $proceso = self::validarProceso($empresa->razon_social, $marinado, $data->producto_empacado, $data->encabezado_etiqueta);
 
         $etiqueta = "
                 ^XA
@@ -98,7 +97,7 @@ class GenEtiqueta extends Model
 
         	$etiqueta .= "
                     ^FT30,220^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT270,220^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28";
+                    ^FT270,220^A0N,24,24^FH\^CI28^FD".$data->prod_terminado_fecha_vencimiento."^FS^CI28";
         }
 
         if ($marinado) {
@@ -119,7 +118,7 @@ class GenEtiqueta extends Model
             return $etiqueta;
         }
 
-        
+
     }
 
     public static function validarTitulo($encabezado, $grupo, $marinado){
@@ -130,7 +129,7 @@ class GenEtiqueta extends Model
                 return  "CARNE DE ".strtoupper($grupo)." MARINADA";
             }
         }else{
-            return  'PRODUCTO CARNICO COMESTIBLE';
+            return  'PRODUCTO CARNICO COMESTIBLE '.strtoupper($grupo);
         }
     }
 
@@ -163,12 +162,14 @@ class GenEtiqueta extends Model
 
         if ($boolDesposte){
             $fechas .= "^FT30,210^ARN,5,5^FH\^CI28^FDFecha Desposte:^FS^CI28";
+            // $fechas .= "^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28";
             $fechas .= "^FT235,210^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28";
         }
 
         if ($boolEmpaque){
             $fechas .= "^FT30,235^ARN,5,5^FH\^CI28^FDFecha Empaque:^FS^CI28";
-            $fechas .= "^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28";
+            $fechas .= "^FT235,235^A0N,24,24^FH\^CI28^FD".date("Y-m-d", strtotime($data->fecha_empaque))."^FS^CI28";
+            // $fechas .= "^FT235,235^A0N,24,24^FH\^CI28^FD".$data->fecha_empaque."^FS^CI28";
         }
 
         if ($boolVencimiento){
@@ -204,7 +205,7 @@ class GenEtiqueta extends Model
 
         if ($boolLote){
             $headers .= "^FT470,230'^ARN,1^FH\^CI28^FDLote:^FS^CI28";
-            $headers .= "^FT540,230^A0N,24,24^FH\^CI28^FD".$data->lote."^FS^CI28";
+            $headers .= "^FT540,230^A0N,24,24^FH\^CI28^FD".$data->consecutivo."^FS^CI28";
         }
 
         if ($boolNumPiezas){

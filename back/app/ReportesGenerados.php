@@ -375,7 +375,7 @@ class ReportesGenerados extends Model
     }
 
     public static function efectivosRecibos($fecha){
-        return 
+        return
         DB::select("
         select
             fac_formas_pago.nombre,

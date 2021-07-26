@@ -52,7 +52,7 @@ class ComComprasController extends Controller
         if ($tipoCompra->naturaleza == 0) {
 
             $docRelacionado = ComCompra::find($request->docReferencia['id']);
-            self::descargarDevolucionInventario($docRelacionado->id);
+            self::descargarDevolucionInventario($docRelacionado->id, 0);
             $docRelacionado->estado = 3;
 
             $docRelacionado->save();
@@ -75,6 +75,12 @@ class ComComprasController extends Controller
             $nuevoPivot->precio = intval($linea['precio']);
             $nuevoPivot->save();
 
+            $producto = Producto::find($linea['producto_id']);
+
+            if (!is_null($producto->cod_prod_padre)) {
+                $linea['producto_id'] = Producto::where('codigo', $producto->cod_prod_padre)->get()->first()->id;
+            }
+
             $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
             if ($itemInventario) {
                 // calculo costo promedio
@@ -85,7 +91,6 @@ class ComComprasController extends Controller
                 } else {
                     $itemInventario->costo_promedio = intval($linea['precio']);
                 }
-
 
                 $itemInventario->cantidad += floatval($linea['cantidad']);
                 $itemInventario->save();
@@ -224,10 +229,10 @@ class ComComprasController extends Controller
         return $pdf->stream();
     }
 
-    public static function  descargarDevolucionInventario($id){
+    public static function  descargarDevolucionInventario($id, $tipo_operacion){
         $lineas = ComPivotCompraProducto::porCompra($id);
         foreach($lineas as $linea){
-            self::afectarInventario($linea->producto_id, $linea->cantidad, 0);
+            self::afectarInventario($linea->producto_id, $linea->cantidad, $tipo_operacion);
         }
     }
 

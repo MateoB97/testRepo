@@ -83,6 +83,15 @@ class ReportesT80 extends Model
 
 	}
 
+    public function posFooterSgc(){
+        $footer = array(
+            'Impreso desde SGC de Byteco S.A.S.',
+            'Nit: 901389565-8',
+            'Fecha Impresion: '. date('Y-m-d H:i:s')
+        );
+        $string = $this->posArrayCentro($footer);
+		return $string;
+    }
 
 	public function posHeaderEmpresa(){
 
@@ -199,5 +208,32 @@ class ReportesT80 extends Model
             return $printer->graphics($img);
         }
     }
+
+    public static function divString($str, $num_partes) {
+		$slong = strlen($str);
+		if(!intval($num_partes) <= 0){
+			$long_partes = intval($slong/$num_partes);
+		} else {
+			$long_partes = 1;
+			$num_partes = 1;
+		}
+		$sobrante = $slong % $num_partes;
+		$i = 0;
+		$start = 0;
+		$arr2 = array();
+		while($i < $num_partes) {
+			if($i < $slong) {
+				$offset = ($sobrante > 0) ? $long_partes+1 : $long_partes;
+				$arr2[] = substr($str, $start, $offset);
+				$start += $offset;
+				$sobrante--;
+			} else {
+				$arr2[] = '';
+			}
+			$i++;
+		}
+		return $arr2;
+	}
+
 
 }

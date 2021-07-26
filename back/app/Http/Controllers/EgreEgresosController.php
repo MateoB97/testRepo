@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\GenEmpresa;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\ReportesT80;
 
 class EgreEgresosController extends Controller
 {
@@ -71,56 +72,57 @@ class EgreEgresosController extends Controller
     public function generatePDF($id)
     {
 
-        $caractPorlinea = caracteres_linea_pos();
-
         $egreso = EgreEgreso::porId($id);
+        $user = User::find(Auth::user()->id);
+        $t80 = new ReportesT80();
+        $str = '';
 
         $egreso->created_at = formato_fecha($egreso->created_at);
 
-        $cuadre = GenCuadreCaja::find($egreso->gen_cuadre_caja_id);
-
-        $user = User::find(Auth::user()->id);
-
         $tipoEgreso = EgreTipoEgreso::find($egreso->egre_tipo_egreso_id);
-
         $sucursal = TerceroSucursal::find($egreso->proveedor_id);
         $tercero = $sucursal->tercero;
-
-        $empresa = GenEmpresa::find(1);
-        $municipio = GenMunicipio::find($empresa->gen_municipios_id);
-        $departamento = GenDepartamento::find($municipio->departamento_id);
 
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
 
-        // ENCABEZADO
-        $etiqueta  = str_pad(strtoupper(eliminar_acentos($empresa->razon_social)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->direccion)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($municipio->nombre))." - ".strtoupper(eliminar_acentos($departamento->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(eliminar_acentos($tipoEgreso->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('Consecutivo: '.$egreso->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-        $etiqueta .= "Cliente: ";
-        $etiqueta .= str_pad(eliminar_acentos($tercero->nombre), $caractPorlinea - 9, " ", STR_PAD_BOTH);
-        $etiqueta .= "Sucursal: ";
-        $etiqueta .= str_pad(eliminar_acentos($sucursal->nombre), $caractPorlinea - 10, " ", STR_PAD_BOTH);
-        $etiqueta .= "Fecha: ";
-        $etiqueta .= str_pad($egreso->created_at, $caractPorlinea - 7, " ", STR_PAD_BOTH);
-        $etiqueta .= "Valor: ";
-        $etiqueta .= str_pad('$ '.number_format($egreso->valor, 0, ',', '.'), $caractPorlinea - 7, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("Descripcion: ", $caractPorlinea, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('- '.eliminar_acentos($egreso->descripcion), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
-        $etiqueta .= "Usuario: ";
-        $etiqueta .= str_pad($user->name, $caractPorlinea - 9, " ", STR_PAD_BOTH);
+        $str .= $t80->posLineaBlanco(' ');
+        $str .=$t80->printLogoT80($printer);
+        $str .= $t80->posLineaBlanco('-');
+        $str .= $t80->posHeaderEmpresa();
+        $str .= $t80->posLineaBlanco();
 
-        $printer->text($etiqueta);
-        $printer->feed(2);
+        $str .= $t80->posLineaCentro($tipoEgreso->nombre);
+        $str .= $t80->posLineaCentro('Consecutivo: ' .$egreso->consecutivo);
+        $str .= $t80->posLineaGuion();
+        $str.= $t80->posDosItemsExtremos('Cliente: ', $tercero->nombre);
+        $str.= $t80->posDosItemsExtremos('Sucursal: ', $sucursal->nombre);
+        $str.= $t80->posDosItemsExtremos('Fecha: ', $egreso->created_at);
+        $str.= $t80->posDosItemsExtremos('Valor: ', '$ ' .$t80->toNumber($egreso->valor));
+
+        if($egreso->descripcion) {
+            $str .= $t80->posLineaCentro("nota", "-");
+            $empresa = GenEmpresa::find(1);
+            if(strlen($egreso->descripcion) >= 49){
+            $num_partes = strlen($egreso->descripcion) / intval($empresa->cantidad_caracteres);
+            $dataNotas = $t80->divString($egreso->descripcion, $num_partes);
+            if($dataNotas) {
+                foreach($dataNotas as $nota) {
+                    $str.= $t80->posLineaDerecha($nota);
+                }
+            }
+            $str .= $t80->posLineaGuion();
+        } else {
+            $str.= $t80->posLineaDerecha($egreso->descripcion);
+            $str .= $t80->posLineaGuion();
+            }
+        }
+
+        $str.= $t80->posFooterSgc();
+
+        $printer->text($str);
+        $printer->feed(1);
         $printer->cut();
         $printer->close();
 

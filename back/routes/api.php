@@ -249,6 +249,10 @@ Route::group(['prefix' => 'inventario'], function(){
 	Route::post('/dividircanasta', 'InventariosController@dividir');
 	Route::get('/piezasimpresas/{idprogramacion}/{idproducto}', 'InventariosController@GetPiezasImpresas');
 	Route::get('/indexfilter/{lote}/{fecha_ini}/{fecha_fin}/{idproducto}/{estado}', 'InventariosController@indexFilter');
+    Route::get('/inv-informe-cierre', 'InvCierreInventariosController@getDataCierre');
+    Route::get('/exportcierrevariacion', 'InvCierreInventariosController@cierreInventarioVariacion');
+    Route::get('/exportcierrepesadas', 'InvCierreInventariosController@cierreInventarioPesadas');
+
 });
 
 Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function(){
@@ -369,7 +373,8 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
-    Route::get('/testing', 'ReportesGeneradosController@testing');
+    Route::get('/reportes/movimientoFormaPagoPorFecha', 'ReportesGeneradosController@movimientoFormaPagoPorFecha');
+    // Route::get('/testing', 'ReportesGeneradosController@testing');
 
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');

@@ -15,6 +15,7 @@ use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Carbon\Carbon;
 use App\GenImpresora;
+use App\ReportesT80;
 
 class GenCuadreIngresoEfectivoController extends Controller
 {
@@ -69,47 +70,51 @@ class GenCuadreIngresoEfectivoController extends Controller
     public function generatePDF($id)
     {
 
-        $caractPorlinea = caracteres_linea_pos();
-
-        $ingreso = GenCuadreIngresoEfectivo::porId($id);
-
-        $ingreso->created_at = formato_fecha($ingreso->created_at);
-
-        $cuadre = GenCuadreCaja::find($ingreso->gen_cuadre_caja_id);
-
         $user = User::find(Auth::user()->id);
-
-        $empresa = GenEmpresa::find(1);
-        $municipio = GenMunicipio::find($empresa->gen_municipios_id);
-        $departamento = GenDepartamento::find($municipio->departamento_id);
-
+        $t80 = new ReportesT80();
+        $str = '';
+        $ingreso = GenCuadreIngresoEfectivo::porId($id);
+        // dd($ingreso);
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
 
-        // ENCABEZADO
-        $etiqueta  = str_pad(strtoupper(eliminar_acentos($empresa->razon_social)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($empresa->direccion)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper(eliminar_acentos($municipio->nombre))." - ".strtoupper(eliminar_acentos($departamento->nombre)), $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-        // ingreso
-        $etiqueta .= str_pad('Consecutivo: '.$ingreso->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-        $etiqueta .= "Fecha: ";
-        $etiqueta .= str_pad($ingreso->created_at, $caractPorlinea - 7, " ", STR_PAD_BOTH);
-        $etiqueta .= "Valor: ";
-        $etiqueta .= str_pad('$ '.number_format($ingreso->valor, 0, ',', '.'), $caractPorlinea - 7, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("Descripcion: ", $caractPorlinea, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('- '.eliminar_acentos($ingreso->descripcion), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
-        $etiqueta .= "Usuario: ";
-        $etiqueta .= str_pad($user->name, $caractPorlinea - 9, " ", STR_PAD_BOTH);
+        $t80 = new ReportesT80();
+        $str = '';
 
-        $printer->text($etiqueta);
-        $printer->feed(2);
+        $str .= $t80->posLineaBlanco(' ');
+        $str .=$t80->printLogoT80($printer);
+        $str .= $t80->posLineaBlanco('-');
+        $str .= $t80->posHeaderEmpresa();
+        $str .= $t80->posLineaBlanco();
+
+        $str .= $t80->posLineaCentro('Ingreso de Efectivo', '-');
+        $str .= $t80->posLineaCentro('Consecutivo: '. $ingreso->id);
+        $str .= $t80->posLineaGuion();
+        $str.= $t80->posDosItemsExtremos('Fecha:', $ingreso->created_at);
+        $str.= $t80->posDosItemsExtremos('Valor:', $ingreso->valor);
+        if($ingreso->descripcion) {
+            $str .= $t80->posLineaCentro("nota", "-");
+            $empresa = GenEmpresa::find(1);
+            if(strlen($ingreso->descripcion) >= 49){
+            $num_partes = strlen($ingreso->descripcion) / intval($empresa->cantidad_caracteres);
+            $dataNotas = $t80->divString($ingreso->descripcion, $num_partes);
+            if($dataNotas) {
+                foreach($dataNotas as $nota) {
+                    $str.= $t80->posLineaDerecha($nota);
+                }
+            }
+            $str .= $t80->posLineaGuion();
+        } else {
+            $str.= $t80->posLineaDerecha($ingreso->descripcion);
+            $str .= $t80->posLineaGuion();
+        }
+        }
+
+        $str.= $t80->posFooterSgc();
+
+        $printer->text($str);
+        $printer->feed(1);
         $printer->cut();
         $printer->close();
 

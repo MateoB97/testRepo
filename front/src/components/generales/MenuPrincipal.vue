@@ -258,6 +258,7 @@
               <router-link v-if="this.$store.state.jhsoft.inventario" to="/inventario/inventario" class="menuItem">Inventario</router-link>
               <router-link v-if="this.$store.state.jhsoft.lotes" to="/inventario/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
               <router-link to="/inventario/cierre-inventario" class="menuItem">Cierre Inventario</router-link>
+              <router-link to="/inventario/inv-informe-cierre" class="menuItem">Informes Cierre Inventario</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>
@@ -280,8 +281,6 @@
               <router-link to="/generales/cuadrecaja" class="menuItem">Cuadre Z</router-link>
               <router-link to="/generales/tiquetesnofacturados" class="menuItem">Tiquete no facturado</router-link>
               <router-link to="/reportes/reportes-pdf" class="menuItem">Reportes Generados</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/peso-planta" class="menuItem">Informe Peso planta</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/productos-lote" class="menuItem">Informe Productos por Lote</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>

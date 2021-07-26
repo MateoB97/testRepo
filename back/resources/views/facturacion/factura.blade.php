@@ -94,8 +94,8 @@
 				<td class="wtercio">
 					@if ($movimiento->qr)
 						{!! DNS2D::getBarcodeHTML( $movimiento->qr , 'QRCODE',2,2) !!}
-					@else
-						<img style="width: 200px; height:120px;" src="{{ asset('images/logo.png') }}">
+					{{-- @else
+						<img style="width: 200px; height:120px;" src="{{ asset('images/logo.png') }}"> --}}
 					@endif
 				</td>
 				<td class="wtercio text-center">
@@ -111,9 +111,9 @@
 						<tbody>
 							<tr>
 								<td colspan="2" class="text-center">
-									@if ($movimiento->qr)
+									{{-- @if ($movimiento->qr)
 										<img style="width: 200px; height:120px;" src="{{ asset('images/logo.png') }}">
-									@endif
+									@endif --}}
 									<h3>{{  $tipoDoc->nombre_alt }}</h3>
 								</td>
 							</tr>
@@ -162,7 +162,7 @@
 				<td class="wtercio">
 
 				@if ( $tipoDoc->naturaleza == 1)
-					<p><strong>Fecha Facturación:</strong> {{ $movimiento->fecha_facturacion }} </p>
+					<p><strong>Fecha Facturación:</strong> {{ $fecha_facturacion }} </p>
 					<p><strong>Fecha Vencimiento:</strong> {{ $movimiento->fecha_vencimiento }} </p>
                     @if ( $movimiento->sal_mercancia_consec != null)
                         <p><strong>N° de Guía 002DM - {{str_pad($movimiento->sal_mercancia_consec, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</strong></p>
@@ -190,11 +190,11 @@
 			@foreach ($lineas as $linea)
 				<tr>
 					<td>{{ $linea->producto }}</td>
-					<td style="text-align: right">{{ number_format($linea->cantidad, 1, ',', '.') }}</td>
+					<td style="text-align: right">{{ number_format($linea->cantidad, 2, ',', '.') }}</td>
 					<td style="text-align: right">{{ number_format($linea->precio, 0, ',', '.') }}</td>
 					<td style="text-align: right">{{ $linea->iva	}}%</td>
 					<td style="text-align: right">{{ $linea->descporcentaje	}}</td>
-					<td style="text-align: right">{{  number_format( (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) + (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) * ($linea->iva/100))) * $linea->cantidad  , 0, ',', '.') }}</td>
+					<td style="text-align: right">{{  number_format( (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) + (($linea->precio - ($linea->precio * ($linea->descporcentaje/100))) * ($linea->iva/100))) * $linea->cantidad  , 2, ',', '.') }}</td>
 				</tr>
 			@endforeach
 

@@ -6,7 +6,8 @@ require '../vendor/autoload.php';
 
 use App\Exports\MovimientosExport;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Exports\CierreInventarioVariacion;
+use App\Exports\CierreInventarioPesadas;
 use Illuminate\Http\Request;
 use App\User;
 use App\FacMovimiento;
@@ -64,9 +65,15 @@ use Illuminate\Support\Collection;
 use App\LotPesosProgramacion;
 use App\ProductoTerminado;
 use App\UserPermisos;
+use App\GenCuadreIngresoEfectivo;
+use App\EgreEgreso;
+use App\EgreTipoEgreso;
+use App\Lote;
+use App\InvCierreInventario;
 
 class ReportesGeneradosController extends Controller
 {
+
 
     public static function executeJasper ($input,$params ){
 
@@ -113,7 +120,7 @@ class ReportesGeneradosController extends Controller
         dd($od);
     }
 
-    public function movimientosPorFechaCustomExcel($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id) {
+    public static function movimientosPorFechaCustomExcel($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id) {
 
         return Excel::download(new MovimientosExport($fecha_inicial, $fecha_final, $tercero_id, $sucursal_id), 'invoices.xlsx');
     }
@@ -124,7 +131,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\ventasPesosTotales.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\FormasPagoMovsPorFecha.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -186,6 +193,12 @@ class ReportesGeneradosController extends Controller
     public function pesosTotalesProductos(){
         $params = $_GET;
         $input = 'ventasPesosTotales';
+        self::executeJasper($input, $params);
+    }
+
+    public function movimientoFormaPagoPorFecha(){
+        $params = $_GET;
+        $input = 'FormasPagoMovsPorFecha';
         self::executeJasper($input, $params);
     }
 
@@ -820,176 +833,17 @@ class ReportesGeneradosController extends Controller
             ]);
         }
 
-
         $printer->text($str);
         $printer->feed(1);
         $printer->cut();
         $printer->close();
     }
 
-    public static function printPOS(){
-        $id = 69842;
-        $nuevoItem = FacMovimiento::find($id);
-        // $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
-        $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);
-        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get();
-        // dd($lineas2);
-        // dd($lineas);
-        $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
-        $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
-        $tercero = $sucursal->Tercero;
-        $caractPorlinea = caracteres_linea_pos();
 
-        $totales_por_unidad = array();
-        $totales_por_unidad['Kgs'] = 0;
-        $totales_por_unidad['Und'] = 0;
 
-        $user = User::find(2);
-
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $t80 = new ReportesT80();
-        $str = '';
-
-        if ($tipoDoc->naturaleza == 4) {
-
-            $pagos = FacPivotMovFormapago::where('fac_mov_id', $id)->get();
-
-            $str .= $t80->posLineaBlanco(' ');
-            $str .=$t80->printLogoT80($printer);
-            $str .= $t80->posLineaCentro($tipoDoc->nombre);
-            $str .= $t80->posLineaBlanco('-');
-            $str .= $t80->posHeaderEmpresa();
-            $str .= $t80->posLineaBlanco(' ');
-
-            // DATOS DE FACTURACION
-            if ($tipoDoc->prefijo) {
-                $str .= $t80->posLineaCentro("DE: ".$tipoDoc->prefijo. "  ".$tipoDoc->ini_num_fac. ' A '.$tipoDoc->prefijo. "  ". $tipoDoc->fin_num_fac);
-            } else {
-                $str .= $t80->posLineaCentro("DE: ".$tipoDoc->ini_num_fac. ' A '. $tipoDoc->fin_num_fac);
-            }
-            $str .= $t80->posLineaCentro("n resolucion: ". $tipoDoc->resolucion);
-            $str .= $t80->posLineaCentro("fecha: ". $tipoDoc->fec_resolucion);
-            $str .= $t80->posLineaGuion();
-            $str .= $t80->posLineaCentro("vigencia 18 meses", '-');
-
-            // DATOS DE LA VENTA
-            $str .= $t80->posLineaCentro("cajero: ".$user->name?:'caja'.'fecha: '.$nuevoItem->fecha_facturacion);
-            $str .= $t80->posLineaCentro("vendedor: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre));
-            // if ($copia == 1) {
-            //     $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
-            // }
-            $str .= $t80->posLineaGuion();
-
-            if ($tipoDoc->prefijo) {
-                $str .= $t80->posLineaCentro("factura de venta # ".$tipoDoc->prefijo. '  '.$nuevoItem->consecutivo);
-            } else {
-                $str .= $t80->posLineaCentro("factura de venta # ".$nuevoItem->consecutivo);
-            }
-            // if ($copia == 1) {
-            //     $str .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
-            // }
-            $str .= $t80->posLineaGuion();
-
-            // DATOS DEL CLIENTE
-            $str .= $t80->posLineaDerecha($tercero->nombre);
-
-            if ($tercero->digito_verificacion) {
-                $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre.' - '.$tercero->digito_verificacion. ' - TEL: '.$sucursal->telefono);
-            } else {
-                $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre. ' - TEL: '.$sucursal->telefono);
-            }
-            $str .= $t80->posLineaDerecha("direccion: ".$sucursal->direccion);
-            $str .= $t80->posLineaGuion();
-
-            $str .= $t80->posLineaCentro("codigo   producto   total | iva");
-            $str .= $t80->posLineaGuion();
-            $str .= $t80->posLineaBlanco();
-            $totalGeneral = 0;
-            foreach ($lineas as $linea) {
-                $str .= $t80->posDosItemsExtremos($linea->producto_codigo. ' '. $linea->producto_nombre,  $t80->toNumber($linea->detail_precio) * $linea->detail_cantidad.  ' | '. $linea->detail_iva);
-                if(($linea->detail_desc > 0 && $caractPorlinea > 40)){
-                    $str .= $t80->posLineaDerecha('   '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio). '  Desc  '. $t80->toNumber($linea->detail_desc).' %');
-                }else{
-                    $str .= $t80->posLineaDerecha('     '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio));
-                }
-
-                $totales_por_unidad[$linea->uni_medida_abrev_pos] += $linea->detail_cantidad;
-            }
-            $str .= $t80->posLineaBlanco();
-            $str .= $t80->posLineaDerecha("Total Kilos: ".$totales_por_unidad['Kgs']);
-            $str .= $t80->posLineaDerecha("Total Unidadeas: ".$totales_por_unidad['Und']);
-            $str .= $t80->posLineaGuion();
-            $str .= $t80->posDosItemsExtremos("SUBTOTAL", "$".$t80->toNumber($nuevoItem->subtotal));
-            $str .= $t80->posDosItemsExtremos("DESCUENTO", "$".$t80->toNumber($nuevoItem->descuento));
-            $str .= $t80->posDosItemsExtremos("IVA", "$".$t80->toNumber($nuevoItem->iva));
-            $str .= $t80->posDosItemsExtremos("TOTAL", "$".$t80->toNumber($nuevoItem->total));
-
-            $totalPagos = 0;
-            $str .= $t80->posLineaCentro("pagos", "-");
-
-            foreach ($pagos as $pago) {
-                if ($pago['valor_recibido'] > 0) {
-                    $str .= $t80->posDosItemsExtremos(eliminar_acentos(strtoupper(FacFormaPago::find($pago['fac_formas_pago_id'])->nombre)), "$".$t80->toNumber($pago['valor_recibido']));
-                    $totalPagos = intval($totalPagos) + intval($pago['valor_recibido']);
-                }
-            }
-            $str .= $t80->posDosItemsExtremos("TOTAL PAGOS", "$".$t80->toNumber($totalPagos));
-            $str .= $t80->posLineaGuion();
-
-            $str .= $t80->posDosItemsExtremos("DEVOLUCION", "$".$t80->toNumber($totalPagos - $nuevoItem->total));
-
-            // DESCRIPCION IMPUESTOS
-            $str .= $t80->posLineaCentro("impuestos", "-");
-
-            $str .= $t80->multiItemsFromArray([
-                ['IMP', 0, ' ', 1],
-                ['BASE', 12, ' ', 1],
-                ['IVA', 12, ' ', 1],
-            ]);
-
-            // $str .= $t80->posLineaCentro("imp           base            iva");
-            $arrayIvas = [];
-            $arrayImpuestos = [];
-
-            foreach ($lineas2 as $linea2) {
-
-                if (array_search($linea2->iva, $arrayIvas) === false) {
-                    array_push($arrayIvas, $linea2->iva);
-                }
-            }
-            foreach ($arrayIvas as $item) {
-                $subtotal = 0;
-                foreach ($lineas2 as $linea2) {
-                    if ($linea2->iva == $item){
-                        $subtotal = $subtotal + intval(((intval($linea2->precio) - ( intval($linea2->precio) * ( intval($linea2->descporcentaje)/100) ))) * floatval($linea2->cantidad));
-                    }
-                }
-                $str .= $t80->multiItemsFromArray([
-                    [$item, 0, ' ', 1],
-                    [$subtotal, 12, ' ', 1],
-                    [number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 12, ' ', 1],
-                ]);
-            }
-            $str .= $t80->posLineaBlanco();
-            $str .= $t80->posLineaBlanco();
-
-        } else {
-            dd($id);
-        }
-
-        $printer->text($str);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-    }
-
-    public static function testing(){
-        dd(Tercero::validarFacturasTerceros());
-        // self::printPOS();
+    //TESTING
+    public static function testing() {
+       dd(FacMovimiento::todosConTipoSucursalGrupoTipo());
      }
-
 
 }

@@ -167,7 +167,8 @@ const routes = [
     path: '/inventario',
     component: () => import('layouts/MyLayout.vue'),
     children: [
-      { path: 'cierre-inventario', meta: { permisoRequerido: '5' }, component: () => import('pages/inventario/CierreInventario.vue') },
+      { path: 'inv-informe-cierre', meta: { permisoRequerido: '72' }, component: () => import('pages/inventario/InvInformeCierre.vue') },
+      { path: 'cierre-inventario', meta: { permisoRequerido: '72' }, component: () => import('pages/inventario/CierreInventario.vue') },
       { path: 'inventario-produccion', meta: { permisoRequerido: '42' }, component: () => import('pages/inventario/InventarioProduccion.vue') },
       { path: 'inventario', meta: { permisoRequerido: '41' }, component: () => import('pages/inventario/Inventario.vue') }
     ]

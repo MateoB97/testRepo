@@ -19,7 +19,7 @@ class Lote extends Model
      *
      * @var array
      */
-    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado', 'fecha_empaque_lote_tercero'];
+    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado', 'fecha_empaque_lote_tercero', 'consecutivo'];
 
     public function TerceroSucursal()
     {
@@ -53,7 +53,7 @@ class Lote extends Model
 
     public static function todosConMarca(){
     return DB::table('lotes')
-            ->select('lotes.id As id','lotes.num_animales As num_animales','lotes.marca as marca','lotes.producto_empacado as producto_empacado','prod_grupos.nombre as grupo', 'prod_grupos.id as grupo_id', 'lotes.estado as estado')
+            ->select('lotes.id As id','lotes.num_animales As num_animales','lotes.marca as marca','lotes.producto_empacado as producto_empacado','prod_grupos.nombre as grupo', 'prod_grupos.id as grupo_id', 'lotes.estado as estado', 'lotes.consecutivo')
             ->join('prod_grupos','lotes.ProdGrupo_id', '=', 'prod_grupos.id')
             ->orderBy('id','desc')
             ->get();

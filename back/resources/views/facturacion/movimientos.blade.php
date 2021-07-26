@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -94,7 +94,7 @@
 
 		<h4 style="text-align:center">{{ $movimiento[0] }}</h4>
 
-		
+
 			<table class="table table-font">
 				<thead>
 					<tr>
@@ -144,7 +144,7 @@
 					</tr>
 				</tbody>
 			</table>
-		
+
 
 		<br>
 	@endforeach

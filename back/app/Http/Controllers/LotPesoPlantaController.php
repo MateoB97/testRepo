@@ -37,7 +37,7 @@ class LotPesoPlantaController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         //verifico que no se halla borrado ninguno en el nuevo guardado, si se borro alguno, se elimina
         $existentes = LotPesoPlanta::where('lote_id',$request->lote_id)->get();
 
@@ -66,9 +66,9 @@ class LotPesoPlantaController extends Controller
                 $newItem->lote_id = $request->lote_id;
                 $newItem->save();
             }
-           
+
         }
-        
+
         return 'done';
 
     }
@@ -130,7 +130,7 @@ class LotPesoPlantaController extends Controller
     public function DeleteByLote($idlote)
     {
         $data = LotPesoPlanta::where('lote_id','=',$idlote)->get();
-        
+
         foreach ($data as $item) {
             $item->forceDelete();
         }

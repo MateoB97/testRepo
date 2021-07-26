@@ -71,7 +71,7 @@ class FacMovimiento extends Model
             ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
             ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
             ->orderBy('fac_movimientos.id','desc')
-            ->take(1000)
+            ->take(5000)
             ->get();
     }
 
