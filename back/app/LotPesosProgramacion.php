@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class LotPesosProgramacion extends Model
 {
@@ -17,6 +18,6 @@ class LotPesosProgramacion extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

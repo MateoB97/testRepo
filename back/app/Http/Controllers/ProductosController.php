@@ -455,35 +455,13 @@ class ProductosController extends Controller
         $vendedores = GenVendedor::listadoVendedoresMarques();
 
         $cantidadProductos = count($productos);
-        $division = ceil($cantidadProductos/ 100);
 
         foreach ($vendedores as $vendedor) {
             $vendedor->blacklist = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
             $vendedor->tipo_doc = 1;
         }
 
-        $arrayProductos = [];
-
-        $i = 0;
-        while ($i < $division) {
-
-            $chunck = $productos->splice($i * 100 , ($i*100) + 99);
-
-            array_push($arrayProductos, $chunck);
-
-            $productos = Producto::ProductosxListaprecioMarques(1);
-            foreach ($productos as $producto) {
-                $producto->codigo = str_pad($producto->codigo, 3, "0", STR_PAD_LEFT);
-                if ($producto->unidades == 'Kgs') {
-                    $producto->unidades = 'kg';
-                } else {
-                    $producto->unidades = 'un';
-                }
-            }
-
-            $i = $i + 1;
-        }
-
+        $arrayProductos = array_chunk($productos->toArray(), 100);
 
         $data = [$familias,$arrayProductos,$vendedores];
 

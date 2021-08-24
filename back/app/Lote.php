@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class Lote extends Model
 {
@@ -19,7 +20,7 @@ class Lote extends Model
      *
      * @var array
      */
-    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado', 'fecha_empaque_lote_tercero', 'consecutivo'];
+    protected $fillable = ['fecha_sacrificio','fecha_peso_pie','marinado','estado','num_animales','ProdGrupo_id','transportador_id','producto_empacado','pcc','ppe','marca','com_compras_id','lote_tercero', 'producto_aprobado', 'fecha_empaque_lote_tercero', 'consecutivo', 'tercero_reprocesado', 'fecha_venc_refrigerado_granel', 'fecha_venc_congelado_granel'];
 
     public function TerceroSucursal()
     {
@@ -48,7 +49,7 @@ class Lote extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConMarca(){

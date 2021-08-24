@@ -38,7 +38,7 @@ class ComComproEgresoController extends Controller
 
         if ( count(ComComproEgreso::where('com_tipo_compro_egresos_id', $nuevoItem->com_tipo_compro_egresos_id)->get()) > 0 ){
             $consecutivo = ComComproEgreso::where('com_tipo_compro_egresos_id', $nuevoItem->com_tipo_compro_egresos_id)->get()->last();
-            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1; 
+            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
         }else{
             $nuevoItem->consecutivo = $tipoComproEgreso->consec_inicio;
         }
@@ -154,7 +154,7 @@ class ComComproEgresoController extends Controller
 
         // DATOS DEL CLIENTE
         $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-        $etiqueta .= tercero_pos($tercero->nombre);
+        $etiqueta .= tercero_pos($tercero->nombre, $empresa->cantidad_caracteres);
         if ($tercero->digito_verificacion) {
             $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, 48, " ", STR_PAD_RIGHT);
         } else {

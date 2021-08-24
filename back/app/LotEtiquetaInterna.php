@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class LotEtiquetaInterna extends Model
 {
@@ -23,7 +24,7 @@ class LotEtiquetaInterna extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function getEtiquetasImpresas($producto_id, $prog_lotes_id){

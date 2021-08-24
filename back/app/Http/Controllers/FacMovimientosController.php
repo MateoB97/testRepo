@@ -46,6 +46,7 @@ use App\SoenacTipoOrg;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\TempMarques;
 use App\FacPivotTipoDocTipoRec;
+use App\Tools;
 
 class FacMovimientosController extends Controller
 {
@@ -1240,7 +1241,35 @@ class FacMovimientosController extends Controller
 
     public function sendFactToSoenac(Request $request){
 
-        $http = http_post($request->url, $request->body);
+        $http = Tools::http_post($request->url, $request->body);
+
+        $res = json_decode($http, 1);
+
+        if (!empty($res['errors_messages'])) {
+
+            if(strpos($res['errors_messages'][0], 'Regla: 90') !== false) {
+
+                $cufe = explode("'", $res['errors_messages'][0])[1];
+
+                $prefNum = $res['number'];
+
+                $num = $res['payload']['number'];
+
+                $prefix = explode($num, $prefNum)[0];
+
+                $facTipoDoc = FacTipoDoc::where('prefijo', $prefix)->get()->first();
+
+                $movimiento = FacMovimiento::where('consecutivo', $num)->where('fac_tipo_doc_id', $facTipoDoc->id)->get()->first();
+
+                $movimiento->cufe = $cufe;
+
+                $movimiento->save();
+
+                $res['errors_messages'][] = 'El cufe se ha actualizado por favor refresque la pagina y vuelva a enviar.';
+
+                return json_encode($res);
+            }
+        }
 
         return $http;
     }

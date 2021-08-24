@@ -101,6 +101,7 @@
 						<th><strong>Cant Entradas</strong></th>
 						<th><strong>Cant Ventas</strong></th>
 						<th><strong>Cant Devs</strong></th>
+                        <th><strong>Cant Notas</strong></th>
 						<th><strong>Inv 2do Cierre</strong></th>
 						<th><strong>Inv Teorico</strong></th>
                         <th><strong>Merma</strong></th>
@@ -115,6 +116,7 @@
 							<td style="text-align: right">{{ $mov->QtyEntradas }}</td>
                             <td style="text-align: right">{{ $mov->QtyVentas }}</td>
                             <td style="text-align: right">{{ $mov->QtyDevs }}</td>
+                            <td style="text-align: right">{{ $mov->QtyNotas }}</td>
                             <td style="text-align: right">{{ $mov->InvFinal }}</td>
                             <td style="text-align: right">{{ $mov->InvTeorico }}</td>
                             <td style="text-align: right">{{ $mov->Merma }}</td>
@@ -129,7 +131,9 @@
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('InvInicial')}}</strong></td>
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyEntradas')}}</strong></td>
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyVentas')}}</strong></td>
-                    <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyNotas') + $details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyDevs')}}</strong></td>
+                    <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyDevs')}}</strong></td>
+                    <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyNotas')}}</strong></td>
+                    {{--  <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyNotas') + $details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('QtyDevs')}}</strong></td>  --}}
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('InvFinal')}}</strong></td>
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('InvTeorico')}}</strong></td>
                     <td style="text-align: right"><strong>{{$details->where('SubGrupoID','=', $movimiento->SubGrupoID)->sum('Merma')}}</strong></td>

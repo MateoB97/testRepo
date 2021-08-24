@@ -83,6 +83,7 @@
                     <q-checkbox v-model="storeItems.fact_grupo" label="Factura por Grupos"></q-checkbox>
                     <q-checkbox v-model="storeItems.print_logo_pos" label="POS con logo"></q-checkbox>
                     <q-checkbox v-model="storeItems.bloquear_tercero" label="Bloquear Tercero?"></q-checkbox>
+                    <q-checkbox v-model="storeItems.activar_precio_bascula" label="Activar Precio Bascula Marques?"></q-checkbox>
                 </div>
                 <div class="col-6">
                   <q-select
@@ -398,7 +399,8 @@ export default {
         producto_bolsa_id: null,
         resolucion_soenac_id: null,
         test_id_fe: null,
-        cantidad_caracteres: 0
+        cantidad_caracteres: 0,
+        precio_bascula_marques: null
       },
       tipos_escaner: [
         { label: 'Bascula Dibal',
@@ -438,11 +440,15 @@ export default {
       this.getData()
     },
     preSave () {
+      console.log(this.storeItems.activar_precio_bascula)
+      var activated = this.storeItems.activar_precio_bascula === true ? 1 : 0
+      console.log(activated)
       this.storeItems.tercero_sucursal_pos_id = this.sucursal
       this.storeItems.prod_lista_precios_id = this.storeItems.prod_lista_precios_id.id
       if (this.storeItems.gen_municipios_id.id) {
         this.storeItems.gen_municipios_id = this.storeItems.gen_municipios_id.id
       }
+      this.storeItems.precio_bascula_marques = activated
     },
     postEdit () {
     },
@@ -562,11 +568,11 @@ export default {
           axios.put('http://' + ipMarquesMaster[0] + '/year/familias', response.data[0]).then(
             function (response1) {
               app.$q.notify({ color: 'positive', message: 'Familias enviadas.' })
-              console.log(response.data[1].length)
               let j = 0
               while (j < response.data[1].length) {
                 axios.put('http://' + ipMarquesMaster[0] + '/year/artigos', response.data[1][j]).then(
                   function (response2) {
+                    console.log(response.data[1][j])
                     app.$q.notify({ color: 'positive', message: 'Articulos enviados' })
                   }
                 )
@@ -583,11 +589,23 @@ export default {
     },
     eliminarFamiliasMarques () {
       var app = this
-      axios.delete(app.storeItems.ruta_ip_marques + '/year/familias?seek={"codigo":"0"}&limit=100').then(
-        function (response2) {
+      let ipMarquesMaster = app.storeItems.ruta_ip_marques.split('&')[0].split('-')
+      axios.delete('http://' + ipMarquesMaster[0] + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+        function (response) {
+          console.log(response)
           app.$q.notify({ color: 'positive', message: 'familias eliminadas' })
         }
       )
+      // let i = 0
+      // while (i < dataSplit.length) {
+      //   // axios.delete(app.storeItems.ruta_ip_marques + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+      //   axios.delete('http://' + dataSplit[i].substring(0, 18) + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+      //     function (response2) {
+      //       app.$q.notify({ color: 'positive', message: 'familias eliminadas' })
+      //     }
+      //   )
+      //   i = i + 1
+      // }
     },
     exportarProductos () {
       axios.get(this.$store.state.jhsoft.url + 'api/productos/export/data').then(
@@ -609,15 +627,14 @@ export default {
     },
     eliminarProductosMarques () {
       var app = this
-      let i = 0
-      while (i < 10) {
-        axios.delete(app.storeItems.ruta_ip_marques + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
-          function (response3) {
-            app.$q.notify({ color: 'positive', message: 'Articulos eliminados' })
-          }
-        )
-        i = i + 1
-      }
+      console.log(app.storeItems.ruta_ip_marques)
+      let ipMarquesMaster = app.storeItems.ruta_ip_marques.split('&')[0].split('-')
+      // axios.delete(app.storeItems.ruta_ip_marques + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
+      axios.delete('http://' + ipMarquesMaster[0] + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
+        function (response3) {
+          app.$q.notify({ color: 'positive', message: 'Articulos eliminados' })
+        }
+      )
     },
     getData () {
       var app = this

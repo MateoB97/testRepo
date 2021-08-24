@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class ComCompra extends Model
 {
@@ -27,7 +28,7 @@ class ComCompra extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConTipoSucursalGrupoTipo(){

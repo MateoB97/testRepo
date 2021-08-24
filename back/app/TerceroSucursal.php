@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class TerceroSucursal extends Model
 {
@@ -56,7 +57,7 @@ class TerceroSucursal extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function getDataSucursalNoId(){

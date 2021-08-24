@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class FacMovimiento extends Model
 {
@@ -33,7 +34,7 @@ class FacMovimiento extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public function tipoDoc()
@@ -71,7 +72,7 @@ class FacMovimiento extends Model
             ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
             ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
             ->orderBy('fac_movimientos.id','desc')
-            ->take(5000)
+            // ->take(5000)
             ->get();
     }
 

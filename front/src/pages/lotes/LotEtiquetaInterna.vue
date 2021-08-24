@@ -307,7 +307,8 @@ export default {
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/0', 'programaciones')
     this.globalGetForSelect('api/productos/grupos', 'grupos')
-    this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
+    this.globalGetForSelect('api/productos/almacenamiento/reprocesado/' + 0, 'almacenamientos')
+    // this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')
   },
   computed: {

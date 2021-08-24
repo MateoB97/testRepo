@@ -18,6 +18,12 @@ class ProdAlmacenamientoController extends Controller
         return $index;
     }
 
+    public function reprocesado($reprocesado)
+    {
+        $index= ProdAlmacenamiento::where('reprocesado','=',$reprocesado)->orderBy('created_at', 'desc')->exclude(['created_at','updated_at'])->get();
+        return $index;
+    }
+
     public function activos()
     {
         $index= ProdAlmacenamiento::where('activo','1')->orderBy('created_at', 'desc')->get();
@@ -47,7 +53,7 @@ class ProdAlmacenamientoController extends Controller
     public function estado($id, $cambio)
     {
          $model = ProdAlmacenamiento::find($id);
-         
+
          $modificacion = ($cambio == 'activar') ? $model->activo = 1 : $model->activo =0;
          $validate = $model->save();
          $return = $validate ? 'true' : 'false';

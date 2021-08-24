@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class InvPivotCierreProductos extends Model
 {
@@ -17,5 +18,10 @@ class InvPivotCierreProductos extends Model
     ];
 
     public $timestamps = false;
+
+    public function getDateFormat()
+    {
+        return Tools::dateTimeSql();
+    }
 
 }

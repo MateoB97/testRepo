@@ -6,6 +6,7 @@ export const helperFacturacionScanerLineas = {
       this.$q.loading.show()
       var app = this
       var tiqueteLeido = false
+      console.log('# Tiquete:' + app.num_tiquete)
       var puestoTiquete = 0
       if (app.num_tiquete.length === 13) {
         puestoTiquete = parseInt(app.num_tiquete.substr(0, 1))
@@ -14,6 +15,7 @@ export const helperFacturacionScanerLineas = {
         app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
       }
       var tiquetesLeidos = []
+      console.log('PuestoTiquete' + puestoTiquete)
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
         if (tiquetesLeidos.length > 0) {
@@ -21,7 +23,7 @@ export const helperFacturacionScanerLineas = {
         }
       }
       if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiquetedibal/' + app.num_tiquete).then(
+        axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiquetedibal/' + app.num_tiquete + '/' + puestoTiquete).then(
           function (response) {
             if (response.data.length > 0) {
               var vendedor = null
@@ -309,6 +311,7 @@ export const helperFacturacionScanerLineas = {
     buscarLineasTiqueteMarques () {
       this.$q.loading.show()
       var app = this
+      console.log('Empresa Precio Bascula Marques: ' + app.empresa.precio_bascula_marques)
       var tiqueteLeido = false
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {
@@ -342,10 +345,15 @@ export const helperFacturacionScanerLineas = {
                         if (response.data.length > 0) {
                           var vendedor = null
                           response.data.forEach(function (element, j) {
-                            // console.log(element.numero)
                             if (parseInt(element.numero) === parseInt(app.num_tiquete.substr(6, 6))) {
                               const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
                               const productoPrecio = app.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
+                              let precio = 0
+                              if (parseInt(app.empresa.precio_bascula_marques) === 1) {
+                                precio = element.preco_unit
+                              } else {
+                                precio = productoPrecio.precio
+                              }
                               if (productoImpuesto !== undefined) {
                                 var newProduct = {
                                   id: app.itemsCounter,
@@ -353,7 +361,7 @@ export const helperFacturacionScanerLineas = {
                                   producto_id: productoImpuesto.id,
                                   producto_codigo: productoImpuesto.codigo,
                                   cantidad: element.quantidade,
-                                  precio: parseInt(productoPrecio.precio / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
+                                  precio: parseInt(precio / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
                                   iva: productoImpuesto.impuesto,
                                   gen_iva_id: productoImpuesto.gen_iva_id,
                                   desc: 0.00,

@@ -26,9 +26,9 @@ Route::get('/backupsql', function() {
 });
 
 // Route::get('/migrate-refresh-seed', function() {
-//     Artisan::call('migrate:refresh --seed');
-// Artisan::call('db:seed --class=SoenacSeeder');
-//     return "Migration done";
+// 	Artisan::call('migrate:refresh --seed');
+// 	Artisan::call('db:seed --class=SoenacSeeder');
+// 	return "Migration done";
 // });
 
 Route::get('/migrate', function() {
@@ -79,6 +79,7 @@ Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){
 // Route::group(['prefix' => 'lotes' , 'middleware' => 'auth'], function(){
 	Route::apiResource('marcas', 'LotMarcaController');
 	Route::apiResource('items', 'LotesController');
+    Route::get('/pesoplanta/{id}', 'LotPesoPlantaController@GetData');
 	// peso planta
 	Route::apiResource('pesoplanta', 'LotPesoPlantaController');
 	Route::get('pesoplanta/lotefilter/{idlote}', 'LotPesoPlantaController@GetData');
@@ -121,6 +122,7 @@ Route::group(['prefix' => 'productos'/*, 'middleware' => 'auth'*/], function(){
 	Route::apiResource('almacenamiento', 'ProdAlmacenamientoController');
 	Route::get('/almacenamiento/estado/{id}/{cambio}', 'ProdAlmacenamientoController@estado');
 	Route::get('/almacenamiento/estado/activos', 'ProdAlmacenamientoController@activos');
+    Route::get('/almacenamiento/reprocesado/{reprocesado}', 'ProdAlmacenamientoController@reprocesado');
 
 	Route::apiResource('grupos', 'ProdGrupoController');
 	Route::get('/grupos/filter/animalfilter', 'ProdGrupoController@animalFilter');
@@ -208,7 +210,7 @@ Route::group(['prefix' => 'generales'/*, 'middleware' => 'auth'*/], function(){
 
 Route::group(['prefix' => 'basculas'/*, 'middleware' => 'auth'*/], function(){
 
-	Route::get('readtiquetedibal/{tiquete}', 'GenBasculasController@readTiqueteDibal');
+	Route::get('readtiquetedibal/{tiquete}/{puestoTiquete}', 'GenBasculasController@readTiqueteDibal');
 	Route::get('readtiqueteepelsa/{tiquete}', 'GenBasculasController@readTiqueteEpelsa');
 
 	Route::get('/tiquetenofacturadosmarques/{fecha}', 'GenBasculasController@tiquetesNoFacturadosMarques');
@@ -228,6 +230,7 @@ Route::group(['prefix' => 'basculas'/*, 'middleware' => 'auth'*/], function(){
 
 	Route::apiResource('sucursales', 'TerceroSucursalController');
 	Route::get('/sucursales/tercerofilter/{id}', 'TerceroSucursalController@terceroFilter');
+    Route::get('/sucursalesactivas', 'TerceroSucursalController@sucursalesactivas');
 
     // Route::get('/validarfacturasterceros', 'TerceroController@validarFacturasTerceros');
     Route::get('/validarfacturasterceros/{tercero_id}', 'TerceroController@validarFacturasTerceros');
@@ -374,7 +377,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
     Route::get('/reportes/movimientoFormaPagoPorFecha', 'ReportesGeneradosController@movimientoFormaPagoPorFecha');
-    // Route::get('/testing', 'ReportesGeneradosController@testing');
+    Route::get('/reportes/pesoporfechaventasdevsnotas', 'ReportesGeneradosController@pesosTotalesDevolProductos');
 
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');

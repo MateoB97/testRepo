@@ -131,7 +131,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\FormasPagoMovsPorFecha.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\PesoPlantaxLote.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -196,16 +196,22 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
+    public function pesosTotalesDevolProductos(){
+        $params = $_GET;
+        $input = 'devolucionesVentasPesosTotales';
+        self::executeJasper($input, $params);
+    }
+
     public function movimientoFormaPagoPorFecha(){
         $params = $_GET;
         $input = 'FormasPagoMovsPorFecha';
         self::executeJasper($input, $params);
     }
 
-    public function vistaInterfazContadoras ($fecha_ini, $fecha_fin) {
+    public static function vistaInterfazContadoras ($fecha_ini, $fecha_fin) {
 
-        $fecha_ini = '01/11/2020';
-        $fecha_fin = '30/11/2020';
+        $fecha_ini = '2021-05-01';
+        $fecha_fin = '2021-05-31';
         $fac_tipo_doc_id = 14;
 
         $data = ReportesGenerados::reporteFacturasIva($fecha_ini,$fecha_fin,$fac_tipo_doc_id);
@@ -222,7 +228,6 @@ class ReportesGeneradosController extends Controller
         $fp = fopen('C:\tiquetes\reporte.csv', 'wb');
 
         foreach ($data as $k => $line) {
-
             // cambio de consecutivo
             if ($consecAnterior != $line->consecutivo && $k != 0)  {
 
@@ -309,7 +314,8 @@ class ReportesGeneradosController extends Controller
             fputcsv($fp, $lineFormated);
 
         }
-
+        $size = count($data);
+        $k = $size -1;
         // imprimir contraparte de caja
         $lineFormated['cuenta'] = '11050505';
         $lineFormated['comprobante'] = '';
@@ -843,7 +849,20 @@ class ReportesGeneradosController extends Controller
 
     //TESTING
     public static function testing() {
-       dd(FacMovimiento::todosConTipoSucursalGrupoTipo());
+        $almacenamiento = 'Refrigerado y empacado al granel Reprocesado';
+        $validate = strrpos($almacenamiento, "Refrigerado");
+        if ($almacenamiento !== false) {
+            $fecha_vencimiento = 'Refrigerado';
+        } else {
+            $fecha_vencimiento = 'Congelado';
+        }
+        return $fecha_vencimiento;
      }
 
+     public static function toCollect($collect){
+        $details = collect($collect)->map(function ($item) {
+            return (object) $item;
+        });
+        return $details;
+    }
 }

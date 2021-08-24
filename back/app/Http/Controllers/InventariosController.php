@@ -96,13 +96,20 @@ class InventariosController extends Controller
                 $prodTerminado->num_piezas = $request->num_piezas;
                 $prodTerminado->marinado = $request->marinado;
 
-                if ($lote->producto_empacado) {
+                if ($lote->producto_empacado && $lote->tercero_reprocesado == 0) {
                     // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);
                     // // $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
                     // $prodTerminado->almacenamiento = 0;
                     $prodTerminado->dias_vencimiento = 0;
+                } else if ($lote->tercero_reprocesado > 0 && $lote->producto_empacado) {
+                    $prodTerminado->fecha_vencimiento =  null;
+                    $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
+                    $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
+                    $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
+                    // if vacio -> take dias en productos almacenamiento
+                    // if granel -> take fechas de los lotes
                 } else {
                     $prodTerminado->fecha_vencimiento = null;
                     $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();

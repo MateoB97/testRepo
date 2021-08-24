@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class EgreTipoEgreso extends Model
 {
@@ -12,6 +13,6 @@ class EgreTipoEgreso extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

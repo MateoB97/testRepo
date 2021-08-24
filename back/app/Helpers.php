@@ -145,6 +145,4 @@ if (! function_exists('current_user')) {
 
         return $response;
     }
-
-
 }

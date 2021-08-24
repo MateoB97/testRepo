@@ -312,7 +312,7 @@
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent
-                    titleBtn="Peso Factura - Ventas - Devoluciones - Notas"
+                    titleBtn="Peso Factura - Devoluciones"
                     url="api/reportesgenerados/reportes/pesoporfechaventasdevsnotas"
                     :datesFilter="true"
                     :dateUnique="0"

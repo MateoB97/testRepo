@@ -16,6 +16,7 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Illuminate\Support\Facades\Auth;
+use App\Tools;
 
 class GenBasculasController extends Controller
 {
@@ -76,7 +77,7 @@ class GenBasculasController extends Controller
         }
     }
 
-    public function readTiqueteDibal($tiquete)
+    public function readTiqueteDibal($tiquete, $puestoTiquete)
     {
         $arrayTotal = array();
         $arrayItem = array();
@@ -103,7 +104,7 @@ class GenBasculasController extends Controller
 
         // dd($fechaIni , $fechaFin);
 
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete')->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete', $puestoTiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
         $lineasFacturadas = array();
 
@@ -132,7 +133,9 @@ class GenBasculasController extends Controller
                                     intval(substr($buffer, 7, 3)), // linea tiquete
                                     intval(substr($buffer, 31, 2)));// vendedo
 
-                if (( (intval(substr($buffer, 2, 5)) == $tiquete)) && (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas)) ){
+                if (( (intval(substr($buffer, 2, 5)) == $tiquete)) &&
+                     (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas))
+                    ){
                     array_push($arrayTotal, $arrayItem);
                 }
             }
@@ -265,7 +268,7 @@ class GenBasculasController extends Controller
 
                 $url = 'http://' .$ip. '/year/documentos?seek={"tipo_doc":1,"posto":'.$puesto. ',"numero":' .$primer. '}&limit=100';
 
-                $tiquetesBascula = http_get($url);
+                $tiquetesBascula = Tools::http_get($url);
 
                 foreach ($tiquetesBascula as $tiqueteBasc) {
 
@@ -274,7 +277,7 @@ class GenBasculasController extends Controller
 
                         $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
 
-                        $lineasTiquete = http_get($url);
+                        $lineasTiquete = Tools::http_get($url);
 
                         foreach ($lineasTiquete as $key => $linea) {
 
@@ -581,7 +584,7 @@ class GenBasculasController extends Controller
                             if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
 
                                 $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
-                                $lineasTiquete = http_get($url);
+                                $lineasTiquete = Tools::http_get($url);
 
                                 foreach ($lineasTiquete as $key => $linea) {
 

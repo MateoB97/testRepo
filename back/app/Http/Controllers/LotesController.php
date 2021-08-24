@@ -27,7 +27,6 @@ class LotesController extends Controller
 
     public function store(Request $request)
     {
-
         if ( (count($request->programaciones) > 0) ){
 
             $lastSeed = intval(Lote::max('consecutivo'));

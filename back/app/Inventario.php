@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class Inventario extends Model
 {
@@ -13,7 +14,7 @@ class Inventario extends Model
 
 	public function getDateFormat()
 	{
-	    return dateTimeSql();
+	    return Tools::dateTimeSql();
 	}
 
     public function producto()
@@ -108,7 +109,12 @@ class Inventario extends Model
                 'lotes.producto_aprobado',
                 'lotes.producto_empacado',
                 'producto_terminados.dias_vencimiento as dias_vencimiento',
-                'producto_terminados.almacenamiento as almacenamiento'
+                'producto_terminados.almacenamiento as almacenamiento',
+                'lotes.tercero_reprocesado',
+                'lotes.fecha_venc_refrigerado_granel',
+                'lotes.fecha_venc_congelado_granel',
+                'prod_almacenamientos.empaque',
+                'prod_almacenamientos.almacenamiento as prod_tipo_almacenamiento_id'
             )
             ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
             ->join('lot_programaciones','lot_programaciones.id', '=', 'producto_terminados.prog_lotes_id')
@@ -116,6 +122,7 @@ class Inventario extends Model
             ->join('productos','productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
+            ->join('prod_almacenamientos','prod_almacenamientos.nombre', '=', 'producto_terminados.almacenamiento')
             ->where('inventarios.id','=', $id)
             ->get();
     }

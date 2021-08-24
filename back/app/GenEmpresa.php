@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class GenEmpresa extends Model
 {
@@ -36,12 +37,13 @@ class GenEmpresa extends Model
         'print_logo_pos',
         'email_backup_fact_elect',
         'cantidad_caracteres',
-        'bloquear_tercero'
+        'bloquear_tercero',
+        'precio_bascula_marques'
     ];
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public function setCaractLinea($int){

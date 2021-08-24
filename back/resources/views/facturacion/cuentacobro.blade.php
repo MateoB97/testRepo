@@ -120,7 +120,7 @@
 									<p>N° {{ $movimiento->consecutivo }}</p>
 								</td>
 								<td class="text-center">
-									<p>{{ $fecha_facturacion }}</p>
+									<p>{{ $movimiento->fecha_facturacion }}</p>
 								</td>
 							</tr>
 							<tr style="margin-top:20px">

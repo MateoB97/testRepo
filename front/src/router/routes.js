@@ -137,6 +137,7 @@ const routes = [
       { path: '', meta: { permisoRequerido: '54' }, component: () => import('pages/lotes/Lote.vue') },
       { path: 'empaque', meta: { permisoRequerido: '56' }, component: () => import('pages/lotes/LotEmpaque.vue') },
       { path: 'empaque-terminado', meta: { permisoRequerido: '57' }, component: () => import('pages/lotes/LotEmpaqueTerminado.vue') },
+      { path: 'empaque-reprocesado', meta: { permisoRequerido: '57' }, component: () => import('pages/lotes/LotEmpaqueReprocesado.vue') },
       { path: 'peso-planta', meta: { permisoRequerido: '55' }, component: () => import('pages/lotes/PesoPlanta.vue') },
       { path: 'etiqueta-interna', meta: { permisoRequerido: '58' }, component: () => import('pages/lotes/LotEtiquetaInterna.vue') },
       { path: 'peso-programacion', meta: { permisoRequerido: '59' }, component: () => import('pages/lotes/PesoProgramacion.vue') },

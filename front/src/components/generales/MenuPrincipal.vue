@@ -83,6 +83,7 @@
               <router-link to="/lotes/peso-planta" class="menuItem">Peso Planta</router-link>
               <router-link to="/lotes/empaque" class="menuItem">Empaque</router-link>
               <router-link to="/lotes/empaque-terminado" class="menuItem">Empaque Prod Terminado</router-link>
+              <router-link to="/lotes/empaque-reprocesado" class="menuItem">Empaque Reprocesado</router-link>
               <router-link to="/lotes/etiqueta-interna" class="menuItem">Etiqueta Interna</router-link>
               <router-link to="/lotes/peso-programacion" class="menuItem">Peso por programación</router-link>
               <router-link to="/lotes/peso-marinacion" class="menuItem">Peso Marinacion</router-link>

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class GenVendedor extends Model
 {
@@ -13,7 +14,7 @@ class GenVendedor extends Model
 
 	public function getDateFormat()
 	{
-	    return dateTimeSql();
+	    return Tools::dateTimeSql();
 	}
 
 	public static function listadoVendedoresMarques(){

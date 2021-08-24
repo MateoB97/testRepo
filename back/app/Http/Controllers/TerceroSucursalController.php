@@ -9,7 +9,15 @@ class TerceroSucursalController extends Controller
 {
     public function index()
     {
-        $index= TerceroSucursal::all();
+        // $index= TerceroSucursal::all();
+        $index = TerceroSucursal::where('activo', 1)->get();
+        return $index;
+    }
+
+
+    public function sucursalesactivas()
+    {
+        $index= TerceroSucursal::where('activo', 1)->get();
         return $index;
     }
 
@@ -54,7 +62,7 @@ class TerceroSucursalController extends Controller
     }
 
     public function terceroFilter($id){
-        $list = TerceroSucursal::where('tercero_id', $id)->get();
+        $list = TerceroSucursal::where('tercero_id', $id)->where('activo', 1)->get();
         return $list;
     }
 }

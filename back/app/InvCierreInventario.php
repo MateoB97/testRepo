@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class InvCierreInventario extends Model
 {
@@ -17,7 +18,7 @@ class InvCierreInventario extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function getDataCierreInventario(){
@@ -81,10 +82,11 @@ class InvCierreInventario extends Model
                 ,ISNULL(ci.cantidad_cierre, 0) as [InvInicial]
                 ,isnull(cc.cantidad_entreada_mercancia, 0 ) as [QtyEntradas]
                 ,isnull(dd.cantidad_ventas, 0) as [QtyVentas]
-                ,isnull(ddd.cantidad_devoluciones, 0) + isnull(ncdd.cantidad_nota_credito, 0) as  [QtyDevs]
+                ,isnull(ddd.cantidad_devoluciones, 0) as  [QtyDevs]
+                ,isnull(ncdd.cantidad_nota_credito, 0) as  [QtyNotas]
                 ,ISNULL(cif.cantidad_cierre_final, 0) as [InvFinal]
-                ,(ISNULL(ci.cantidad_cierre, 0)  + ISNULL(cc.cantidad_entreada_mercancia, 0 ) + isnull(ncdd.cantidad_nota_credito, 0 ) + ISNULL(ddd.cantidad_devoluciones, 0 ) - ISNULL(dd.cantidad_ventas , 0 )) as [InvTeorico]
-                , (ISNULL(ci.cantidad_cierre, 0)  + ISNULL(cc.cantidad_entreada_mercancia, 0 ) + isnull(ncdd.cantidad_nota_credito, 0 ) + ISNULL(ddd.cantidad_devoluciones, 0 ) - ISNULL(dd.cantidad_ventas , 0 )) - ISNULL(cif.cantidad_cierre_final, 0) as [Merma]
+                ,(ISNULL(ci.cantidad_cierre, 0)  +	ISNULL(cc.cantidad_entreada_mercancia, 0 ) + isnull(ncdd.cantidad_nota_credito, 0 ) - ISNULL(dd.cantidad_ventas , 0 )) as [InvTeorico]
+	            ,(ISNULL(ci.cantidad_cierre, 0) +	ISNULL(cc.cantidad_entreada_mercancia, 0 ) +isnull(ncdd.cantidad_nota_credito, 0 ) - ISNULL(dd.cantidad_ventas , 0 ))- ISNULL(cif.cantidad_cierre_final, 0) as [Merma]
             from inventarios i -- INVENTARIO ACTUAL
             inner join productos p on i.producto_id = p.id
             inner join prod_subgrupos sp on p.prod_subgrupo_id = sp.id

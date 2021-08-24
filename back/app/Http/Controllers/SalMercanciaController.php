@@ -155,7 +155,8 @@ class SalMercanciaController extends Controller
 
         $tercero = $salMercancia->terceroSucursal->tercero;
 
-        $items = SalPivotInventSalida::GetDataCertificado($id);
+        // $items = SalPivotInventSalida::GetDataCertificado($id);
+        $items = SalPivotInventSalida::dataCertificado($id);
         $itemsSumatoria = array();
         $flag = 0;
         $totalCanastas = 0;
@@ -168,11 +169,27 @@ class SalMercanciaController extends Controller
                 $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
                 $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
                 $element->peso = number_format($element->peso, 2, '.', '');
-            } else {
+            } else if ($element->producto_empacado == 1){
                 $element->fecha_empaque = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
                 $element->fecha_desposte = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
                 $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
                 $element->fecha_vencimiento = Carbon::parse($element->prod_term_fecha_vencimiento)->toDateString();
+            } else {
+                $empaque = strrpos($element->almacenamiento, "vacio");
+                if ($empaque !== false) {
+                    $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                } else {
+                    $almacenamiento = strrpos($element->almacenamiento, "Refrigerado");
+                    if ($almacenamiento !== false) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_refrigerado_granel)->toDateString();
+                    } else {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_congelado_granel)->toDateString();
+                    }
+                }
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                // $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                $element->peso = number_format($element->peso, 2, '.', '');
             }
 
             $totalKilos += $element->peso;
@@ -194,6 +211,7 @@ class SalMercanciaController extends Controller
             }
         }
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
+        // dd($data);
         $pdf = PDF::loadView('despachos.certificado', $data);
         // return view('certificados.pdf');
 

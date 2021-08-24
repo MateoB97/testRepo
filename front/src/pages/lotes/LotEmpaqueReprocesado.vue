@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- type 0 for normal lote, type 1 for recieved finish products -->
-    <Etiqueta type="1" almac="0"/>
+    <Etiqueta type="2" almac="1"/>
   </div>
 </template>
 

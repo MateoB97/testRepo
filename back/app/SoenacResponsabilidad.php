@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class SoenacResponsabilidad extends Model
 {
@@ -16,6 +17,6 @@ class SoenacResponsabilidad extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

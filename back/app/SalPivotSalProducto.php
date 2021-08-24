@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class SalPivotSalProducto extends Model
 {
@@ -17,7 +18,7 @@ class SalPivotSalProducto extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function pesoDespachoParaFactura($id, $lista_precio){

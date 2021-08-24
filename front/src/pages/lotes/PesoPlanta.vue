@@ -204,7 +204,7 @@
             </div>
           </div>
         </div>
-        <div v-if="datos.producto_empacado === '1'">
+        <div v-if="datos.producto_empacado === '1' || datos.producto_empacado === '2'">
           <q-table
               title="Listado de productos"
               :data="storeItems.productos"
@@ -541,7 +541,7 @@ export default {
       }
       // se busca si hay pesos guardados para el lote seleccionado
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesoplanta/lotefilter/' + this.storeItems.lote_id)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesoplanta/' + this.storeItems.lote_id)
         var tempData = data.data
         if (tempData.length > 0) {
           tempData.forEach((element) => {

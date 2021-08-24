@@ -93,13 +93,43 @@ class GenEtiqueta extends Model
                 $etiqueta .= self::fechasEtiqueta($data, true, false, false, true);
             }
 
-        }else{
-
+        } else if ($data->producto_empacado && !$data->tercero_reprocesado) {
         	$etiqueta .= "
-                    ^FT30,220^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
-                    ^FT270,220^A0N,24,24^FH\^CI28^FD".$data->prod_terminado_fecha_vencimiento."^FS^CI28";
+                    ^FT30,240^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
+                    ^FT270,240^A0N,24,24^FH\^CI28^FD".$data->prod_terminado_fecha_vencimiento."^FS^CI28";
+            $etiqueta .= "^FT30,190^ARN,5,5^FH\^CI28^FDFecha Empaque:^FS^CI28";
+            $etiqueta .= "^FT235,190^A0N,24,24^FH\^CI28^FD".date("Y-m-d", strtotime($data->fecha_empaque))."^FS^CI28";
+        } else {
+            //Empaque  Vacio = 1 , Granel = 2
+            //Almacenamiento Refrigerado = 1 , Congelado = 2
+            if ($data->empaque == 1) { // VACIO !! // if vacio -> take dias en productos almacenamiento
+                $etiqueta .= "
+                        ^FT30,205^ARN,5,5^FH\^FDFecha Desposte:^FS^CI28
+                        ^FT270,205^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
+                        ^FT30,235^ARN,5,5^FH\^FDFecha Empaque:^FS^CI28
+                        ^FT270,235^A0N,24,24^FH\^CI28^FD".date("Y-m-d", strtotime($data->fecha_empaque))."^FS^CI28
+                        ^FT30,265^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
+                        ^FT270,265^A0N,24,24^FH\^CI28^FD".$data->fecha_vencimiento."^FS^CI28";
+            } else { // GRANEL !! // if granel -> take fechas de los lotes
+                if ($data->prod_tipo_almacenamiento_id == 1) {
+                    $etiqueta .= "
+                        ^FT30,205^ARN,5,5^FH\^FDFecha Desposte:^FS^CI28
+                        ^FT270,205^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
+                        ^FT30,235^ARN,5,5^FH\^FDFecha Empaque:^FS^CI28
+                        ^FT270,235^A0N,24,24^FH\^CI28^FD".date("Y-m-d", strtotime($data->fecha_empaque))."^FS^CI28
+                        ^FT30,265^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
+                        ^FT270,265^A0N,24,24^FH\^CI28^FD".$data->fecha_venc_refrigerado_granel."^FS^CI28";
+                } else {
+                    $etiqueta .= "
+                        ^FT30,205^ARN,5,5^FH\^FDFecha Desposte:^FS^CI28
+                        ^FT270,205^A0N,24,24^FH\^CI28^FD".$data->fecha_desposte."^FS^CI28
+                        ^FT30,235^ARN,5,5^FH\^FDFecha Empaque:^FS^CI28
+                        ^FT270,235^A0N,24,24^FH\^CI28^FD".date("Y-m-d", strtotime($data->fecha_empaque))."^FS^CI28
+                        ^FT30,265^ARN,5,5^FH\^FDFecha Vencimiento:^FS^CI28
+                        ^FT270,265^A0N,24,24^FH\^CI28^FD".$data->fecha_venc_congelado_granel."^FS^CI28";
+                }
+            }
         }
-
         if ($marinado) {
 
         	$etiqueta .= self::marinadoEtiquetas($porcMarinado)."
@@ -229,7 +259,7 @@ class GenEtiqueta extends Model
     public static function GetDataLoteEtiquetaInterna($data){
         return DB::table('lot_programaciones')
             ->select(
-                'lotes.id as lote',
+                'lotes.consecutivo as consecutivo',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class SalPivotInventSalida extends Model
 {
@@ -45,7 +46,45 @@ class SalPivotInventSalida extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
+    }
+
+    public static function dataCertificado($id){
+        return DB::select(
+            "
+        select
+            productos.nombre As producto ,
+            productos.id as producto_id ,
+            inventarios.cantidad as peso ,
+            inventarios.id as inventario_id ,
+            lotes.id As lote ,
+            producto_terminados.created_at as fecha_empaque ,
+            lotes.fecha_sacrificio as fecha_sacrificio ,
+            lot_programaciones.fecha_desposte as fecha_desposte ,
+            prod_grupos.nombre as grupo ,
+            producto_terminados.almacenamiento as almacenamiento ,
+            producto_terminados.dias_vencimiento as vencimiento ,
+            sal_mercancias.created_at as fecha_sal_mercancia ,
+            sal_mercancias.consecutivo as consecutivo ,
+            producto_terminados.fecha_vencimiento as prod_term_fecha_vencimiento ,
+            lotes.producto_empacado,
+            case when (lotes.fecha_empaque_lote_tercero  = '1900-01-01' or lotes.fecha_empaque_lote_tercero is null) then lot_programaciones.fecha_desposte else lotes.fecha_empaque_lote_tercero end as fecha_empaque_lote_tercero,
+            lotes.consecutivo As consecutivo,
+            lotes.fecha_venc_refrigerado_granel,
+            lotes.fecha_venc_congelado_granel
+       from sal_pivot_invent_salidas
+       inner join inventarios on  inventarios.id =  sal_pivot_invent_salidas.inventario_id
+       inner join sal_mercancias on  sal_mercancias.id =  sal_pivot_invent_salidas.salMercancia_id
+       inner join productos on inventarios.producto_id =  productos.id
+       inner join prod_subgrupos on  productos.prod_subgrupo_id =  prod_subgrupos.id
+       inner join prod_grupos on prod_subgrupos.prodGrupo_id =  prod_grupos.id
+       inner join producto_terminados on  producto_terminados.invent_id =  inventarios.id
+       inner join lot_programaciones on  producto_terminados.prog_lotes_id =  lot_programaciones.id
+       inner join lotes on  lot_programaciones.lote_id =  lotes.id
+       where  sal_pivot_invent_salidas.salMercancia_id  = $id
+       order By productos.nombre
+            "
+        );
     }
 
     public static function GetDataCertificado($id){
@@ -67,7 +106,7 @@ class SalPivotInventSalida extends Model
                 'producto_terminados.fecha_vencimiento as prod_term_fecha_vencimiento',
                 'lotes.producto_empacado',
                 'lotes.fecha_empaque_lote_tercero',
-                'lotes.consecutivo As consecutivo',
+                'lotes.consecutivo As consecutivo'
             )
             ->join('inventarios', 'inventarios.id', '=', 'sal_pivot_invent_salidas.inventario_id')
             ->join('sal_mercancias', 'sal_mercancias.id', '=', 'sal_pivot_invent_salidas.salMercancia_id')

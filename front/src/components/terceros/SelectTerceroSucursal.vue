@@ -117,7 +117,7 @@ export default {
             var errorLog = 'Error:  ' + error.response + '  Fecha: ' + dateTime
             logs.push(errorLog)
             localStorage.logErrores = logs
-            console.log(errorLog)
+            console.log('error' + errorLog)
             app.filterByTerceroId()
           }
         )
@@ -152,7 +152,7 @@ export default {
   },
   created: function () {
     this.globalGetForSelect('api/terceros/items/estado/activos', 'terceros')
-    this.globalGetForSelect('api/terceros/sucursales', 'sucursales')
+    this.globalGetForSelect('api/terceros/sucursalesactivas', 'sucursales')
     this.globalGetForSelect('api/generales/empresa', 'empresa')
   },
   computed: {
@@ -165,7 +165,7 @@ export default {
       var app = this
       if (val !== this.datos.sucursal) {
         if (val !== null) {
-          axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursales').then(
+          axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursalesactivas').then(
             function (response) {
               app.sucursales = response.data
               app.datos.sucursal = app.sucursales.find(element => parseInt(element.id) === parseInt(val))
