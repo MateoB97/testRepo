@@ -580,6 +580,12 @@
                   <div v-if="this.storeItems.producto_empacado" class="col-4">
                     <strong>Fecha Ven Congelado Granel:</strong> {{ show.fecha_venc_congelado_granel }}
                   </div>
+                  <div v-if="this.storeItems.producto_empacado" class="col-4">
+                    <strong>Fecha Ven Refrigerado Vacio:</strong> {{ show.fecha_venc_refrigerado_vacio }}
+                  </div>
+                  <div v-if="this.storeItems.producto_empacado" class="col-4">
+                    <strong>Fecha Ven Congelado Vacio:</strong> {{ show.fecha_venc_congelado_vacio }}
+                  </div>
                 </div>
                 <div class="row q-col-gutter-sm">
                   <div class="column col-12 q-mt-lg">
@@ -774,6 +780,28 @@
                         <q-icon name="event" class="cursor-pointer">
                           <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
                             <q-date v-model="storeItems.fecha_venc_congelado_granel" @input="() => $refs.qDateProxy1.hide()" />
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                </div>
+                <div v-if="this.storeItems.producto_empacado && this.storeItems.tercero_reprocesado && (this.storeItems.ProdGrupo_id === null || this.storeItems.ProdGrupo_id.nombre === 'Cerdo')" class="col-3">
+                    <q-input label="Fecha Vencimiento Refrigerado Vacio" v-model="storeItems.fecha_venc_refrigerado_vacio" mask="date" :rules="['date']">
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
+                            <q-date v-model="storeItems.fecha_venc_refrigerado_vacio" @input="() => $refs.qDateProxy1.hide()" />
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                </div>
+                <div v-if="this.storeItems.producto_empacado && this.storeItems.tercero_reprocesado && (this.storeItems.ProdGrupo_id === null || this.storeItems.ProdGrupo_id.nombre === 'Cerdo')" class="col-3">
+                    <q-input label="Fecha Vencimiento Congelado Vacio" v-model="storeItems.fecha_venc_congelado_vacio" mask="date" :rules="['date']">
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
+                            <q-date v-model="storeItems.fecha_venc_congelado_vacio" @input="() => $refs.qDateProxy1.hide()" />
                           </q-popup-proxy>
                         </q-icon>
                       </template>
@@ -995,6 +1023,7 @@ export default {
         { name: 'grupo', required: true, label: 'Grupo', align: 'left', field: 'grupo', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'marca', required: true, label: 'Marca', align: 'left', field: 'marca', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'num_animales', required: true, label: 'N° Animales', align: 'left', field: 'num_animales', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'tipo_lote', required: true, label: 'Tipo Lote', align: 'left', field: 'tipo_lote', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       columnsShowPesoPlanta: [
@@ -1013,6 +1042,7 @@ export default {
         { name: 'peso', required: true, label: 'peso', align: 'left', field: 'peso', sortable: true, format: val => this.globalFormatPeso(val), classes: 'my-class', style: 'width: 200px' },
         { name: 'programacion', required: true, label: 'Programacion', align: 'left', field: 'programacion', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'despacho', required: true, label: 'despacho', align: 'left', field: 'despacho', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'num_piezas', required: true, label: 'Num Piezas', align: 'left', field: 'numero_piezas', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'empaque', required: true, label: 'Tipo Empaque', align: 'left', field: 'empaque', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'fecha_empaque', required: true, label: 'Fecha Empaque', align: 'left', field: 'fecha_empaque', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
@@ -1069,23 +1099,15 @@ export default {
   mixins: [globalFunctions],
   methods: {
     preSave () {
+      console.log('GRUPO!: ' + this.storeItems.ProdGrupo_id)
       if (this.storeItems.producto_empacado) {
         this.storeItems.fecha_empaque_lote_tercero = this.storeItems.fecha_empaque_lote_tercero
+        this.storeItems.producto_empacado = this.storeItems.producto_empacado ? 1 : 0
         if (this.storeItems.tercero_reprocesado) {
-          this.storeItems.fecha_venc_refrigerado_granel = this.storeItems.fecha_venc_refrigerado_granel
-          this.storeItems.fecha_venc_congelado_granel = this.storeItems.fecha_venc_congelado_granel
-          this.storeItems.tercero_reprocesado = this.storeItems.tercero_reprocesado
+          this.storeItems.tercero_reprocesado = this.storeItems.tercero_reprocesado ? 1 : 0
           this.storeItems.producto_empacado = 2
-          this.storeItems.fecha_empaque_lote_tercero = '1900/01/01'
-        } else {
-          this.storeItems.fecha_venc_refrigerado_granel = '1900/01/01'
-          this.storeItems.fecha_venc_congelado_granel = '1900/01/01'
-          this.storeItems.tercero_reprocesado = 0
         }
       } else {
-        this.storeItems.fecha_empaque_lote_tercero = '1900/01/01'
-        this.storeItems.fecha_venc_refrigerado_granel = '1900/01/01'
-        this.storeItems.fecha_venc_congelado_granel = '1900/01/01'
         this.storeItems.tercero_reprocesado = 0
       }
       this.storeItems.ProdGrupo_id = this.storeItems.ProdGrupo_id.id
@@ -1093,6 +1115,11 @@ export default {
         this.storeItems.transportador_id = this.storeItems.transportador_id.id
       }
       this.storeItems.com_compras_id = this.storeItems.com_compras_id.id
+      this.storeItems.fecha_empaque_lote_tercero = this.storeItems.fecha_empaque_lote_tercero ? this.storeItems.fecha_empaque_lote_tercero : '1900/01/01'
+      this.storeItems.fecha_venc_refrigerado_granel = this.storeItems.fecha_venc_refrigerado_granel ? this.storeItems.fecha_venc_refrigerado_granel : '1900/01/01'
+      this.storeItems.fecha_venc_congelado_granel = this.storeItems.fecha_venc_congelado_granel ? this.storeItems.fecha_venc_congelado_granel : '1900/01/01'
+      this.storeItems.fecha_venc_refrigerado_vacio = this.storeItems.fecha_venc_refrigerado_vacio ? this.storeItems.fecha_venc_refrigerado_vacio : '1900/01/01'
+      this.storeItems.fecha_venc_congelado_vacio = this.storeItems.fecha_venc_congelado_vacio ? this.storeItems.fecha_venc_congelado_vacio : '1900/01/01'
     },
     postSave () {
       this.listas.productos = []
@@ -1226,7 +1253,7 @@ export default {
     },
     showForAnimalsMethod () {
       if (this.storeItems.producto_empacado > 0 || this.storeItems.tercero_reprocesado > 0) {
-        this.storeItems.fecha_peso_pie = '1900/01/01'
+        this.storeItems.fecha_peso_pie = '1901/01/01'
         this.storeItems.precio_sacrificio_unit = 0
         this.storeItems.genero = false
         this.storeItems.marinado = false
@@ -1240,7 +1267,7 @@ export default {
       this.storeItems.programaciones.push({
         id: 'nuevo' + 1,
         fecha_desposte: '1900/01/01',
-        num_animales: 0,
+        num_animales: 1,
         producto_canal: false,
         terceroSucursal_id: 1
       })

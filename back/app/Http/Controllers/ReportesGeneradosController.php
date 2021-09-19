@@ -70,6 +70,11 @@ use App\EgreEgreso;
 use App\EgreTipoEgreso;
 use App\Lote;
 use App\InvCierreInventario;
+use App\ComComproEgreso;
+use App\ComTipoComproEgreso;
+use App\ComPivotCompraEgreso;
+use App\ComPivotFormaEgreso;
+use App\ComCompra;
 
 class ReportesGeneradosController extends Controller
 {
@@ -137,15 +142,12 @@ class ReportesGeneradosController extends Controller
     }
 
     public function reporteTiqueteFactura(){
-
         $params = $_GET;
         $input = 'TicketInvoice';
         self::executeJasper($input, $params);
-
     }
 
     public function saldosCartera(){
-
         $params = $_GET;
         $input = 'reportcxc';
         self::executeJasper($input, $params);
@@ -208,13 +210,12 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
-    public static function vistaInterfazContadoras ($fecha_ini, $fecha_fin) {
+    public static function vistaInterfazContadoras () {
 
-        $fecha_ini = '2021-05-01';
-        $fecha_fin = '2021-05-31';
-        $fac_tipo_doc_id = 14;
+        $fecha_ini = $_GET['fecha_inicial'];
+        $fecha_fin = $_GET['fecha_final'];
 
-        $data = ReportesGenerados::reporteFacturasIva($fecha_ini,$fecha_fin,$fac_tipo_doc_id);
+        $data = ReportesGenerados::reporteFacturasIva($fecha_ini,$fecha_fin);
 
         $dataFormated = array();
 
@@ -225,7 +226,7 @@ class ReportesGeneradosController extends Controller
 
         $ivaConsec = array();
 
-        $fp = fopen('C:\tiquetes\reporte.csv', 'wb');
+        $fp = fopen('C:\tiquetes\reporte-'.$fecha_ini.' - '.$fecha_fin.'.csv', 'wb');
 
         foreach ($data as $k => $line) {
             // cambio de consecutivo
@@ -319,10 +320,10 @@ class ReportesGeneradosController extends Controller
         // imprimir contraparte de caja
         $lineFormated['cuenta'] = '11050505';
         $lineFormated['comprobante'] = '';
-        $lineFormated['fecha'] = $data[$k]->fecha_facturacion;
+        $lineFormated['fecha'] = $data[$size - 1]->fecha_facturacion;
         $lineFormated['documento'] = '00000001';
-        $lineFormated['documento_relacionado'] = $data[$k]->prefijo.$data[$k]->consecutivo;
-        $lineFormated['nit'] = $data[$k]->nit;
+        $lineFormated['documento_relacionado'] = $data[$size - 1]->prefijo.$data[$size - 1]->consecutivo;
+        $lineFormated['nit'] = $data[$size - 1]->nit;
         $lineFormated['detalle'] = 'CAJA';
         $lineFormated['tipo'] = 1;
         $lineFormated['valor'] = intval($totalConsec);
@@ -847,17 +848,25 @@ class ReportesGeneradosController extends Controller
 
 
 
-    //TESTING
-    public static function testing() {
-        $almacenamiento = 'Refrigerado y empacado al granel Reprocesado';
-        $validate = strrpos($almacenamiento, "Refrigerado");
-        if ($almacenamiento !== false) {
-            $fecha_vencimiento = 'Refrigerado';
-        } else {
-            $fecha_vencimiento = 'Congelado';
+
+
+     public static function validarProceso($nombreEmpresa, $marinado, $productoEmpacado, $encabezadoEtiqueta, $tercero_nombre){
+
+        $proceso = '';
+
+
+        if (($productoEmpacado == 0)) {
+            $proceso = "^FT140,550^ARN,40^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($nombreEmpresa)."^FS^CI28";
         }
-        return $fecha_vencimiento;
-     }
+        if (($productoEmpacado == 1) || ($productoEmpacado == 0 && $encabezadoEtiqueta == 0)) {
+            $proceso = "^FT130,550^A0N,30^FH\^CI28^FDDISTRIBUIDO POR: ".strtoupper($nombreEmpresa)."^FS^CI28";
+        }
+        if ($productoEmpacado == 2) {
+            $proceso = "^FT40,550^A0N,26,26^FH\^CI28^FDDESPOSTADO POR: ".strtoupper($tercero_nombre)."-Procesado por ".strtoupper($nombreEmpresa)."^FS^CI28";
+        }
+
+        return $proceso;
+    }
 
      public static function toCollect($collect){
         $details = collect($collect)->map(function ($item) {
@@ -865,4 +874,101 @@ class ReportesGeneradosController extends Controller
         });
         return $details;
     }
+
+    public static function printPOSComComproEgreso($id)
+    {
+        $user = User::find(1);
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+
+        $t80 = new ReportesT80();
+        $str = '';
+
+        $recibo = ComComproEgreso::find($id);
+
+        $tipoComproEgreso = ComTipoComproEgreso::find($recibo->com_tipo_compro_egresos_id);
+
+        $lineas = ComPivotCompraEgreso::getDataLineasPDF($id);
+        $pagos = ComPivotFormaEgreso::getDataLineasPDF($id);
+
+        $sucursal = TerceroSucursal::find($recibo->proveedor_id);
+        $tercero = $sucursal->tercero;
+
+        $str .= $t80->posLineaBlanco(' ');
+        $str .=$t80->printLogoT80($printer);
+        $str .= $t80->posLineaBlanco();
+        $str .= $t80->posHeaderEmpresa();
+        $str .= $t80->posLineaBlanco();
+
+        $str .= $t80->posLineaCentro($tipoComproEgreso->nombre);
+        $str .= $t80->posLineaCentro('No. ' .$recibo->consecutivo);
+        $str .= $t80->posLineaCentro('Fecha documento: ' .$recibo->fecha_comprobante);
+        $str .= $t80->posLineaGuion();
+
+        // DATOS DEL CLIENTE
+        $str .= $t80->posLineaDerecha('Cliente: '.$tercero->nombre);
+        if ($tercero->digito_verificacion) {
+            $str .= $t80->posLineaDerecha('doc: : '.$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono);
+        } else {
+            $str .= $t80->posLineaDerecha("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono);
+        }
+        $str .= $t80->posLineaDerecha('direccion: '.$sucursal->direccion);
+
+        $str .= $t80->posLineaGuion();
+
+        $str.= $t80->posLineaDerecha('No. Fac   Valor Factura    Valor Abono     Saldo');
+        $str .= $t80->posLineaGuion();
+
+        foreach ($lineas as $linea) {
+            $str .= str_pad($linea->consec_mov, 9, " ", STR_PAD_RIGHT);
+            $str .= str_pad('$ '.number_format(intval($linea->valor_factura), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
+            $str .= str_pad('$ '.number_format(intval($linea->valor), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
+            $str .= str_pad('$ '.number_format(intval($linea->saldo_mov), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
+        }
+        $str .= $t80->posLineaBlanco();
+        $str .= $t80->posLineaBlanco();
+
+        $totalPagos = 0;
+
+        $str .= $t80->posLineaCentro('pagos', '-');
+
+        foreach ($pagos as $pago) {
+            if ($pago->valor > 0) {
+                $str.= $t80->posDosItemsExtremos(strtoupper($pago->forma_nombre), '$ '.$t80->toNumber( $pago->valor));
+                $totalPagos = intval($totalPagos) + intval($pago->valor);
+            }
+        }
+
+        $str .= $t80->posLineaIzquierda('----------');
+        $str.= $t80->posDosItemsExtremos('TOTAL PAGADO', '$ '.$t80->toNumber( $totalPagos));
+        $str .= $t80->posLineaGuion();
+        $str.= $t80->posFooterSgc();
+
+        $printer->text($str);
+        $printer->feed(1);
+        $printer->cut();
+        $printer->close();
+    }
+
+    //TESTING
+    public static function testing() {
+        // $id = 4;
+        // $producto = Producto::find($id);
+        // $producto_id = 0;
+        // if (!is_null($producto->cod_prod_padre)) {
+        //     $prod_padre = Producto::where('codigo', $producto->cod_prod_padre)->get()->first();
+        //     if($prod_padre) {
+        //         $producto_id = $prod_padre->id;
+        //     } else {
+        //         $producto_id = $producto->id;
+        //     }
+        // }
+        // dd($producto_id);
+        $n = 25;
+        // if ( $n % 25 == 0 ) {
+        //     dd($n);
+        // }
+        dd($n % 25);
+     }
 }

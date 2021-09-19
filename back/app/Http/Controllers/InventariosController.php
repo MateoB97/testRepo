@@ -96,7 +96,7 @@ class InventariosController extends Controller
                 $prodTerminado->num_piezas = $request->num_piezas;
                 $prodTerminado->marinado = $request->marinado;
 
-                if ($lote->producto_empacado && $lote->tercero_reprocesado == 0) {
+                if ($lote->producto_empacado && $lote->tercero_reprocesado == 0) { // JH
                     // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);

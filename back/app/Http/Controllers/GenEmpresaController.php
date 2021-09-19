@@ -23,7 +23,9 @@ class GenEmpresaController extends Controller
         $model = GenEmpresa::find($id);
         $model->fact_grupo = ($model->fact_grupo == 1) ? true : false;
         $model->bloquear_tercero = ($model->bloquear_tercero == 1) ? true : false;
-
+        $model->print_logo_pos = ($model->print_logo_pos == 1) ? true : false;
+        $model->precio_bascula_marques = ($model->precio_bascula_marques == 1) ? true : false;
+        dd($model);
         return $model;
     }
 

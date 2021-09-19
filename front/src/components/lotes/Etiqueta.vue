@@ -69,7 +69,7 @@
                                <p v-if="type == 0" class="no-margin">Fecha desposte: {{ programacion.fecha_desposte }}</p>
                                <p class="no-margin">Marca: {{ programacion.marca }}</p>
                                <p class="no-margin">Lote: {{ programacion.consecutivo }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
-                               <p v-if="type == 1" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
+                               <p v-if="type == 1 || type == 2" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
                             </q-card-section>
                         </q-card>
                     </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ProdAlmacenamiento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProdAlmacenamientoController extends Controller
 {
@@ -79,5 +80,10 @@ class ProdAlmacenamientoController extends Controller
         if ($delete) {
             return 'deleted';
         }
+    }
+
+    public function eliminarVencimiento($id) {
+        DB::delete("delete from prod_vencimientos where id = '$id'");
+        return 'done';
     }
 }

@@ -44,9 +44,9 @@ class ComCompra extends Model
                 'com_compras.estado as estado',
                 'com_compras.fecha_compra as fecha_compra',
                 'com_compras.fecha_vencimiento as fecha_vencimiento',
+                'com_compras.doc_referencia',
                 'tercero_sucursales.nombre as sucursal',
                 'terceros.nombre as tercero',
-                'com_tipo_compras.nombre as tipo',
                 'users.name as usuario',
                 'com_tipo_compras.naturaleza'
             )

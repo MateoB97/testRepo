@@ -85,6 +85,7 @@ export default {
   methods: {
     selectedTercero () {
       var app = this
+      app.sucursales = []
       var consecs = ''
       var i = 0
       this.$emit('tercero_id', this.datos.tercero_id.id)
@@ -117,7 +118,6 @@ export default {
             var errorLog = 'Error:  ' + error.response + '  Fecha: ' + dateTime
             logs.push(errorLog)
             localStorage.logErrores = logs
-            console.log('error' + errorLog)
             app.filterByTerceroId()
           }
         )

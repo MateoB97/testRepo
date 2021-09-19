@@ -71,7 +71,11 @@ class SalPivotInventSalida extends Model
             case when (lotes.fecha_empaque_lote_tercero  = '1900-01-01' or lotes.fecha_empaque_lote_tercero is null) then lot_programaciones.fecha_desposte else lotes.fecha_empaque_lote_tercero end as fecha_empaque_lote_tercero,
             lotes.consecutivo As consecutivo,
             lotes.fecha_venc_refrigerado_granel,
-            lotes.fecha_venc_congelado_granel
+            lotes.fecha_venc_congelado_granel,
+            lotes.fecha_venc_refrigerado_vacio,
+            lotes.fecha_venc_congelado_vacio,
+            prod_almacenamientos.empaque ,
+			prod_almacenamientos.almacenamiento as prod_tipo_almacenamiento_id
        from sal_pivot_invent_salidas
        inner join inventarios on  inventarios.id =  sal_pivot_invent_salidas.inventario_id
        inner join sal_mercancias on  sal_mercancias.id =  sal_pivot_invent_salidas.salMercancia_id
@@ -79,6 +83,7 @@ class SalPivotInventSalida extends Model
        inner join prod_subgrupos on  productos.prod_subgrupo_id =  prod_subgrupos.id
        inner join prod_grupos on prod_subgrupos.prodGrupo_id =  prod_grupos.id
        inner join producto_terminados on  producto_terminados.invent_id =  inventarios.id
+       inner join prod_almacenamientos on prod_almacenamientos.nombre  =  producto_terminados.almacenamiento
        inner join lot_programaciones on  producto_terminados.prog_lotes_id =  lot_programaciones.id
        inner join lotes on  lot_programaciones.lote_id =  lotes.id
        where  sal_pivot_invent_salidas.salMercancia_id  = $id

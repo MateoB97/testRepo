@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\TempMarques;
 use App\FacPivotTipoDocTipoRec;
 use App\Tools;
+use App\SoenacPivotCorrectionFacMovConcepts;
 
 class FacMovimientosController extends Controller
 {
@@ -470,6 +471,14 @@ class FacMovimientosController extends Controller
             $cruce->fac_mov_secundario = $nuevoItem->id;
 
             $cruce->save();
+
+            if($request->correction_soenac_id['correction_soenac_id']){
+                $newItem = new SoenacPivotCorrectionFacMovConcepts();
+                $newItem->correction_id = $request->correction_soenac_id['correction_soenac_id'];
+                $newItem->fac_mov_id = $nuevoItem->id;
+                $newItem->save();
+            }
+
         }
 
         foreach ($request->lineas as $linea) {
@@ -502,11 +511,19 @@ class FacMovimientosController extends Controller
         }
 
         $producto = Producto::find($producto_id);
-
-        if (!is_null($producto->cod_prod_padre)) {
-            $producto_id = Producto::where('codigo', $producto->cod_prod_padre)->get()->first()->id;
+        $producto_id = 0;
+        // if (!is_null($producto->cod_prod_padre)) {
+        //     $producto_id = Producto::where('codigo', $producto->cod_prod_padre)->get()->first()->id ;
+        $prod_padre = Producto::where('codigo', $producto->cod_prod_padre)->get()->first();
+        if($prod_padre) {
+            $producto_id = $prod_padre->id;
+        } else {
+            $producto_id = $producto->id;
         }
+        //}
+
         $itemInventario = Inventario::where('producto_id', $producto_id)->where('tipo_invent','!=',2)->get()->first();
+
         if ($itemInventario) {
             $itemInventario->cantidad += $cantidad;
             $itemInventario->save();
@@ -644,7 +661,8 @@ class FacMovimientosController extends Controller
         $movimiento->qr = substr( $movimiento->qr, strpos($movimiento->qr, 'https://'));
         $tipoDoc = $movimiento->tipoDoc;
 
-        $fecha_facturacion = substr(strval($movimiento->created_at), 0 ,19);
+        $fecha_facturacion = Carbon::parse($movimiento->created_at)->format('Y-m-d H:i:s');
+        // $fecha_facturacion = substr(strval($movimiento->created_at), 0 ,19);
 
         $empresa = GenEmpresa::find(1);
 
@@ -1055,6 +1073,7 @@ class FacMovimientosController extends Controller
 
         $movimiento = FacMovimiento::find($id);
         $tipoDoc = $movimiento->tipoDoc;
+        $correction_id = SoenacPivotCorrectionFacMovConcepts::where('fac_mov_id', $id)->get()->first()->correction_id;
 
         $cliente = TerceroSucursal::find($movimiento->cliente_id);
 
@@ -1099,7 +1118,8 @@ class FacMovimientosController extends Controller
                  'empresa' => $empresa,
                  'movPrimario' => $movPrimario,
                  'tipoDocPrimario' => $tipoDocPrimario,
-                 'lineas' => $lineas];
+                 'lineas' => $lineas,
+                 'correction_id' => $correction_id];
         }
 
         return $data;
@@ -1283,5 +1303,9 @@ class FacMovimientosController extends Controller
         foreach($lineas as $linea){
             self::afectarInventario($linea->producto_id, $linea->cantidad, 1);
         }
+    }
+
+    public static function dataSoenacCorrections($tipo_doc_id){
+        return FacMovimiento::dataSoenacCorrections($tipo_doc_id);
     }
 }

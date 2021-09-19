@@ -112,6 +112,7 @@ class TerceroController extends Controller
 
     public function validarFacturasTerceros($tercero_id){
         return Tercero::validarFacturasTerceros($tercero_id);
+        // return Tercero::exampleFactuasTerceros($tercero_id);
     }
 
 }

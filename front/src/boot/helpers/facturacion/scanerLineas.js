@@ -6,7 +6,6 @@ export const helperFacturacionScanerLineas = {
       this.$q.loading.show()
       var app = this
       var tiqueteLeido = false
-      console.log('# Tiquete:' + app.num_tiquete)
       var puestoTiquete = 0
       if (app.num_tiquete.length === 13) {
         puestoTiquete = parseInt(app.num_tiquete.substr(0, 1))
@@ -15,7 +14,6 @@ export const helperFacturacionScanerLineas = {
         app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
       }
       var tiquetesLeidos = []
-      console.log('PuestoTiquete' + puestoTiquete)
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
         if (tiquetesLeidos.length > 0) {
@@ -92,7 +90,6 @@ export const helperFacturacionScanerLineas = {
           } else {
             tiquete.peso = parseInt(app.num_tiquete.substr(7, 5))
           }
-          console.log('N°Tiquet: ' + app.num_tiquete + '   ProductCode: ' + tiquete.codigo + '   Quantity: ' + tiquete.peso + '    DateTime: ' + new Date().toLocaleString() + '    DV: ' + app.num_tiquete.substr(12, 1))
           var newProduct = {
             id: app.itemsCounter,
             producto: productoImpuesto.nombre,
@@ -311,7 +308,6 @@ export const helperFacturacionScanerLineas = {
     buscarLineasTiqueteMarques () {
       this.$q.loading.show()
       var app = this
-      console.log('Empresa Precio Bascula Marques: ' + app.empresa.precio_bascula_marques)
       var tiqueteLeido = false
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {

@@ -141,6 +141,7 @@ class SalMercanciaController extends Controller
     public function generatePDF(Request $request,$id){
 
         $salMercancia = SalMercancia::find($id);
+        // dd($salMercancia);
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
@@ -177,7 +178,13 @@ class SalMercanciaController extends Controller
             } else {
                 $empaque = strrpos($element->almacenamiento, "vacio");
                 if ($empaque !== false) {
-                    $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                    if ($element->grupo == 'Res'){
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_desposte)->addDays($element->vencimiento)->toDateString();
+                    } else if ($element->grupo === 'Cerdo'  && $element->prod_tipo_almacenamiento_id == 1 ) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_refrigerado_vacio)->toDateString();
+                    } else if ($element->grupo === 'Cerdo'  && $element->prod_tipo_almacenamiento_id == 2 ) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_congelado_vacio)->toDateString();
+                    }
                 } else {
                     $almacenamiento = strrpos($element->almacenamiento, "Refrigerado");
                     if ($almacenamiento !== false) {

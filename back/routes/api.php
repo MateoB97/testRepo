@@ -123,6 +123,7 @@ Route::group(['prefix' => 'productos'/*, 'middleware' => 'auth'*/], function(){
 	Route::get('/almacenamiento/estado/{id}/{cambio}', 'ProdAlmacenamientoController@estado');
 	Route::get('/almacenamiento/estado/activos', 'ProdAlmacenamientoController@activos');
     Route::get('/almacenamiento/reprocesado/{reprocesado}', 'ProdAlmacenamientoController@reprocesado');
+    Route::delete('/almacenamiento/eliminarvencimiento/{id}', 'ProdAlmacenamientoController@eliminarVencimiento');
 
 	Route::apiResource('grupos', 'ProdGrupoController');
 	Route::get('/grupos/filter/animalfilter', 'ProdGrupoController@animalFilter');
@@ -305,7 +306,7 @@ Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function()
 	Route::get('/datafacturacionelectronica/{id}', 'FacMovimientosController@dataFacturaElectronica');
 	Route::post('/agregarcufe/{id}', 'FacMovimientosController@agregarCufe');
 	Route::post('/enviarfacturasoenac','FacMovimientosController@sendFactToSoenac');
-
+    Route::get('/datasoenaccorrections/{fac_tipo_doc_id}', 'FacMovimientosController@dataSoenacCorrections');
 
 });
 
@@ -372,7 +373,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/movsporfechat80/{fechaini}/{fechafin}', 'ReportesGeneradosController@movimientosPorFechaT80');
     Route::get('/reportes/movimientosporfecha', 'ReportesGeneradosController@movimientosPorFecha');
     Route::get('/reportes/movimientosporfechagrupo', 'ReportesGeneradosController@movimientosPorFechaGrupo');
-	Route::get('/reportes/ivas/{fecha_ini}/{fecha_fin}', 'ReportesGeneradosController@vistaInterfazContadoras');
+	Route::get('/ivas', 'ReportesGeneradosController@vistaInterfazContadoras');
     Route::get('/reportes/movimientosPorProducto', 'ReportesGeneradosController@movimientosPorProducto');
     Route::get('/reportes/relaciontiquetefactura', 'ReportesGeneradosController@reporteTiqueteFactura');
     Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');

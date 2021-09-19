@@ -288,7 +288,7 @@ export default {
         { name: 'producto', required: true, label: 'Producto', align: 'left', field: 'producto', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'peso', required: true, label: 'peso', align: 'left', field: 'peso', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'marca', required: true, label: 'marca', align: 'left', field: 'marca', sortable: true, classes: 'my-class', style: 'width: 200px' },
-        { name: 'lote', required: true, label: 'lote', align: 'left', field: 'lote', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'lote', required: true, label: 'lote', align: 'left', field: 'consecutivo', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'despacho', required: true, label: 'Despacho', align: 'left', field: 'despacho', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'fecha_sacrificio', required: true, label: 'fecha_sacrificio', align: 'left', field: 'fecha_sacrificio', sortable: true, classes: 'my-class', style: 'width: 200px' },
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }

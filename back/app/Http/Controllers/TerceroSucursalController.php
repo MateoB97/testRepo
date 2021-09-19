@@ -62,6 +62,7 @@ class TerceroSucursalController extends Controller
     }
 
     public function terceroFilter($id){
+        // sleep(30);
         $list = TerceroSucursal::where('tercero_id', $id)->where('activo', 1)->get();
         return $list;
     }
