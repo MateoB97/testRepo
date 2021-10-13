@@ -86,6 +86,7 @@ class TerceroSucursal extends Model
         return DB::table('tercero_sucursales')
         ->select(DB::raw('terceros.id as tercero_id,
                 terceros.nombre as tercero_nombre,
+                terceros.plazo_facturacion,
                 tercero_sucursales.id as sucursal_id,
                 tercero_sucursales.nombre as sucursal_nombre,
                 tercero_sucursales.direccion as sucursal_direccion,

@@ -158,6 +158,7 @@ export const helperFacturacionScanerLineas = {
           } else { // Aqui o Antes?
             app.$q.notify({ color: 'negative', message: 'Error al leer el despac.' })
           }
+          app.setPlazo(response.data[2])
           app.num_tiquete = null
           app.$q.loading.hide()
         }
@@ -246,6 +247,7 @@ export const helperFacturacionScanerLineas = {
       var app = this
       var tiqueteLeido = false
       app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
+      console.log(app.num_tiquete)
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))

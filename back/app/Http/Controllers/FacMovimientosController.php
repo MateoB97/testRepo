@@ -341,7 +341,7 @@ class FacMovimientosController extends Controller
             $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()->last();
             $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
         }else{
-            $nuevoItem->consecutivo = $tipoDoc->consec_inicio;
+            $nuevoItem->consecutivo = intval($tipoDoc->consec_inicio);
         }
 
         // si es una devolucion cambia el estado del movimiento
@@ -661,7 +661,9 @@ class FacMovimientosController extends Controller
         $movimiento->qr = substr( $movimiento->qr, strpos($movimiento->qr, 'https://'));
         $tipoDoc = $movimiento->tipoDoc;
 
-        $fecha_facturacion = Carbon::parse($movimiento->created_at)->format('Y-m-d H:i:s');
+        $hora_factu = explode('-', strval($movimiento->created_at));
+
+        $fecha_facturacion = $movimiento->fecha_facturacion .''. strval(substr($hora_factu[2], 2, 6));
         // $fecha_facturacion = substr(strval($movimiento->created_at), 0 ,19);
 
         $empresa = GenEmpresa::find(1);
@@ -675,7 +677,8 @@ class FacMovimientosController extends Controller
             $tipoDoc->nombre_alt = 'Devolución '. $tipoDoc->nombre_alt;
         }
 
-        $movimiento->created_at = Carbon::parse($movimiento->created_at)->toDateString();
+        // $movimiento->created_at = Carbon::parse($movimiento->created_at)->toDateString();
+        $movimiento->created_at = Carbon::create(substr($movimiento->created_at, 0, 19))->format('Y-d-m H:i:s.v');
 
         $IdPrincipal = FacCruce::where('fac_mov_secundario', $id)->get()->first();
         $relatedDocument = null;
@@ -1073,8 +1076,15 @@ class FacMovimientosController extends Controller
 
         $movimiento = FacMovimiento::find($id);
         $tipoDoc = $movimiento->tipoDoc;
-        $correction_id = SoenacPivotCorrectionFacMovConcepts::where('fac_mov_id', $id)->get()->first()->correction_id;
 
+        if ($tipoDoc->naturaleza != 1) {
+            $correction_concept = SoenacPivotCorrectionFacMovConcepts::where('fac_mov_id', $id)->get()->first();//->correction_id;
+            if ($correction_concept) {
+                $correction_id = $correction_concept->correction_id;
+            } else {
+                $correction_id = 2;
+            }
+        }
         $cliente = TerceroSucursal::find($movimiento->cliente_id);
 
         $cliente->tercero;

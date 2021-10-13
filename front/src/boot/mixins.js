@@ -356,7 +356,11 @@ export const globalFunctions = {
               'uuid': response.data.movPrimario.cufe,
               'issue_date': response.data.movimiento.fecha_facturacion
             }
+            FactElect.discrepancy_response = {
+              'correction_concept_id': response.data.correction_id
+            }
             FactElect.credit_note_lines = FactElect.invoice_lines
+            // FactElect.correction_concept_id = response.data.correction_id
             delete FactElect.invoice_lines
           }
           // Nota debito
@@ -366,6 +370,9 @@ export const globalFunctions = {
               'number': response.data.tipoDocPrimario.prefijo + response.data.movPrimario.consecutivo,
               'uuid': response.data.movPrimario.cufe,
               'issue_date': response.data.movimiento.fecha_facturacion
+            }
+            FactElect.discrepancy_response = {
+              'correction_concept_id': response.data.correction_id
             }
             FactElect.debit_note_lines = FactElect.invoice_lines
             FactElect.requested_monetary_totals = FactElect.legal_monetary_totals

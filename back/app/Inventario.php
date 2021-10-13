@@ -99,6 +99,7 @@ class Inventario extends Model
                 'lotes.consecutivo as consecutivo',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
+                'lotes.fecha_empaque_lote_tercero',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
                 'producto_terminados.fecha_vencimiento as prod_terminado_fecha_vencimiento',

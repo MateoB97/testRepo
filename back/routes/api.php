@@ -379,6 +379,11 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/pesostotalesproductos', 'ReportesGeneradosController@pesosTotalesProductos');
     Route::get('/reportes/movimientoFormaPagoPorFecha', 'ReportesGeneradosController@movimientoFormaPagoPorFecha');
     Route::get('/reportes/pesoporfechaventasdevsnotas', 'ReportesGeneradosController@pesosTotalesDevolProductos');
+    Route::get('/reportes/exportreportefiscal', 'ReportesGeneradosController@exportReporteFiscalExcel');
+    Route::get('/reportes/comprasPorFecha', 'ReportesGeneradosController@comprasPorFecha');
+    Route::get('/reportes/comprasDetails', 'ReportesGeneradosController@comprasDetails');
+    Route::get('/reportes/movimientosPorFechaPorSucursal', 'ReportesGeneradosController@movimientosPorFechaPorSucursal');
+    Route::get('/reportes/exportreportefiscal', 'ReportesGeneradosController@exportReporteFiscalExcel');
 
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');

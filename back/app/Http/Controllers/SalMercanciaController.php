@@ -44,31 +44,34 @@ class SalMercanciaController extends Controller
 
     public function store(Request $request)
     {
-        $nuevoItem = new SalMercancia($request->all());
-        $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
-        $nuevoItem->consecutivo = $lastConsect;
-        $nuevoItem->save();
+        if ($request->temperatura_congelado <= -18) {
+            $nuevoItem = new SalMercancia($request->all());
+            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+            $nuevoItem->consecutivo = $lastConsect;
+            $nuevoItem->save();
 
-        foreach ($request->items as $item) {
-            $prod = new SalPivotInventSalida;
-            $prod->inventario_id = $item;
-            $prod->salMercancia_id = $nuevoItem->id;
-            $prod->save();
+            foreach ($request->items as $item) {
+                $prod = new SalPivotInventSalida;
+                $prod->inventario_id = $item;
+                $prod->salMercancia_id = $nuevoItem->id;
+                $prod->save();
 
-            $inv = Inventario::find($item);
-            $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
-            $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
-            $inv->save();
+                $inv = Inventario::find($item);
+                $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
+                $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
+                $inv->save();
+            }
+
+            foreach ($request->datos as $item) {
+                $nuevoPeso = new SalPivotSalProducto($item);
+                $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
+                $nuevoPeso->cantidad = $item['peso_despacho'];
+                $nuevoPeso->save();
+            }
+            return 'done';
+        } else {
+            return 'La temperatura de congelación debe ser menor a -18°';
         }
-
-        foreach ($request->datos as $item) {
-            $nuevoPeso = new SalPivotSalProducto($item);
-            $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
-            $nuevoPeso->cantidad = $item['peso_despacho'];
-            $nuevoPeso->save();
-        }
-
-        return 'done';
     }
 
     /**
@@ -251,7 +254,7 @@ class SalMercanciaController extends Controller
                 array_push($itemsSumatoria, $element);
             }
         }
-        return [$itemsSumatoria, $sucursal->sucursal_id];
+        return [$itemsSumatoria, $sucursal->sucursal_id, $sucursal->plazo_facturacion];
     }
 
     public function pesoDespacho ($id) {

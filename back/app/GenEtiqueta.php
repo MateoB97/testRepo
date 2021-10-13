@@ -53,9 +53,9 @@ class GenEtiqueta extends Model
         $almaRefrigerado = strrpos($data->almacenamiento, "Refrigerado");
         $almaCongelado = strrpos($data->almacenamiento, "Congelado");
 
-        if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 7C\F"; }
+        if ($almaRefrigerado !== false) { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 4C\F"; }
         if ($almaCongelado !== false) { $almace = "MANTENGASE CONGELADO A -18\F8C"; }
-        if ($data->encabezado_etiqueta !== "1") { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 5C\F"; }
+        // if ($data->encabezado_etiqueta !== "1") { $almace = "MANTENGASE REFRIGERADO DE 0\F8C A 5C\F"; }
 
         if ($data->grupo === 'Res') { $porcMarinado = "10%"; }
         if ($data->grupo === 'Cerdo') { $porcMarinado = "12%"; }
@@ -97,7 +97,7 @@ class GenEtiqueta extends Model
             $etiqueta .= self::printDates($data->fecha_sacrificio, $data->fecha_desposte, $data->fecha_vencimiento);
 
         } else if ($data->producto_empacado && !$data->tercero_reprocesado) { //Lote Tercero
-            $etiqueta .= self::printDates($data->fecha_sacrificio, date("Y-m-d", strtotime($data->fecha_empaque)), $data->prod_terminado_fecha_vencimiento );
+            $etiqueta .= self::printDates($data->fecha_sacrificio, $data->fecha_empaque_lote_tercero, $data->prod_terminado_fecha_vencimiento );
         } else { // Lote Reprocesado
             //Empaque  Vacio = 1 , Granel = 2//Almacenamiento Refrigerado = 1 , Congelado = 2
             if ($data->empaque == 1) { // VACIO !! // if vacio -> take dias en productos almacenamiento

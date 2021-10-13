@@ -457,6 +457,7 @@ export default {
       urlAPI: 'api/facturacion/movimientos',
       tipoDoc: {},
       storeItems: {
+        fecha_vencimiento: null
       },
       datos: {
         despacho: null
@@ -572,10 +573,16 @@ export default {
       var yyyy = today.getFullYear()
       today = yyyy + '/' + mm + '/' + dd
       this.storeItems.fecha_facturacion = today
-      this.storeItems.fecha_vencimiento = today
+      // this.storeItems.fecha_vencimiento = today
     },
     preSave () {
+      var app = this
       console.log(this.doc)
+      console.log(app.tipoDoc)
+      console.log(app.docReferencia)
+      if (this.tipoDoc.naturaleza === '4') {
+        this.setPlazo(30)
+      }
       if (this.storeItems.afectaInventario === true) {
         this.storeItems.afectar_inventario = 1
       } else {
@@ -879,25 +886,29 @@ export default {
       app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(item.vendedor))
     },
     setPlazo (value) {
-      console.log(value)
+      console.log('SetPlazo !!!:' + value)
       this.fechasHoy(value)
     },
-    fechasHoy (plazo = 30) {
-      if (plazo === null) {
-        plazo = 30
-      }
+    fechasHoy (plazo) {
+      console.log(plazo)
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
       var mm = String(today.getMonth() + 1).padStart(2, '0')
       var yyyy = today.getFullYear()
       this.storeItems.fecha_facturacion = yyyy + '/' + mm + '/' + dd
       // fecha venciomiento
-      var today2 = new Date()
-      today2.setDate(today2.getDate() + parseInt(plazo))
-      dd = String(today2.getDate()).padStart(2, '0')
-      mm = String(today2.getMonth() + 1).padStart(2, '0')
-      yyyy = today2.getFullYear()
-      this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      if (plazo !== undefined) {
+        var today2 = new Date()
+        today2.setDate(today2.getDate() + parseInt(plazo))
+        console.log('Today 2 ' + today2)
+        dd = String(today2.getDate()).padStart(2, '0')
+        console.log('DD ' + dd)
+        mm = String(today2.getMonth() + 1).padStart(2, '0')
+        console.log('MM ' + mm)
+        yyyy = today2.getFullYear()
+        console.log('YYYY ' + yyyy)
+        this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      }
     }
   },
   created: function () {

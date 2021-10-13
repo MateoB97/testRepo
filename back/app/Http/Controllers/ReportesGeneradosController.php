@@ -75,6 +75,8 @@ use App\ComTipoComproEgreso;
 use App\ComPivotCompraEgreso;
 use App\ComPivotFormaEgreso;
 use App\ComCompra;
+use App\SoenacPivotCorrectionFacMovConcepts;
+use App\Exports\ReporteFiscal;
 
 class ReportesGeneradosController extends Controller
 {
@@ -136,7 +138,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\PesoPlantaxLote.jrxml';
+        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFechaSucursales.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -160,6 +162,18 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
+    public function comprasPorFecha(){
+        $params = $_GET;
+        $input = 'ComprasPorFecha';
+        self::executeJasper($input, $params);
+    }
+
+    public function comprasDetails(){
+        $params = $_GET;
+        $input = 'comprasDetails';
+        self::executeJasper($input, $params);
+    }
+
     public function movimientosPorFecha(){
         $params = $_GET;
         $input = 'MovimientosPorFecha';
@@ -169,6 +183,12 @@ class ReportesGeneradosController extends Controller
     public function movimientosPorFechaPorDia(){
         $params = $_GET;
         $input = 'MovimientosPorFechaPorDia';
+        self::executeJasper($input, $params);
+    }
+
+    public function movimientosPorFechaPorSucursal(){
+        $params = $_GET;
+        $input = 'MovimientosPorFechaSucursales';
         self::executeJasper($input, $params);
     }
 
@@ -951,24 +971,47 @@ class ReportesGeneradosController extends Controller
         $printer->close();
     }
 
+    public static function getHeadersFiscal ($data) {
+        $allData = self::toCollect($data);
+        $headers = [];
+        $docTypes = $allData->unique('naturaleza');
+        foreach ($docTypes as $docType) {
+            $headers[$docType->naturaleza]['min'] = $allData->where('naturaleza', $docType->naturaleza)->min('consecutivo');
+            $headers[$docType->naturaleza]['max'] = $allData->where('naturaleza', $docType->naturaleza)->max('consecutivo');
+            $headers[$docType->naturaleza]['total'] = $allData->where('naturaleza', $docType->naturaleza)->sum('total');
+        }
+        dd($headers);
+        return $headers;
+
+    }
+
+    public static function exportReporteFiscalExcel() {
+        $params = $_GET;
+        $fecha_inicial = str_replace('/', '-', $params['fecha_inicial']);
+        $fecha_final = str_replace('/', '-', $params['fecha_final']);
+        return Excel::download(new ReporteFiscal($fecha_inicial, $fecha_final), 'Reporte-Fiscal.xlsx');
+    }
+
     //TESTING
     public static function testing() {
-        // $id = 4;
-        // $producto = Producto::find($id);
-        // $producto_id = 0;
-        // if (!is_null($producto->cod_prod_padre)) {
-        //     $prod_padre = Producto::where('codigo', $producto->cod_prod_padre)->get()->first();
-        //     if($prod_padre) {
-        //         $producto_id = $prod_padre->id;
-        //     } else {
-        //         $producto_id = $producto->id;
-        //     }
+        //Naturaleza 1: Venta Credito, 4: POS, 2: NC, 3: ND 20431,5
+        $fecha_ini = '2021-08-01';
+        $fecha_fin = '2021-08-02';
+        $bolsas = ReportesGenerados::impuestoBolsaFiscal($fecha_ini, $fecha_fin);
+        dd($bolsas);
+        $sumatoria = 0;
+        // $data = ReportesGenerados::reporteFiscal($fecha_ini, $fecha_fin);
+        // $details = ReportesGenerados::DetailsFiscal($fecha_ini, $fecha_fin);
+        // $headers = ReportesGenerados::HeadersFiscal($fecha_ini, $fecha_fin);
+        // $example = [];
+        foreach($bolsas as $bolsa){
+                $sumatoria += $bolsa->valor;
+        }
+        dd($sumatoria);
+        // dd($example);
+        // foreach ($total as $k => $v) {
+        //     echo "\$a[$k] => $v.\n";
         // }
-        // dd($producto_id);
-        $n = 25;
-        // if ( $n % 25 == 0 ) {
-        //     dd($n);
-        // }
-        dd($n % 25);
-     }
+
+    }
 }
