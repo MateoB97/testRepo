@@ -38,7 +38,7 @@
                                     id: {{elementItem.inventario_id}}
                                   </div>
                                   <div class="col-3">
-                                    Lote: {{elementItem.lote}}
+                                    Lote: {{elementItem.consecutivo}}
                                   </div>
                                   <div class="col-3">
                                     Empaque: {{elementItem.fecha_empaque}}

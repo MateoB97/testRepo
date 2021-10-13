@@ -69,7 +69,7 @@
                                <p v-if="type == 0" class="no-margin">Fecha desposte: {{ programacion.fecha_desposte }}</p>
                                <p class="no-margin">Marca: {{ programacion.marca }}</p>
                                <p class="no-margin">Lote: {{ programacion.consecutivo }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
-                               <p v-if="type == 1" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
+                               <p v-if="type == 1 || type == 2" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
                             </q-card-section>
                         </q-card>
                     </div>
@@ -175,7 +175,7 @@ export default {
   components: {
     Bascula
   },
-  props: ['type'],
+  props: ['type', 'almac'],
   data () {
     return {
       urlAPI: 'api/inventario/items',
@@ -313,7 +313,7 @@ export default {
             existentes = 0
           }
           app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
-          if (app.datos.faltantes >= numPiezas || app.type === '1') {
+          if (app.datos.faltantes >= numPiezas || app.type === '1' || app.type === '2') {
             app.globalStoreItem(0)
           } else {
             app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
@@ -327,7 +327,8 @@ export default {
   },
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + this.type, 'programaciones')
-    this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
+    this.globalGetForSelect('api/productos/almacenamiento/reprocesado/' + this.almac, 'almacenamientos')
+    // this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')
   },
   computed: {

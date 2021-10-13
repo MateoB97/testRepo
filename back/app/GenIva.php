@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class GenIva extends Model
 {
@@ -12,7 +13,7 @@ class GenIva extends Model
 
 	public function getDateFormat()
 	{
-	    return dateTimeSql();
+	    return Tools::dateTimeSql();
 	}
-	
+
 }

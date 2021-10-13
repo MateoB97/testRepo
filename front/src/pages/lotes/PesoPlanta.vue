@@ -43,7 +43,7 @@
                     <p>Grupo: {{ this.datos.grupo }}</p>
                 </div>
             </div>
-            <div v-if="datos.producto_empacado === '0'">
+            <div v-if="datos.producto_empacado === '0' || this.datos.producto_empacado === '2'">
               <div v-if="showGrupoCerdo" class="row q-col-gutter-sm">
                   <div class="col-6">
                       <p>Canales Faltantes: {{ this.datos.cerdoFaltante }}</p>
@@ -131,7 +131,7 @@
                   <q-btn icon="save" v-on:click="validarFaltantes()" label="Guardar" color="primary"></q-btn>
                 </div>
               </div>
-              <div v-if="datos.producto_empacado === '0'" class="row q-col-gutter-sm q-mb-md">
+              <div v-if="datos.producto_empacado === '0' || this.datos.producto_empacado === '2'" class="row q-col-gutter-sm q-mb-md">
                 <div class="col-12">
                     <Bascula
                       ref="basculaComponent"
@@ -155,7 +155,7 @@
               </div>
             </div>
         </div>
-        <div v-if="datos.producto_empacado === '0'">
+        <div v-if="datos.producto_empacado === '0' || this.datos.producto_empacado === '2'">
           <div v-if="showGrupoCerdo" class="row q-mt-xl q-col-gutter-sm">
               <q-table
                   title="Listado de canales"
@@ -204,7 +204,8 @@
             </div>
           </div>
         </div>
-        <div v-if="datos.producto_empacado === '1'">
+        <!-- <div v-if="datos.producto_empacado === '1' || datos.producto_empacado === '2'"> -->
+          <div v-if="datos.producto_empacado === '1'">
           <q-table
               title="Listado de productos"
               :data="storeItems.productos"
@@ -332,7 +333,7 @@ export default {
       return a - b
     },
     validarFaltantes () {
-      if (this.datos.producto_empacado === '0') {
+      if (this.datos.producto_empacado === '0' || this.datos.producto_empacado === '2') {
         if (this.datos.grupo === 'Res') {
           if ((this.datos.resTrasFaltante === 0) && (this.datos.resDelFaltante === 0)) {
             this.datos.delanteros.forEach((item) => {
@@ -412,7 +413,7 @@ export default {
     addFilaPeso () {
       console.log(this.temp.peso)
       if ((this.temp.peso > 0) && (this.temp.peso !== null)) {
-        if (this.datos.producto_empacado === '0') {
+        if (this.datos.producto_empacado === '0' || this.datos.producto_empacado === '2') {
           if (this.datos.grupo === 'Res') {
             if (this.temp.pieza === 'delantero') {
               console.log('hola')
@@ -541,7 +542,7 @@ export default {
       }
       // se busca si hay pesos guardados para el lote seleccionado
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesoplanta/lotefilter/' + this.storeItems.lote_id)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesoplanta/' + this.storeItems.lote_id)
         var tempData = data.data
         if (tempData.length > 0) {
           tempData.forEach((element) => {

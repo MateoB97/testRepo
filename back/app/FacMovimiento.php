@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class FacMovimiento extends Model
 {
@@ -33,7 +34,7 @@ class FacMovimiento extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public function tipoDoc()
@@ -71,7 +72,7 @@ class FacMovimiento extends Model
             ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
             ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
             ->orderBy('fac_movimientos.id','desc')
-            ->take(5000)
+            // ->take(5000)
             ->get();
     }
 
@@ -456,4 +457,22 @@ class FacMovimiento extends Model
         ->get();
     }
 
+    public static function dataSoenacCorrections($fac_doc_id)
+    {
+        return  DB::table('soenac_correction_concepts')
+        ->select
+        (
+            'soenac_correction_concepts.id as id',
+            'soenac_correction_concepts.nombre as nombre',
+            'soenac_correction_concepts.soenac_doc_type_id',
+            'soenac_correction_concepts.correction_soenac_id',
+            'soenac_correction_concepts.codigo',
+            'fac_tipo_doc.naturaleza'
+        )
+        ->join('fac_tipo_doc','fac_tipo_doc.soenac_tipo_doc_api_id', '=', 'soenac_correction_concepts.soenac_doc_type_id')
+        ->where('fac_tipo_doc.id', $fac_doc_id)
+        ->get();
+    }
+
 }
+

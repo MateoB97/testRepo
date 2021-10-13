@@ -166,6 +166,7 @@ export default {
       })
     },
     selectedProgramacion () {
+      console.log('jojojojo')
       var app = this
       axios.get(this.$store.state.jhsoft.url + 'api/lotes/pesomarinacion/programacionfilter/' + parseInt(this.storeItems.programacion.programacion_id)).then(
         function (response) {
@@ -204,7 +205,7 @@ export default {
     }
   },
   created: function () {
-    this.globalGetForSelect('api/lotes/programaciones/abiertas/' + 0, 'programaciones')
+    this.globalGetForSelect('api/lotes/programaciones/abiertas/' + [0, 2], 'programaciones')
   },
   computed: {
   },

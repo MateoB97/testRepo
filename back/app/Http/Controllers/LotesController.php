@@ -27,7 +27,6 @@ class LotesController extends Controller
 
     public function store(Request $request)
     {
-
         if ( (count($request->programaciones) > 0) ){
 
             $lastSeed = intval(Lote::max('consecutivo'));
@@ -37,8 +36,13 @@ class LotesController extends Controller
             } else {
                 $nuevoItem->consecutivo = 1 ;
             }
-            if (($request->producto_empacado  == 0 || $request->producto_empacado == '0')) {
-                $nuevoItem->fecha_empaque_lote_tercero = null;
+            // if (($request->producto_empacado  == 0 || $request->producto_empacado == '0')) {
+            //     $nuevoItem->fecha_empaque_lote_tercero = null;
+            // }
+            foreach ($nuevoItem->toArray() as $clave => $value) {
+                if($value  == '1900/01/01') {
+                    $nuevoItem[$clave] = null;
+                }
             }
             $nuevoItem->estado = 1;
             $nuevoItem->save();
@@ -160,6 +164,16 @@ class LotesController extends Controller
         $model->producto_empacado = ($model->producto_empacado == 1) ? true : false;
         $model->genero = ($model->genero == 1) ? true : false;
         $model->producto_aprobado = ($model->producto_aprobado == 1) ? true : false;
+
+        if($model->producto_empacado && !$model->tercero_reprocesado) {
+            $model->producto_empacado = true;
+            $model->tercero_reprocesado = false;
+        }
+
+        if($model->tercero_reprocesado) {
+            $model->producto_empacado = true;
+            $model->tercero_reprocesado = true;
+        }
 
         $model->consec_compra = ComCompra::find($model->com_compras_id)->consecutivo;
 

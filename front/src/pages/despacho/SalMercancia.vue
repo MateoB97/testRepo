@@ -70,8 +70,12 @@
         <!-- fin popup ingreso de productos manualmente -->
           <div class="row q-col-gutter-sm">
             <SelectTerceroSucursal v-model="storeItems.terceroSucursal_id" columnas='col-12 col-md-6' labelTercero='Cliente'/>
-            <div class="col-6 col-md-3">
-              <q-input color="primary" type="number" v-model="storeItems.temperatura" label="Temperatura"></q-input>
+            <div class="col-3 col-md-3">
+              <q-input color="primary" type="number" v-model="storeItems.temperatura" label="Temperatura en Refrigeración"></q-input>
+            </div>
+            <div class="col-3 col-md-3">
+              <q-input color="primary" type="number" v-model="storeItems.temperatura_congelado" label="Temperatura en Congelación"></q-input>
+              <!-- <q-input color="primary" type="number" v-model="storeItems.temperatura_congelado" label="Temperatura en Congelación" v-if="this.storeItems.temperatura_congelado <= this.base"></q-input>validateWeight -->
             </div>
             <div class="col-6 col-md-3">
               <q-input color="primary" type="text" v-model="storeItems.vehiculo" label="Placa Vehiculo"></q-input>
@@ -142,11 +146,13 @@ export default {
       showCanastas: false,
       openedAddPesoDespacho: false,
       basculas: [],
+      base: -18,
       storeItems: {
         items: [],
         terceroSucursal_id: null,
-        temperatura: null,
-        vehiculo: null
+        temperatura: '',
+        vehiculo: null,
+        temperatura_congelado: ''
       },
       datos: {
         items: [],
@@ -183,7 +189,21 @@ export default {
   mixins: [globalFunctions],
   methods: {
     preSave () {
+      // this.validateWeight()
       this.storeItems.datos = this.datos.items
+    },
+    validateWeight () {
+      var app = this
+      var base = -18
+      console.log(this.storeItems.temperatura_congelado)
+      console.log(base)
+      if (this.storeItems.temperatura_congelado <= base) {
+        app.$q.notify({ color: 'positive', message: 'Done' })
+        return true
+      } else {
+        app.$q.notify({ color: 'negative', message: 'Temperatura debe ser menor o igual a -18°' })
+        return false
+      }
     },
     postSave () {
       this.datos.tercero_id = null

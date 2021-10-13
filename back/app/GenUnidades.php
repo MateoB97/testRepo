@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class GenUnidades extends Model
 {
@@ -33,13 +34,13 @@ class GenUnidades extends Model
 
     protected $columns = array('id','abrev_pos','nombre','activo','created_at','updated_at'); // add all columns from you table
 
-    public function scopeExclude($query,$value = array()) 
+    public function scopeExclude($query,$value = array())
     {
         return $query->select( array_diff( $this->columns,(array) $value) );
-    }  
+    }
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

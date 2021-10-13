@@ -130,12 +130,15 @@
 							</tr>
 							<tr>
 								<td colspan="2"  class="text-center">
-									<p><strong>Fecha Facturación:</strong> {{ $movimiento->fecha_facturacion }} </p>
+									<p><strong>Fecha Movimiento:</strong> {{ $movimiento->fecha_facturacion }} </p>
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" class="text-center">
 									<p><strong>Fecha Vencimiento:</strong> {{ $movimiento->fecha_vencimiento }} </p>
+                                    @if ( $movimiento->sal_mercancia_consec != null)
+                                        <p><strong>N° de Guía 002DM - {{str_pad($movimiento->sal_mercancia_consec, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</strong></p>
+                                    @endif
 								</td>
 							</tr>
 						</tbody>

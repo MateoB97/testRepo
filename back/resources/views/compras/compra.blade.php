@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -140,13 +140,17 @@
 					<p><strong>Teléfono:</strong> {{ $sucursal->telefono}}</p>
 				</td>
 				<td class="wtercio">
-					
+
 				@if ( $tipoCompra->naturaleza == 1)
 					<p><strong>Fecha Compra:</strong> {{ $compra->fecha_compra }} </p>
 					<p><strong>Fecha Vencimiento:</strong> {{ $compra->fecha_vencimiento }} </p>
 				@else
 					<p><strong>Fecha compra:</strong> {{ $compra->fecha_compra }} </p>
 				@endif
+
+                @if ( $compra->doc_referencia !== '0')
+                    <p><strong>Factura Referencia:</strong> {{ $compra->doc_referencia }} </p>
+                @endif
 				</td>
 			</tr>
 		</tbody>
@@ -203,7 +207,7 @@
 
 	<br>
 
-	
+
 
 </body>
 </html>

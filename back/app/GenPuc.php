@@ -4,20 +4,21 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class GenPuc extends Model
 {
     protected $table = 'gen_puc';
 
-    protected $fillable = ['codigo','nombre','activo'];  
+    protected $fillable = ['codigo','nombre','activo'];
 
     public function getDateFormat()
     {
-       return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function getDataInforme ($fecha_ini, $fecha_fin) {
-    	return DB::statement("select 
+    	return DB::statement("select
 			dd.prefijo,
 			dd.consecutivo,
 			dd.fecha_facturacion,
@@ -30,7 +31,7 @@ class GenPuc extends Model
 			dd.nombre_contable_venta,
 			dd.nombre_contable_iva
 		from (
-			select 
+			select
 				fac_tipo_doc.prefijo,
 				fac_movimientos.consecutivo,
 				fac_movimientos.fecha_facturacion,

@@ -237,8 +237,33 @@
                   </template>
                 </q-select>
               </div>
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 2 || parseInt(tipoDoc.naturaleza) === 3" class="col-6">
+                <q-select
+                  class="w-100"
+                  v-model="storeItems.correction_soenac_id"
+                  use-input
+                  hide-selected
+                  fill-input
+                  option-value="correction_soenac_id"
+                  option-label="nombre"
+                  label="Concepto de Nota"
+                  option-disable="inactive"
+                  map-options
+                  input-debounce="0"
+                  :options="options.datasoenaccorrections"
+                  @filter="filterConcepts"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        No results
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
               <div v-if="tipoDoc.naturaleza == 1" class="col-6">
-                <q-input label="Guia Transporte" v-model="storeItems.guiaTransporte" class="date-field" readonly :rules="['string'] " />
+                <q-input label="Guia Transporte" v-model="storeItems.guiaTransporte" class="date-field" :rules="['string'] " />
               </div>
               <!-- Fin datos solo para facturas -->
               <!-- // -->
@@ -419,6 +444,7 @@ export default {
   },
   data: function () {
     return {
+      tempRouteStateId: 0,
       valueToggle: true,
       money: {
         decimal: ',',
@@ -431,6 +457,7 @@ export default {
       urlAPI: 'api/facturacion/movimientos',
       tipoDoc: {},
       storeItems: {
+        fecha_vencimiento: null
       },
       datos: {
         despacho: null
@@ -474,7 +501,8 @@ export default {
         productos: this.productos,
         vendedores: this.vendedores,
         formasPago: this.formasPago,
-        grupos: this.grupos
+        grupos: this.grupos,
+        datasoenaccorrections: this.datasoenaccorrections
       },
       verTabla: true,
       interval: null,
@@ -534,6 +562,7 @@ export default {
         }
         this.getTerceroPOS()
         this.prepareFormaspago()
+        this.$refs.scan.focus()
       }
       this.storeItems = {}
       this.sendingCheck = 0
@@ -544,10 +573,16 @@ export default {
       var yyyy = today.getFullYear()
       today = yyyy + '/' + mm + '/' + dd
       this.storeItems.fecha_facturacion = today
-      this.storeItems.fecha_vencimiento = today
-      this.$refs.scan.focus()
+      // this.storeItems.fecha_vencimiento = today
     },
     preSave () {
+      var app = this
+      console.log(this.doc)
+      console.log(app.tipoDoc)
+      console.log(app.docReferencia)
+      if (this.tipoDoc.naturaleza === '4') {
+        this.setPlazo(30)
+      }
       if (this.storeItems.afectaInventario === true) {
         this.storeItems.afectar_inventario = 1
       } else {
@@ -602,6 +637,16 @@ export default {
       update(() => {
         const needle = val.toLowerCase()
         this.options.grupos = this.grupos.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
+      })
+    },
+    filterConcepts (val, update, abort) {
+      // if (!this.datasoenaccorrections.length > 0 || this.options.datasoenaccorrections.lenght > 0) {
+      //   console.log(this.datasoenaccorrections)
+      //   this.globalGetForSelect('api/facturacion/datasoenaccorrections/' + this.$route.params.id, 'datasoenaccorrections')
+      // }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.options.datasoenaccorrections = this.datasoenaccorrections.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
     openedAddProductoMethod () {
@@ -715,6 +760,7 @@ export default {
     },
     selectMovimiento () {
       var app = this
+      app.dataResumen = []
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/movimientositems/filtro/pormovimiento/' + this.storeItems.docReferencia.id).then(
         function (response) {
           response.data.forEach(function (element, i) {
@@ -840,25 +886,29 @@ export default {
       app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(item.vendedor))
     },
     setPlazo (value) {
-      console.log(value)
+      console.log('SetPlazo !!!:' + value)
       this.fechasHoy(value)
     },
-    fechasHoy (plazo = 30) {
-      if (plazo === null) {
-        plazo = 30
-      }
+    fechasHoy (plazo) {
+      console.log(plazo)
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
       var mm = String(today.getMonth() + 1).padStart(2, '0')
       var yyyy = today.getFullYear()
       this.storeItems.fecha_facturacion = yyyy + '/' + mm + '/' + dd
       // fecha venciomiento
-      var today2 = new Date()
-      today2.setDate(today2.getDate() + parseInt(plazo))
-      dd = String(today2.getDate()).padStart(2, '0')
-      mm = String(today2.getMonth() + 1).padStart(2, '0')
-      yyyy = today2.getFullYear()
-      this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      if (plazo !== undefined) {
+        var today2 = new Date()
+        today2.setDate(today2.getDate() + parseInt(plazo))
+        console.log('Today 2 ' + today2)
+        dd = String(today2.getDate()).padStart(2, '0')
+        console.log('DD ' + dd)
+        mm = String(today2.getMonth() + 1).padStart(2, '0')
+        console.log('MM ' + mm)
+        yyyy = today2.getFullYear()
+        console.log('YYYY ' + yyyy)
+        this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      }
     }
   },
   created: function () {
@@ -869,6 +919,9 @@ export default {
     this.globalGetForSelect('api/productos/todosconimpuestos', 'productosImpuestos')
     this.globalGetForSelect('api/generales/iva', 'impuestos')
     this.fechasHoy()
+    if (this.tempRouteStateId !== this.$route.params.id) {
+      this.globalGetForSelect('api/facturacion/datasoenaccorrections/' + this.$route.params.id, 'datasoenaccorrections')
+    }
   },
   computed: {
     subtotal: function () {

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class ProdGrupo extends Model
 {
@@ -34,14 +35,14 @@ class ProdGrupo extends Model
 
     protected $columns = array('id','nombre','activo','created_at','updated_at'); // add all columns from you table
 
-    public function scopeExclude($query,$value = array()) 
+    public function scopeExclude($query,$value = array())
     {
         return $query->select( array_diff( $this->columns,(array) $value) );
-    }  
+    }
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function listadoGruposMarques(){

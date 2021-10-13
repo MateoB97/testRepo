@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -131,7 +131,7 @@
 				</td>
 				<td class="wmediotercio">
 					<p>{{ $sucursal->telefono }} </p>
-					<p> XXXXXXXXXX </p>
+					<p> {{$sucursal->direccion}} </p>
 				</td>
 			</tr>
 		</tbody>
@@ -181,7 +181,7 @@
 					</table>
 				</td>
 				<td class="wtercio">
-					
+
 				</td>
 				<td class="wmediotercio text-center">
 					<p><strong>TOTAL PAGADO</strong></p>

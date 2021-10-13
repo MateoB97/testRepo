@@ -20,7 +20,8 @@ class LotProgramacionController extends Controller
 
     public function programacionLotesAbiertos($producto_empacado)
     {
-        $list = LotProgramacion::todosConLoteAbierto($producto_empacado);
+        $data = explode(',', $producto_empacado);
+        $list = LotProgramacion::todosConLoteAbierto($data);
         return $list;
     }
 

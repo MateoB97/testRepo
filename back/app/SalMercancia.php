@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class SalMercancia extends Model
 {
@@ -19,7 +20,7 @@ class SalMercancia extends Model
      *
      * @var array
      */
-    protected $fillable = ['terceroSucursal_id','temperatura','vehiculo', 'consecutivo'];
+    protected $fillable = ['terceroSucursal_id','temperatura','vehiculo', 'consecutivo', 'temperatura_congelado'];
 
     /**
      * SalMercancia belongs to TerceroSucursal.
@@ -45,7 +46,7 @@ class SalMercancia extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConSucursales(){

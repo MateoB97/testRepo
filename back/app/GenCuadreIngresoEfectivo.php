@@ -4,16 +4,17 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class GenCuadreIngresoEfectivo extends Model
 {
     protected $table = 'gen_cuadre_ingreso_efectivo';
 
-    protected $fillable = ['descripcion','valor','consecutivo','gen_cuadre_caja_id'];  
+    protected $fillable = ['descripcion','valor','consecutivo','gen_cuadre_caja_id'];
 
     public function getDateFormat()
     {
-       return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function sumIngresoEfectivoCuadre($cuadre){

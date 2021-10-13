@@ -80,7 +80,7 @@
                   <SelectTerceroSucursal v-model="sucursal_id" :editor="sucursal_id" labelTercero='Cliente'/>
               </div>
               <div class="col-4">
-                <q-input label="Fecha de Recibo" v-model="storeItems.fecha_recibo" class="date-field" mask="date" :rules="['date']">
+                <q-input label="Fecha de Recibo" v-model="storeItems.fecha_recibo" class="date-field" mask="date" :rules="['date']" readonly="readonly">
                   <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                       <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">

@@ -249,8 +249,32 @@
             </div>
             <div class="row q-col-gutter-md" v-if="this.$store.state.jhsoft.tipo_licencia !== 1">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Compras</h4></div>
-                <div class="col-4">
+                <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(2), datos.fecha_inicial = null, datos.fecha_final = null" label="Compras Netas x Fecha" />
+                </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha"
+                      url="api/reportesgenerados/reportes/comprasPorFecha"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha Detalles"
+                      url="api/reportesgenerados/reportes/comprasDetails"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
                 </div>
             </div>
             <div class="row q-col-gutter-md">
@@ -274,6 +298,16 @@
                       :tipoDocFilter="false"
                       :datesFilter="true"
                       :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimientos x Fecha x Sucursales"
+                      url="api/reportesgenerados/reportes/movimientosPorFechaPorSucursal"
+                      :tercerosFilter="true"
+                      :datesFilter="true"
                       :dateUnique="0"
                     />
                     <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
@@ -312,7 +346,7 @@
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent
-                    titleBtn="Peso Factura - Ventas - Devoluciones - Notas"
+                    titleBtn="Peso Factura - Devoluciones"
                     url="api/reportesgenerados/reportes/pesoporfechaventasdevsnotas"
                     :datesFilter="true"
                     :dateUnique="0"
@@ -335,6 +369,22 @@
                     url="api/reportesgenerados/pesostotalesproductos"
                     :datesFilter="true"
                     :productosFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Exportar Reporte Fiscal"
+                    url="api/reportesgenerados/reportes/exportreportefiscal"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Interfaz Contable"
+                    url="api/reportesgenerados/ivas"
+                    :datesFilter="true"
                     :dateUnique="0"
                   />
                 </div>

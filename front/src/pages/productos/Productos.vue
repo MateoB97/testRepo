@@ -581,12 +581,15 @@ export default {
       this.openedVencimiento = true
     },
     eliminarFilaVencimientos (id) {
+      console.log(id)
+      var app = this
       var index = null
       this.$q.dialog({
         message: '¿ Quieres eliminar esta fila ?',
         cancel: true,
         persistent: true
       }).onOk(() => {
+        axios.delete(app.$store.state.jhsoft.url + 'api/productos/almacenamiento/eliminarvencimiento/' + parseInt(id))
         this.storeItems.vencimientos.forEach(function (element, i) {
           if (id === element.id) {
             index = i
