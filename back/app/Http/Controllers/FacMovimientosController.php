@@ -37,6 +37,7 @@ use Carbon\Carbon;
 use PDF;
 use App\FacReciboCaja;
 use App\FacPivotRecMov;
+use App\ReportesT80;
 use DNS2D;
 use App\SoenacRegimen;
 use App\SoenacResponsabilidad;
@@ -45,6 +46,8 @@ use App\SoenacTipoOrg;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\TempMarques;
 use App\FacPivotTipoDocTipoRec;
+use App\Tools;
+use App\SoenacPivotCorrectionFacMovConcepts;
 
 class FacMovimientosController extends Controller
 {
@@ -84,349 +87,123 @@ class FacMovimientosController extends Controller
         //     ['71386506','VLADIMIR ALZATE HINCAPIE','0','1','0','1','calle 95 49 05','3022078732','UNICA','79','NO TIENE'],
         //     ['201080','yeison chiki','0','1','0','2','cr48 52-26','2339319','UNICA','79','NO TIENE']];
 
-        // $i = 2;
+        $i = 2;
 
-        // foreach ($terceros as $item) {
-        //     Tercero::create([
-        //         'documento' => $item[0],
-        //         'nombre' => strtolower($item[1]),
-        //         'proveedor' => $item[2],
-        //         'cliente' => $item[3],
-        //         'empleado' => $item[4],
-        //         'digito_verificacion' => $item[5],
-        //         'activo' => 1,
-        //         'habilitado_traslados' => 0,
-        //         'soenac_regim_id' => null,
-        //         'soenac_responsab_id' => null,
-        //         'soenac_tipo_org_id' => null,
-        //         'soenac_tipo_documento_id' => null,
-        //         'registro_mercantil' => null
-        //     ]);
+        foreach ($terceros as $item) {
+            Tercero::create([
+                'documento' => $item[0],
+                'nombre' => strtolower($item[1]),
+                'proveedor' => $item[2],
+                'cliente' => $item[3],
+                'empleado' => $item[4],
+                'digito_verificacion' => $item[5],
+                'activo' => 1,
+                'habilitado_traslados' => 0,
+                'soenac_regim_id' => null,
+                'soenac_responsab_id' => null,
+                'soenac_tipo_org_id' => null,
+                'soenac_tipo_documento_id' => null,
+                'registro_mercantil' => null
+            ]);
 
-        //     TerceroSucursal::create([
-        //         'nombre' => strtolower($item[8]),
-        //         'direccion' => $item[6],
-        //         'telefono' => intval($item[7]),
-        //         'tercero_id' => $i,
-        //         'prodListaPrecio_id' => 1,
-        //         'activo' => 1,
-        //         'gen_municipios_id' => intval($item[9])
-        //     ]);
+            TerceroSucursal::create([
+                'nombre' => strtolower($item[8]),
+                'direccion' => $item[6],
+                'telefono' => intval($item[7]),
+                'tercero_id' => $i,
+                'prodListaPrecio_id' => 1,
+                'activo' => 1,
+                'gen_municipios_id' => intval($item[9])
+            ]);
 
-        //     $i = $i + 1;
-        // }
+            $i = $i + 1;
+        }
 
 
         $data =
-            [['118','5897','1','8934','4131'],
-            ['118','5914','1','12264','0'],
-            ['118','5940','1','3865','0'],
-            ['118','5953','1','12712','0'],
-            ['118','5994','1','8386','0'],
-            ['118','6246','1','24940','0'],
-            ['102','3324','2','458778','5919'],
-            ['118','6577','2','1218885','0'],
-            ['118','6583','2','446715','0'],
-            ['118','6601','2','903330','0'],
-            ['118','6605','2','963975','0'],
-            ['118','6610','2','532260','0'],
-            ['118','6033','3','271695','200578'],
-            ['118','6213','3','30000','0'],
-            ['118','6266','3','201318','0'],
-            ['102','3294','4','17076429','15491979'],
-            ['102','3172','5','186500','0'],
-            ['102','3257','5','453020','0'],
-            ['102','3266','5','709080','0'],
-            ['102','3271','5','79380','0'],
-            ['102','3275','5','1985000','0'],
-            ['102','3276','5','562500','0'],
-            ['102','3280','5','625000','0'],
-            ['102','3281','5','607875','0'],
-            ['102','3283','5','279800','0'],
-            ['102','3284','5','230800','0'],
-            ['102','3285','5','270300','0'],
-            ['102','3286','5','33500','0'],
-            ['102','3289','5','45400','0'],
-            ['102','3290','5','535000','0'],
-            ['102','3291','5','29700','0'],
-            ['102','3292','5','98400','0'],
-            ['102','3293','5','130000','0'],
-            ['102','3295','5','226000','0'],
-            ['102','3296','5','44800','0'],
-            ['102','3298','5','165000','0'],
-            ['102','3299','5','163500','0'],
-            ['102','3300','5','70000','0'],
-            ['102','3302','5','926458','0'],
-            ['102','3303','5','495000','0'],
-            ['102','3304','5','14000','0'],
-            ['102','3305','5','77400','0'],
-            ['102','3306','5','52500','0'],
-            ['102','3307','5','1137600','0'],
-            ['102','3308','5','99000','0'],
-            ['102','3310','5','42000','0'],
-            ['102','3312','5','272300','0'],
-            ['102','3313','5','1376600','0'],
-            ['102','3314','5','56000','0'],
-            ['102','3315','5','46200','0'],
-            ['102','3316','5','285800','0'],
-            ['102','3317','5','128000','0'],
-            ['102','3319','5','187200','0'],
-            ['102','3322','5','1703360','0'],
-            ['102','3327','5','52875','0'],
-            ['102','3329','5','130000','0'],
-            ['102','3330','5','301060','0'],
-            ['102','3331','5','93200','0'],
-            ['102','3332','5','449260','0'],
-            ['102','3333','5','256030','0'],
-            ['102','3334','5','12840','0'],
-            ['102','3335','5','67170','0'],
-            ['102','3336','5','37170','0'],
-            ['102','3337','5','73530','0'],
-            ['102','3338','5','154370','0'],
-            ['102','3339','5','45816','0'],
-            ['102','3340','5','190520','0'],
-            ['102','3341','5','533676','0'],
-            ['102','3342','5','148357','0'],
-            ['102','3343','5','243254','0'],
-            ['102','3344','5','74860','0'],
-            ['102','3345','5','169800','0'],
-            ['102','3346','5','295390','0'],
-            ['102','3347','5','261585','0'],
-            ['102','3348','5','69896','0'],
-            ['102','3349','5','452578','0'],
-            ['102','3350','5','167500','0'],
-            ['102','3351','5','145110','0'],
-            ['102','3352','5','58392','0'],
-            ['102','3353','5','70940','0'],
-            ['102','3354','5','475150','0'],
-            ['102','3355','5','373534','0'],
-            ['102','3356','5','206130','0'],
-            ['102','3357','5','326628','0'],
-            ['102','3358','5','352872','0'],
-            ['102','3359','5','271481','0'],
-            ['102','3360','5','72570','0'],
-            ['102','3361','5','234700','0'],
-            ['102','3362','5','195838','0'],
-            ['102','3363','5','81421','0'],
-            ['102','3364','5','223180','0'],
-            ['102','3365','5','175100','0'],
-            ['102','3366','5','356955','0'],
-            ['102','3367','5','167287','0'],
-            ['102','3368','5','12000','0'],
-            ['102','3369','5','16263','0'],
-            ['102','3370','5','109345','0'],
-            ['102','3371','5','74721','0'],
-            ['102','3372','5','301055','0'],
-            ['102','3373','5','338177','0'],
-            ['102','3374','5','140920','0'],
-            ['102','3375','5','68257','0'],
-            ['118','5949','5','99000','0'],
-            ['118','6042','5','213430','0'],
-            ['118','6058','5','232925','0'],
-            ['118','6067','5','59533','0'],
-            ['118','6068','5','32880','0'],
-            ['118','6071','5','52000','0'],
-            ['118','6239','5','261420','0'],
-            ['118','6427','5','360984','0'],
-            ['118','6470','5','188553','0'],
-            ['118','6505','5','294720','0'],
-            ['118','6509','5','315290','0'],
-            ['118','6559','5','258162','0'],
-            ['118','6579','5','85119','0'],
-            ['118','6597','5','92430','0'],
-            ['118','6553','6','68925','0'],
-            ['118','6596','6','9200','0'],
-            ['118','6376','7','40570','18632'],
-            ['102','2633','8','10073080','5000000'],
-            ['118','6523','9','181661','0'],
-            ['118','6592','9','34200','0'],
-            ['118','5918','10','109230','0'],
-            ['118','6477','11','153302','22110'],
-            ['102','3279','12','270000','0'],
-            ['102','3287','12','354700','0'],
-            ['102','2541','13','7537448','1108640'],
-            ['102','2556','13','7097698','0'],
-            ['102','2558','13','5934946','0'],
-            ['102','2562','13','204582','0'],
-            ['102','2582','13','5139019','0'],
-            ['102','2594','13','6446596','0'],
-            ['118','6288','14','544709','0'],
-            ['118','6317','14','284720','0'],
-            ['118','6337','14','604334','0'],
-            ['118','6379','14','484707','0'],
-            ['118','6400','14','682124','0'],
-            ['118','6446','14','548255','0'],
-            ['118','6448','14','516979','0'],
-            ['118','6465','14','601080','0'],
-            ['118','6504','14','514613','0'],
-            ['118','6510','14','599790','0'],
-            ['118','6557','14','557468','0'],
-            ['118','6565','14','582261','0'],
-            ['118','6578','14','376060','0'],
-            ['118','6528','15','56734','55235'],
-            ['118','6569','15','88156','0'],
-            ['118','6611','15','31000','0'],
-            ['118','6440','16','102335','95703'],
-            ['118','6442','16','79090','0'],
-            ['118','6475','16','117837','0'],
-            ['118','6490','16','173260','0'],
-            ['118','6492','16','16770','0'],
-            ['118','6507','16','90992','0'],
-            ['118','6513','16','90445','0'],
-            ['118','6518','16','104337','0'],
-            ['118','6542','16','137465','0'],
-            ['118','6580','16','164614','0'],
-            ['118','6584','16','22770','0'],
-            ['118','6417','17','265530','236937'],
-            ['118','6522','17','245762','0'],
-            ['118','6574','17','23300','0'],
-            ['118','6576','17','10000','0'],
-            ['118','5865','18','976489','936449'],
-            ['118','5874','18','230100','0'],
-            ['118','5891','18','830935','0'],
-            ['118','5893','18','144327','0'],
-            ['118','6302','18','697090','0'],
-            ['118','6309','18','146180','0'],
-            ['118','6459','18','106958','0'],
-            ['118','6313','19','103195','86721'],
-            ['118','6381','19','80730','0'],
-            ['118','6398','19','86721','0'],
-            ['118','6607','19','88853','0'],
-            ['118','6600','20','239233','0'],
-            ['118','6044','21','245000','192139'],
-            ['118','6052','21','72556','0'],
-            ['118','6075','21','122332','0'],
-            ['118','6087','21','53646','0'],
-            ['118','6092','21','13050','0'],
-            ['118','6121','21','9851','0'],
-            ['118','6125','21','27170','0'],
-            ['118','6146','21','42075','0'],
-            ['118','6157','21','63919','0'],
-            ['118','6181','21','53375','0'],
-            ['118','6183','21','56470','0'],
-            ['118','6192','21','205201','0'],
-            ['118','6198','21','15760','0'],
-            ['118','6202','21','99978','0'],
-            ['118','6205','21','367276','0'],
-            ['118','6206','21','78503','0'],
-            ['118','6230','21','249775','0'],
-            ['118','6383','21','57400','0'],
-            ['118','6488','21','48506','0'],
-            ['118','6497','21','25614','0'],
-            ['118','6543','21','103765','0'],
-            ['118','6546','21','13191','0'],
-            ['118','6595','22','144723','0'],
-            ['102','3311','23','437975','0'],
-            ['102','3318','23','276640','0'],
-            ['102','3328','23','394850','0'],
-            ['118','6586','24','146050','104266'],
-            ['118','6377','25','45351','63'],
-            ['118','6531','25','57182','0'],
-            ['118','6561','25','10348','0'],
-            ['118','6380','26','87590','70282'],
-            ['118','6386','26','33970','0'],
-            ['118','6405','26','47001','0'],
-            ['118','6418','26','79383','0'],
-            ['118','6434','26','8500','0'],
-            ['118','6453','26','64956','0'],
-            ['118','6462','26','54350','0'],
-            ['118','6493','26','54630','0'],
-            ['118','6517','26','8550','0'],
-            ['118','6525','26','87691','0'],
-            ['118','6532','26','32169','0'],
-            ['118','6537','26','51307','0'],
-            ['118','6602','26','14465','0'],
-            ['102','2218','27','671834.38','671834'],
-            ['102','2240','27','1707650.06','1707650'],
-            ['102','2337','27','175250.56','175251'],
-            ['102','2367','27','689800.45','689800'],
-            ['102','2402','27','587000.12','587000'],
-            ['102','2409','27','2144410.12','2144410'],
-            ['102','2411','27','1218019.97','1218020'],
-            ['102','3190','27','1015800','0'],
-            ['102','3199','27','802020','0'],
-            ['102','3207','27','657600','0'],
-            ['102','3209','27','146900','0'],
-            ['102','3220','27','148800','0'],
-            ['102','3227','27','935660','0'],
-            ['102','3240','27','558700','0'],
-            ['102','3255','27','639200','0'],
-            ['102','3260','27','499000','0'],
-            ['102','3262','27','726750','0'],
-            ['102','3263','27','287000','0'],
-            ['102','3264','27','594800','0'],
-            ['102','3265','27','408200','0'],
-            ['102','3267','27','718400','0'],
-            ['102','3268','27','420600','0'],
-            ['102','3270','28','822900','0'],
-            ['118','6265','28','19701','0'],
-            ['118','6307','28','104137','0'],
-            ['118','6437','29','69304','0'],
-            ['118','6369','29','178910','0'],
-            ['118','6388','29','139400','0'],
-            ['118','6401','29','130560','0'],
-            ['118','6408','29','204160','0'],
-            ['118','6421','29','342905','0'],
-            ['118','6439','29','269980','0'],
-            ['118','6449','29','197490','0'],
-            ['118','6452','29','207325','0'],
-            ['118','6469','29','238695','0'],
-            ['118','6472','29','202160','0'],
-            ['118','6478','29','142000','0'],
-            ['118','6483','29','59070','0'],
-            ['118','6489','29','279805','0'],
-            ['118','6499','29','244895','0'],
-            ['118','6501','29','141500','0'],
-            ['118','6515','29','396870','0'],
-            ['118','6519','29','198560','0'],
-            ['118','6526','29','175500','0'],
-            ['118','6527','29','82390','0'],
-            ['118','6538','29','120040','0'],
-            ['118','6540','29','331865','0'],
-            ['118','6545','29','144320','0'],
-            ['118','6551','29','266770','0'],
-            ['118','6560','29','284230','0'],
-            ['118','6567','29','240260','0'],
-            ['118','6570','29','442810','0'],
-            ['118','6575','29','222910','0'],
-            ['118','6593','29','347305','0'],
-            ['118','6598','29','286900','0'],
-            ['118','6604','29','199780','0'],
-            ['118','6608','29','153565','0'],
-            ['118','6612','30','740145','0'],
-            ['118','6464','30','140315','0'],
-            ['118','6473','30','138850','0'],
-            ['118','6486','30','109700','0'],
-            ['118','6495','30','118590','0'],
-            ['118','6508','30','297330','0'],
-            ['118','6514','30','94300','0'],
-            ['118','6533','30','119710','0'],
-            ['118','6547','30','52910','0'],
-            ['118','6558','30','91170','0'],
-            ['118','6564','30','92265','0'],
-            ['118','6572','30','166478','0'],
-            ['118','6582','30','88080','0'],
-            ['118','6599','31','107815','0'],
-            ['118','6334','31','81351','25424'],
-            ['118','6335','31','34765','0'],
-            ['118','6338','31','62437','0'],
-            ['118','6343','31','8599','0'],
-            ['118','6352','31','221054','0'],
-            ['118','6353','31','78367','0'],
-            ['118','6357','31','35025','0'],
-            ['118','6361','31','84083','0'],
-            ['118','6363','31','91965','0'],
-            ['118','6399','31','20000','0'],
-            ['118','6429','31','58075','0'],
-            ['118','6468','31','50020','0'],
-            ['118','6498','31','247983','0'],
-            ['118','6544','31','83471','0'],
-            ['118','6563','31','56530','0'],
-            ['118','6585','31','84532','83532'],
-            ['118','6588','31','80204','0']];
+            // [['118','5897','1','8934','4131'],
+            // ['118','6588','31','80204','0']];
+                [['102', '930','8' ,'40','0'],
+                ['118', '3360','4' ,'12180','0'],
+                ['102', '3499','4' ,'15380','0'],
+                ['102', '3527','4' ,'24840','0'],
+                ['102', '1017','8' ,'26050','0'],
+                ['102', '1048','8' ,'27690','0'],
+                ['102', '985','8' ,'28600','0'],
+                ['102', '1018','8' ,'33990','0'],
+                ['102', '964','8' ,'34690','0'],
+                ['102', '1085','9' ,'34765','0'],
+                ['102', '1064','8' ,'35110','0'],
+                ['102', '1079','8' ,'35210','0'],
+                ['118', '3175','6' ,'36220','0'],
+                ['102', '1071','8' ,'38330','0'],
+                ['102', '1005','8' ,'38890','0'],
+                ['102', '921','8' ,'39933','0'],
+                ['102', '992','8' ,'40640','0'],
+                ['118', '3169','6' ,'42565','0'],
+                ['102', '3507','4' ,'43200','0'],
+                ['102', '977','8' ,'43720','0'],
+                ['102', '950','8' ,'45296','0'],
+                ['102', '1066','8' ,'46115','0'],
+                ['118', '3412','4' ,'46438','0'],
+                ['102', '1003','8' ,'47150','0'],
+                ['102', '1041','8' ,'48830','0'],
+                ['102', '1045','8' ,'49180','0'],
+                ['102', '1023','8' ,'49670','0'],
+                ['102', '990','8' ,'50090','0'],
+                ['102', '1033','8' ,'53730','0'],
+                ['102', '1086','8' ,'53835','0'],
+                ['102', '1029','8' ,'56460','0'],
+                ['102', '982','8' ,'57440','0'],
+                ['102', '980','8' ,'57903','0'],
+                ['102', '1007','8' ,'58590','0'],
+                ['102', '1000','8' ,'59960','0'],
+                ['102', '968','8' ,'61545','0'],
+                ['102', '1077','8' ,'62960','0'],
+                ['118', '3384','4' ,'65468','0'],
+                ['102', '1075','8' ,'67160','0'],
+                ['102', '953','8' ,'69483','0'],
+                ['102', '938','8' ,'69600','0'],
+                ['102', '962','8' ,'72425','0'],
+                ['102', '979','8' ,'72500','0'],
+                ['102', '1052','8' ,'74590','0'],
+                ['102', '1069','8' ,'80170','0'],
+                ['102', '1082','8' ,'82635','0'],
+                ['118', '3163','6' ,'85490','0'],
+                ['118', '3165','6' ,'87775','0'],
+                ['102', '981','8' ,'92263','0'],
+                ['102', '3531','4' ,'94965','0'],
+                ['102', '984','8' ,'95940','0'],
+                ['102', '1037','8' ,'96523','0'],
+                ['102', '1047','8' ,'98870','0'],
+                ['102', '969','8' ,'101298','0'],
+                ['102', '870','9' ,'102003','0'],
+                ['102', '875','8' ,'102916','0'],
+                ['102', '1015','8' ,'104540','0'],
+                ['102', '871','8' ,'104635','0'],
+                ['102', '1065','8' ,'109390','0'],
+                ['102', '995','8' ,'112553','0'],
+                ['102', '956','8' ,'118755','0'],
+                ['102', '799','9' ,'119800','0'],
+                ['102', '941','8' ,'128248','0'],
+                ['102', '957','8' ,'136650','0'],
+                ['102', '1050','8' ,'140005','0'],
+                ['102', '1076','8' ,'140270','0'],
+                ['102', '3532','4' ,'152665','0'],
+                ['102', '952','8' ,'157216','0'],
+                ['102', '1022','8' ,'160970','0'],
+                ['102', '868','10','167969','0'],
+                ['102', '966','4','170529','0'],
+                ['118', '3167','6','180713','0'],
+                ['102', '1062','3','275551','138382'],
+                ['102', '1080','7','441435','0'],
+                ['102', '970','9','641232','0'],
+                ['102', '1058','3','676573','0'],
+                ['102', '1067','3','1937822','0']];
 
-        $conseRec1 = 1;
-        $conseRec2 = 1;
+
+        $conseRec1 = 32;
+        $conseRec2 = 57;
 
         foreach ($data as $item) {
             $nuevoItem = new FacMovimiento();
@@ -445,8 +222,9 @@ class FacMovimientosController extends Controller
             $nuevoItem->descuento = 0;
             $nuevoItem->ivatotal = 0;
             $nuevoItem->saldo = intval($item[3]) - intval($item[4]);
-            $nuevoItem->fecha_vencimiento = '21/09/2020';
-            $nuevoItem->fecha_facturacion = '10/10/2020';
+            $nuevoItem->fecha_vencimiento = '01/02/2021';
+            $nuevoItem->fecha_facturacion = '01/02/2021';
+            $nuevoItem->nota ='Cargado desde Costo y venta el 01/02/2021, no se tiene fecha real de la factura';
             $nuevoItem->gen_cuadre_caja_id = 1;
             $nuevoItem->save();
 
@@ -524,10 +302,8 @@ class FacMovimientosController extends Controller
         $tipos_doc = FacPivotTipoDocTipoRec::where('fac_tipo_rec_id', $tipo_rec_id)->get();
 
         foreach ($tipos_doc as $tipo_doc) {
-            array_push($tipos, $tipo_doc->fac_tipo_doc_id);
+            array_push($tipos, intval($tipo_doc->fac_tipo_doc_id));
         }
-
-        // return $tipos;
 
         $index = FacMovimiento::facturasPendientesPorSucursalYTipo($sucursal_id, $tipos);
 
@@ -565,14 +341,14 @@ class FacMovimientosController extends Controller
             $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()->last();
             $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
         }else{
-            $nuevoItem->consecutivo = $tipoDoc->consec_inicio;
+            $nuevoItem->consecutivo = intval($tipoDoc->consec_inicio);
         }
 
         // si es una devolucion cambia el estado del movimiento
         if ($tipoDoc->naturaleza == 0) {
 
             $docRelacionado = FacMovimiento::find($request->docReferencia['id']);
-
+            self::descargarDevolucionInventario($docRelacionado->id);
             $docRelacionado->estado = 3;
 
             $docRelacionado->save();
@@ -695,6 +471,14 @@ class FacMovimientosController extends Controller
             $cruce->fac_mov_secundario = $nuevoItem->id;
 
             $cruce->save();
+
+            if($request->correction_soenac_id['correction_soenac_id']){
+                $newItem = new SoenacPivotCorrectionFacMovConcepts();
+                $newItem->correction_id = $request->correction_soenac_id['correction_soenac_id'];
+                $newItem->fac_mov_id = $nuevoItem->id;
+                $newItem->save();
+            }
+
         }
 
         foreach ($request->lineas as $linea) {
@@ -705,17 +489,9 @@ class FacMovimientosController extends Controller
 
             if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1) {
 
-                $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
-                if ($itemInventario) {
-                    $itemInventario->cantidad -= floatval($linea['cantidad']);
-                    $itemInventario->save();
-                } else {
-                    $nuevoInventario = new Inventario($linea);
-                    $nuevoInventario->cantidad = - $linea['cantidad'];
-                    $nuevoInventario->costo_promedio = 0;
-                    $nuevoInventario->tipo_invent = 1;
-                    $nuevoInventario->save();
-                }
+                self::afectarInventario($linea['producto_id'], $linea['cantidad'], 0);
+            } elseif ($tipoDoc->naturaleza == 2 && $request->afectaInventario == true) {
+                self::afectarInventario($linea['producto_id'], $linea['cantidad'], 1);
             }
         }
 
@@ -723,6 +499,41 @@ class FacMovimientosController extends Controller
             return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id, true]];
         } else {
             return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
+        }
+    }
+
+    public static function afectarInventario ($producto_id, $cantidad, $tipo_operacion) {
+
+        if ($tipo_operacion == 1){
+            $cantidad = floatval($cantidad);
+        } else {
+            $cantidad = -floatval($cantidad);
+        }
+
+        $producto = Producto::find($producto_id);
+        $producto_id = 0;
+        // if (!is_null($producto->cod_prod_padre)) {
+        //     $producto_id = Producto::where('codigo', $producto->cod_prod_padre)->get()->first()->id ;
+        $prod_padre = Producto::where('codigo', $producto->cod_prod_padre)->get()->first();
+        if($prod_padre) {
+            $producto_id = $prod_padre->id;
+        } else {
+            $producto_id = $producto->id;
+        }
+        //}
+
+        $itemInventario = Inventario::where('producto_id', $producto_id)->where('tipo_invent','!=',2)->get()->first();
+
+        if ($itemInventario) {
+            $itemInventario->cantidad += $cantidad;
+            $itemInventario->save();
+        } else {
+            $nuevoInventario = new Inventario();
+            $nuevoInventario->cantidad = $cantidad;
+            $nuevoInventario->producto_id = $producto_id;
+            $nuevoInventario->costo_promedio = 0;
+            $nuevoInventario->tipo_invent = 1;
+            $nuevoInventario->save();
         }
     }
 
@@ -758,6 +569,9 @@ class FacMovimientosController extends Controller
                     $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
 
                     foreach ($lineas as $linea) {
+
+                        $itemInventario = Inventario::where('producto_id', $linea['producto_id'])->where('tipo_invent','!=',2)->get()->first();
+                        self::afectarInventario($linea['producto_id'], $linea['cantidad'], 1);
                         $linea->delete();
                     }
 
@@ -841,12 +655,16 @@ class FacMovimientosController extends Controller
 
     public function generatePDF($id)
     {
-
         $movimiento = FacMovimiento::find($id);
+
         $data = null;
         $movimiento->qr = substr( $movimiento->qr, strpos($movimiento->qr, 'https://'));
-
         $tipoDoc = $movimiento->tipoDoc;
+
+        $hora_factu = explode('-', strval($movimiento->created_at));
+
+        $fecha_facturacion = $movimiento->fecha_facturacion .''. strval(substr($hora_factu[2], 2, 6));
+        // $fecha_facturacion = substr(strval($movimiento->created_at), 0 ,19);
 
         $empresa = GenEmpresa::find(1);
 
@@ -855,17 +673,23 @@ class FacMovimientosController extends Controller
         $sucursal = TerceroSucursal::find($movimiento->cliente_id);
         $tercero = $sucursal->tercero;
 
+        if($movimiento->estado == 3){
+            $tipoDoc->nombre_alt = 'Devolución '. $tipoDoc->nombre_alt;
+        }
+
+        // $movimiento->created_at = Carbon::parse($movimiento->created_at)->toDateString();
+        $movimiento->created_at = Carbon::create(substr($movimiento->created_at, 0, 19))->format('Y-d-m H:i:s.v');
+
         $IdPrincipal = FacCruce::where('fac_mov_secundario', $id)->get()->first();
         $relatedDocument = null;
         if ($IdPrincipal != null){
             $relatedDocument = FacMovimiento::find($IdPrincipal->fac_mov_principal);
-            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument];
+            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument, 'fecha_facturacion' => $fecha_facturacion];
             // dd($data);
         } else {
-            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument];
-            // dd($data);
+            $data = ['movimiento' => $movimiento, 'lineas' => $lineas, 'tercero' => $tercero, 'sucursal' => $sucursal, 'tipoDoc' => $tipoDoc, 'empresa' => $empresa, 'relatedDocument' => $relatedDocument, 'fecha_facturacion' => $fecha_facturacion];
         }
-
+        // dd($data);
         if ($tipoDoc->formato_impresion == 1) {
             $pdf = PDF::loadView('facturacion.factura', $data);
         } elseif ($tipoDoc->formato_impresion == 2) {
@@ -887,7 +711,7 @@ class FacMovimientosController extends Controller
         $tercero = $sucursal->Tercero;
         $municipio = GenMunicipio::find($empresa->gen_municipios_id);
         $departamento = GenDepartamento::find($municipio->departamento_id);
-
+        $caractPorlinea = caracteres_linea_pos();
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
@@ -897,8 +721,6 @@ class FacMovimientosController extends Controller
         $totales_por_unidad['Und'] = 0;
 
         // $printer->setJustification(Printer::JUSTIFY_CENTER);
-
-
 
         if ($tipoDoc->naturaleza == 4) {
 
@@ -1082,6 +904,12 @@ class FacMovimientosController extends Controller
                 $etiqueta .= str_pad(number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
             }
 
+            if($nuevoItem->nota) {
+                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+            }
+
             $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
 
             $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
@@ -1090,6 +918,8 @@ class FacMovimientosController extends Controller
             $etiqueta .= str_pad("Nit: 901389565-8", $caractPorlinea, " ", STR_PAD_BOTH);
 
             $etiqueta .= str_pad("GRACIAS POR SU COMPRA !!", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
 
             $printer->text($etiqueta);
             $printer->feed(2);
@@ -1101,12 +931,15 @@ class FacMovimientosController extends Controller
 
             for ($i = 0; $i < 1 ; $i++) {
 
-                $etiqueta = str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
-
+                // $etiqueta = str_pad("Fecha Impresion " . date('d-m-Y H:i:s'), 48, " ", STR_PAD_RIGHT);
+                $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
                 // ENCABEZADO
                 if ($tipoDoc->formato_impresion == 1) {
-                    $img = EscposImage::load("../public/images/logo1.png");
-                    $printer -> graphics($img);
+                    if($empresa->print_logo_pos > 0){
+                        $img = EscposImage::load("../public/images/logo1.png");
+                        $printer -> graphics($img);
+                    }
                     $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                     $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
                     $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
@@ -1155,12 +988,12 @@ class FacMovimientosController extends Controller
                 $totalGeneral = 0;
 
                 foreach ($lineas as $linea) {
+
                     // linea 1
-                    $etiqueta .= str_pad(Producto::find($linea->producto_id)->codigo, 3, "0", STR_PAD_LEFT);
+                    $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
                     $etiqueta .= ' ';
                     $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
-                    $nombre = str_replace('ñ', 'N', $nombre);
-                    $etiqueta .= str_pad($nombre, 29, " ", STR_PAD_RIGHT);
+                    $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
                     $etiqueta .= ' ';
                     $total = intval($linea['precio']) * floatval($linea['cantidad']);
                     $total =  number_format($total, 0, ',', '.');
@@ -1169,22 +1002,21 @@ class FacMovimientosController extends Controller
                     $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
                     // linea 2
                     $etiqueta .= '    ';
-                    $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
+                    $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
                     $etiqueta .= ' ';
                     $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
-                    $etiqueta .= ' ';
-                    $etiqueta .= 'X';
-                    $etiqueta .= ' ';
-                    $etiqueta .= '$';
+                    $etiqueta .= ' X $';
                     $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
                     $etiqueta .= ' ';    //22
                     if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
                         $etiqueta .= 'Desc ';
                         $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
-                        $etiqueta .= str_pad('%', 13, " ", STR_PAD_RIGHT);
+                        $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
                     } else {
-                        $etiqueta .= '                      ';
+                        $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
                     }
+
+                    $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
                 }
 
                 // TOTAL
@@ -1210,12 +1042,23 @@ class FacMovimientosController extends Controller
                 $etiqueta .= ' ';
                 $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
 
+                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                //NOTAS
+                $etiqueta .= str_pad("Notas: ", $caractPorlinea, " ", STR_PAD_RIGHT);
+                $etiqueta .= str_pad(eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
                 $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+                if($nuevoItem->nota) {
+                    $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+                    $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+                }
                 $etiqueta .= str_pad("Nombre y Sello del cliente", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
 
                 $printer->text($etiqueta);
                 $printer->feed(2);
@@ -1226,1048 +1069,7 @@ class FacMovimientosController extends Controller
         }
     }
 
-    public function saldosEnCartera()
-    {
 
-        $lineas = FacMovimiento::saldosEnCartera();
-
-        $fecha = Carbon::now();
-
-        $data = ['lineas' => $lineas, 'fecha' => $fecha];
-
-        $pdf = PDF::loadView('facturacion.saldocarteraclientes', $data);
-
-        return $pdf->stream();
-    }
-
-    public function saldosEnCarteraT80()
-    {
-        // $user = User::find(Auth::user())->first();
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        //Usuario de prueba
-        $user = User::find(1);
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(1)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $printer -> setFont(1);
-        $printer->feed(1);
-        $caracLinea = caracteres_linea_posT80FontOne();
-
-        $empresa = GenEmpresa::find(1);
-
-        $etiqueta  ='';// pad('', 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->razon_social), 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->nombre),0,' ');
-        $etiqueta .= pad("NIT: ".$empresa->nit, $caracLinea, 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->tipo_regimen), 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->direccion), 0, ' ');
-        $etiqueta .= pad("TEL: ".$empresa->telefono, 0, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-        $etiqueta .= pad('CUENTAS POR COBRAR', 0, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-        $hoy = date("m.d.y");
-        $time = date('H:i');
-        $etiqueta  .= pad('Fecha Impresion:='. $hoy .' - '.$time , 1, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-
-        $granTotal = 0;
-        $granSaldo = 0;
-        $granAbono = 0;
-        $row ='';
-        $lineas = FacMovimiento::saldosEnCartera();
-        $clientes  = $lineas->unique('documento')->sortBy('tercero');
-        $sucursales = $lineas->unique('sucursal_id')->sortBy('nombre');
-            foreach($clientes as $cliente){//ClientByClient
-                $etiqueta .= pad($cliente->documento.'    '.$cliente->tercero .'  Tel: '. $cliente->telefono, 0, ' ');
-                    foreach($sucursales->where('documento',$cliente->documento) as $sucursal){//BranchOfficeByBranchOffice
-                        $etiqueta .= pad($sucursal->sucursal.'    '.$sucursal->telefono, 1, ' ');
-                            foreach($lineas->where('sucursal',$sucursal->sucursal)->where('documento', $sucursal->documento) as $linea){//DetailsByBranchOffice
-                                $row = str_pad(strval($linea->consecutivo),9, ' ');
-                                $row .= str_pad($linea->fecha_facturacion,12, ' ');
-                                $row .= str_pad('$'.strval(number_format($linea->total, 0, ',', '.')),15, ' ');
-                                $row .= str_pad('$'.strval(number_format(($linea->total - $linea->saldo), 0, ',', '.')),14, ' ');
-                                $row .= str_pad('$'.strval(number_format($linea->saldo, 0, ',', '.')),15, ' ');
-                                // $etiqueta .= pad ($linea->consecutivo   .'   '.$linea->fecha_facturacion  .'   $ '.number_format($linea->total, 0, ',', '.'). '   $ '. number_format(($linea->total - $linea->saldo), 0, ',', '.'). '   $ '. number_format($linea->saldo, 0, ',', '.'), 1, ' ');
-                                $etiqueta .= pad ($row, 1, ' ');
-                                $row = '';
-                                // $etiqueta .= pad('Total: $ '.number_format($linea->total, 0, ',', '.'). '      Abono: $ '. number_format(($linea->total - $linea->saldo), 0, ',', '.'). '     Saldo: $ '. number_format($linea->saldo, 0, ',', '.'), 1, ' ');
-                            }
-                        $sucursalTotal = $lineas->where('documento',$sucursal->documento)->where('sucursal', $sucursal->sucursal)->sum('total') - ($lineas->where('documento',$sucursal->documento)->where('sucursal', $sucursal->sucursal)->sum('total') - $lineas->where('documento',$sucursal->documento)->where('sucursal', $sucursal->sucursal)->sum('saldo'));
-                        $etiqueta .= pad('Total Sucursal: $ ' . number_format($sucursalTotal, 0, ',', '.'),1,' ');
-                        // $etiqueta .= pad('Total Sucursal: ' . number_format($lineas->where('documento',$sucursal->documento)->where('sucursal', $sucursal->sucursal)->sum('saldo'), 0, ',', '.'),1,' ');
-                        $etiqueta  .= pad('', 0, '.');
-                    }
-                    $totalCliente = $lineas->where('documento',$cliente->documento)->sum('total') - ($lineas->where('documento',$cliente->documento)->sum('total') - $lineas->where('documento',$cliente->documento)->sum('saldo'));
-                    $etiqueta .= pad('Total: $ ' . number_format($lineas->where('documento',$cliente->documento)->sum('saldo'), 0, ',', '.'),1,' ');
-                    $etiqueta  .= pad('', 0, '-');
-            }
-        //Totales
-        $granTotal = number_format($lineas->sum('total'), 0, ',', '.');
-        $granSaldo = number_format($lineas->sum('saldo'), 0, ',', '.');
-        $granAbono = number_format($lineas->sum('total') - $lineas->sum('saldo'), 0, ',', '.');
-        $etiqueta  .= pad('', 0, '=');
-        $etiqueta .= pad("Total Cartera: $ $granTotal", 1, ' ');
-        $etiqueta .= pad("Total Abonado: $ $granAbono", 1, ' ');
-        $etiqueta .= pad("Total Saldo: $ $granSaldo", 1, ' ');
-
-        $printer->text($etiqueta);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-    }
-
-    public function saldosEnCarteraxTercero($tercero_id)
-    {
-        $sucursales = TerceroSucursal::where('tercero_id', $tercero_id)->orderBy('nombre','asc')->get();
-
-        $lineas = array();
-
-        foreach ($sucursales as $sucursal) {
-            $lineasSucursal = FacMovimiento::saldosEnCarteraxSucursal($sucursal->id);
-
-            foreach ($lineasSucursal as $lin) {
-                array_push($lineas, $lin);
-            }
-        }
-
-        $fecha = Carbon::now();
-
-        $data = ['lineas' => $lineas, 'fecha' => $fecha];
-
-        $pdf = PDF::loadView('facturacion.saldocarteraclientes', $data);
-
-        return $pdf->stream();
-    }
-
-    public function ventasNetasPorFecha($fechaIni, $fechaFin)
-    {
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $tiposdoc = FacTipoDoc::whereIn('naturaleza', [1, 4])->get();
-
-        $ventasTotales = array();
-
-        $granSubtotal = 0;
-        $granDescuento = 0;
-        $granIva = 0;
-        $granTotal =0;
-
-        $granDevSubtotal = 0;
-        $granDevDescuento = 0;
-        $granDevIva = 0;
-        $granDevTotal =0;
-
-        foreach ($tiposdoc as $tipo) {
-            $ventas = FacMovimiento::ventasNetasPorFecha($tipo->id, $fechaIni, $fechaFin)->first();
-            $devoluciones = FacMovimiento::devolucionesVentasNetasPorFecha($tipo->id, $fechaIni, $fechaFin)->first();
-
-            if ($ventas->total > 0 || $devoluciones->total > 0) {
-                array_push($ventasTotales, [$tipo->nombre, $ventas, $devoluciones]);
-                $granSubtotal += $ventas->subtotal;
-                $granDescuento += $ventas->descuento;
-                $granIva += $ventas->ivatotal;
-                $granTotal += $ventas->total;
-
-                $granDevSubtotal += $devoluciones->subtotal;
-                $granDevDescuento += $devoluciones->descuento;
-                $granDevIva += $devoluciones->ivatotal;
-                $granDevTotal += $devoluciones->total;
-            }
-        }
-
-        $hoy = Carbon::now();
-
-        $data = ['ventasTotales' => $ventasTotales,
-                 'fechaIni' => $fechaIni,
-                 'fechaFin' => $fechaFin,
-                 'granSubtotal' => $granSubtotal,
-                 'granDescuento' => $granDescuento,
-                 'granIva' => $granIva,
-                 'granTotal' => $granTotal,
-                 'granDevSubtotal' => $granDevSubtotal,
-                 'granDevDescuento' => $granDevDescuento,
-                 'granDevIva' => $granDevIva,
-                 'granDevTotal' => $granDevTotal,
-                 'hoy' => $hoy, ];
-
-        $pdf = PDF::loadView('facturacion.ventasnetasporfecha', $data);
-
-        return $pdf->stream();
-    }
-
-    public function movimientosPorFecha($fechaIni, $fechaFin)
-    {
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $tiposdoc = FacTipoDoc::all();
-        $tiposRec = FacTipoRecCaja::all();
-
-        $movimientosTotal = array();
-
-        $totalTipo = 0;
-        $subtotalTipo = 0;
-        $saldoTipo = 0;
-        $aboTipo = 0;
-
-        foreach ($tiposdoc as $tipo) {
-            $movimientos = FacMovimiento::ventasPorFecha($tipo->id, $fechaIni, $fechaFin,false);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo = 0;
-
-            foreach ($movimientos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($movimientos) > 0) {
-                array_push($movimientosTotal, [$tipo->nombre, $movimientos, $subtotalTipo, $totalTipo, $aboTipo, $saldoTipo]);
-            }
-        }
-
-        foreach ($tiposdoc as $tipo) {
-            $movimientos = FacMovimiento::devolucionesPorFecha($tipo->id, $fechaIni, $fechaFin, false);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo = 0;
-
-            foreach ($movimientos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($movimientos) > 0) {
-                array_push($movimientosTotal, ['Devolucion '.$tipo->nombre, $movimientos, $subtotalTipo, $totalTipo, $aboTipo, $saldoTipo]);
-            }
-        }
-
-        foreach ($tiposRec as $tipo) {
-            $recibos = FacReciboCaja::recibosPorFecha($tipo->id, $fechaIni, $fechaFin, false);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo = 0;
-
-            foreach ($recibos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($recibos) > 0) {
-                array_push($movimientosTotal, [$tipo->nombre, $recibos, $subtotalTipo, $totalTipo, $aboTipo, $saldoTipo]);
-            }
-        }
-
-        // dd($movimientosTotal);
-
-        $hoy = Carbon::now();
-
-        $data = ['movimientosTotal' => $movimientosTotal,
-                 'fechaIni' => $fechaIni,
-                 'fechaFin' => $fechaFin,
-                 'hoy' => $hoy ];
-
-        $pdf = PDF::loadView('facturacion.movimientos', $data)->setPaper('a4','landscape');
-
-        return $pdf->stream();
-    }
-
-    public function movimientosPorFechaT80($fechaIni, $fechaFin){
-
-        $user = User::find(1);
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        // // $fechaIni= date('Y-m-d');
-        // // $fechaFin = date('Y-m-d');
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $printer -> setFont(1);
-        $printer->feed(1);
-        $caracLinea = caracteres_linea_posT80FontOne();
-        $empresa = GenEmpresa::find(1);
-        $etiqueta  ='';// pad('', 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->razon_social), 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->nombre),0,' ');
-        $etiqueta .= pad("NIT: ".$empresa->nit, $caracLinea, 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->tipo_regimen), 0, ' ');
-        $etiqueta .= pad(strtoupper($empresa->direccion), 0, ' ');
-        $etiqueta .= pad("TEL: ".$empresa->telefono, 0, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-        $etiqueta .= pad('VENTAS NETAS POR FECHA', 0, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-        $hoy = date("m.d.y");
-        $time = date('H:i');
-        $etiqueta  .= pad('Fecha Impresion:='. $hoy .' - '.$time , 1, ' ');
-        $etiqueta  .= pad('', 0, ' ');
-
-        $row = '';
-        $granTotal = 0;
-        $granAbono =0 ;
-        $granSaldo = 0;
-
-        $documentTypes = FacTipoDoc::get();
-        $salesDetails = FacMovimiento::ventasPorFechaT80($fechaIni, $fechaFin);
-        $devolutionDetails = FacMovimiento::DevolucionesPorFechaT80($fechaIni, $fechaFin);
-        $receiptTypes = FacTipoRecCaja::all();
-        $receiptDetails = FacReciboCaja::RecibosPorFechaT80($fechaIni, $fechaFin);
-
-        $granTotal = $salesDetails->sum('total') + $devolutionDetails->sum('total') +  $receiptDetails->sum('total');
-        $granSaldo = $salesDetails->sum('saldo') + $devolutionDetails->sum('saldo') +  $receiptDetails->sum('saldo');
-        $granAbono = ($salesDetails->sum('total') - $salesDetails->sum('saldo')) + ($devolutionDetails->sum('total') - $devolutionDetails->sum('saldo')) + ($receiptDetails->sum('total') - $receiptDetails->sum('saldo'));
-
-        foreach($documentTypes as $documentType){//Ventas
-
-            if($salesDetails->where('tipo',$documentType->nombre)->count()>0){
-
-                $etiqueta .= pad(eliminar_acentos(eliminar_acentos($documentType->nombre)) ,0, ' ');
-                    foreach($salesDetails->where('tipo',$documentType->nombre) as $saleDetail){
-
-                        $row = str_pad($saleDetail->consecutivo,11,' ');
-                        $row .= str_pad($saleDetail->documento,12,' ');
-                        $row .= str_pad(substr(eliminar_acentos($saleDetail->tercero),0,strlen($saleDetail->tercero)),41,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                        $row = str_pad($saleDetail->fecha,14,' ');
-                        $row .=  str_pad('$ '.strval(number_format($saleDetail->total, 0, ',', '.')),12,' ');
-                        $row .= str_pad('$ '.strval(number_format(($saleDetail->total - $saleDetail->saldo), 0, ',', '.')),12,' ');
-                        $row .=  str_pad('$ '.strval(number_format($saleDetail->saldo, 0, ',', '.')),12,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                    }
-                $etiqueta .= pad ('', 1, '-');
-                $row = str_pad('$ '.strval(number_format($salesDetails->where('tipo',$documentType->nombre)->sum('total'), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format(($salesDetails->where('tipo',$documentType->nombre)->sum('total') - $salesDetails->where('tipo',$documentType->nombre)->sum('saldo')), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format($salesDetails->where('tipo',$documentType->nombre)->sum('saldo'), 0, ',', '.')),20,' ');
-                $etiqueta .= pad ($row, 1, ' ');
-                $etiqueta .= pad ('', 1, '=');
-            }
-        }
-        foreach($documentTypes as $documentType){//Devoluciones
-            if($devolutionDetails->where('tipo',$documentType->nombre)->count()){
-                $etiqueta .= pad(eliminar_acentos(eliminar_acentos('Devolucion - '.$documentType->nombre)) ,0, ' ');
-                    foreach($devolutionDetails->where('tipo',$documentType->nombre) as $devolutionDetail){
-                        $row = str_pad($devolutionDetail->consecutivo,11,' ');
-                        $row .= str_pad($devolutionDetail->documento,12,' ');
-                        $row .= str_pad(substr(eliminar_acentos($devolutionDetail->tercero),0,strlen($devolutionDetail->tercero)),41,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                        $row = str_pad($devolutionDetail->fecha,14,' ');
-                        $row .=  str_pad('$ '.strval(number_format($devolutionDetail->total, 0, ',', '.')),12,' ');
-                        $row .= str_pad('$ '.strval(number_format(($devolutionDetail->total - $devolutionDetail->saldo), 0, ',', '.')),12,' ');
-                        $row .=  str_pad('$ '.strval(number_format($devolutionDetail->saldo, 0, ',', '.')),12,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                    }
-                $etiqueta .= pad ('', 1, '-');
-                $row = str_pad('$ '.strval(number_format($devolutionDetails->where('tipo',$documentType->nombre)->sum('total'), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format(($devolutionDetails->where('tipo',$documentType->nombre)->sum('total') - $devolutionDetails->where('tipo',$documentType->nombre)->sum('saldo')), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format($devolutionDetails->where('tipo',$documentType->nombre)->sum('saldo'), 0, ',', '.')),20,' ');
-                $etiqueta .= pad ($row, 1, ' ');
-                $etiqueta .= pad ('', 1, '=');
-            }
-        }
-
-        foreach($receiptTypes as $receiptType){//Recibos
-
-            if($receiptDetails->where('tipo',$receiptType->nombre)->count()){
-                $etiqueta .= pad(eliminar_acentos(eliminar_acentos($receiptType->nombre)) ,0, ' ');
-                    foreach($receiptDetails->where('tipo',$receiptType->nombre) as $receiptDetail){
-                        $row = str_pad($receiptDetail->consecutivo,11,' ');
-                        $row .= str_pad($receiptDetail->documento,12,' ');
-                        $row .= str_pad(substr(eliminar_acentos($receiptDetail->tercero),0,strlen($receiptDetail->tercero)),41,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                        $row = str_pad($receiptDetail->fecha,14,' ');
-                        $row .=  str_pad('$ '.strval(number_format($receiptDetail->total, 0, ',', '.')),12,' ');
-                        $row .= str_pad('$ '.strval(number_format(($receiptDetail->total - $receiptDetail->saldo), 0, ',', '.')),12,' ');
-                        $row .=  str_pad('$ '.strval(number_format($receiptDetail->saldo, 0, ',', '.')),12,' ');
-                        $etiqueta .= pad($row, 1, ' ');
-                    }
-                $etiqueta .= pad ('', 1, '-');
-                $row = str_pad('$ '.strval(number_format($receiptDetails->where('tipo',$receiptType->nombre)->sum('total'), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format(($receiptDetails->where('tipo',$receiptType->nombre)->sum('total') - $receiptDetails->where('tipo',$receiptType->nombre)->sum('saldo')), 0, ',', '.')),20,' ');
-                $row .= str_pad('$ '.strval(number_format($receiptDetails->where('tipo',$receiptType->nombre)->sum('saldo'), 0, ',', '.')),20,' ');
-                $etiqueta .= pad ($row, 1, ' ');
-                $etiqueta .= pad ('', 1, '=');
-            }
-        }
-
-        $row = '';
-        $row  .=  str_pad('$ '.strval(number_format($granTotal, 0, ',', '.')),20,' ');
-        $row .= str_pad('$ '. strval(number_format(($granAbono), 0, ',', '.')),20,' ');
-        $row .=  str_pad('$ '. strval(number_format($granSaldo, 0, ',', '.')),20,' ');
-        $etiqueta .= pad($row, 1, ' ');
-        $printer->text($etiqueta);
-        $printer->feed(1);
-        $printer->cut();
-        $printer->close();
-    }
-
-    public function movimientosPorFechaPorTercero($fechaIni, $fechaFin, $sucursal_id)
-    {
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $tiposdoc = FacTipoDoc::all();
-        $tiposRec = FacTipoRecCaja::all();
-
-        $movimientosTotal = array();
-
-        $totalTipo = 0;
-        $subtotalTipo = 0;
-        $saldoTipo = 0;
-        $aboTipo =0;
-
-        foreach ($tiposdoc as $tipo) {
-            $movimientos = FacMovimiento::ventasPorFecha($tipo->id, $fechaIni, $fechaFin,$sucursal_id);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo =0;
-
-            foreach ($movimientos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($movimientos) > 0) {
-                array_push($movimientosTotal, [$tipo->nombre, $movimientos, $subtotalTipo, $totalTipo, $aboTipo, $saldoTipo]);
-            }
-        }
-
-        foreach ($tiposdoc as $tipo) {
-            $movimientos = FacMovimiento::devolucionesPorFecha($tipo->id, $fechaIni, $fechaFin, $sucursal_id);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo =0;
-
-            foreach ($movimientos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($movimientos) > 0) {
-                array_push($movimientosTotal, ['Devolucion '.$tipo->nombre, $movimientos, $subtotalTipo, $totalTipo, $aboTipo, $saldoTipo]);
-            }
-        }
-
-        foreach ($tiposRec as $tipo) {
-            $recibos = FacReciboCaja::recibosPorFecha($tipo->id, $fechaIni, $fechaFin, $sucursal_id);
-
-            $totalTipo = 0;
-            $subtotalTipo = 0;
-            $saldoTipo = 0;
-            $aboTipo =0;
-
-            foreach ($recibos as $mov) {
-                $subtotalTipo += $mov->subtotal;
-                $totalTipo += $mov->total;
-                $saldoTipo += $mov->saldo;
-                $aboTipo += (intval($mov->total)- intval($mov->saldo));
-            }
-
-            if (count($recibos) > 0) {
-                array_push($movimientosTotal, [$tipo->nombre, $recibos, $subtotalTipo, $totalTipo,  $aboTipo, $saldoTipo]);
-            }
-        }
-
-        // dd($movimientosTotal);
-
-        $hoy = Carbon::now();
-
-        $data = ['movimientosTotal' => $movimientosTotal,
-                 'fechaIni' => $fechaIni,
-                 'fechaFin' => $fechaFin,
-                 'hoy' => $hoy ];
-
-        $pdf = PDF::loadView('facturacion.movimientos', $data)->setPaper('a4','landscape');
-
-        return $pdf->stream();
-    }
-
-    public function recaudoPorFecha($fechaIni, $fechaFin)
-    {
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $recaudoTotales = array();
-
-        $formaspago = FacFormaPago::all();
-
-        $totalPOS = 0;
-        $totalRecibos = 0;
-
-        foreach ($formaspago as $forma) {
-            $sumatoriaRecibos = FacPivotFormaRecibo::recaudoPorFecha($forma->id, $fechaIni, $fechaFin)->first();
-            $sumatoriaPOS = FacPivotMovFormapago::recaudoPorFecha($forma->id, $fechaIni, $fechaFin)->first();
-
-            if ($sumatoriaRecibos->valor > 0 || $sumatoriaPOS->valor > 0){
-                array_push($recaudoTotales, [$forma->nombre, $sumatoriaRecibos->valor, $sumatoriaPOS->valor]);
-                $totalPOS += $sumatoriaPOS->valor;
-                $totalRecibos += $sumatoriaRecibos->valor;
-            }
-        }
-
-        $hoy = Carbon::now();
-
-        $data = ['recaudoTotales' => $recaudoTotales,
-                 'fechaIni' => $fechaIni,
-                 'fechaFin' => $fechaFin,
-                 'totalPOS' => $totalPOS,
-                 'totalRecibos' => $totalRecibos,
-                 'hoy' => $hoy, ];
-
-        $pdf = PDF::loadView('facturacion.recaudosporfecha', $data);
-
-        return $pdf->stream();
-    }
-
-    public function movimientosConFormaPagoPorFecha($fechaIni, $fechaFin)
-    {
-
-        $date= explode('-', $fechaIni);
-        $fechaIni = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $date= explode('-', $fechaFin);
-        $fechaFin = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $formaspago = FacFormaPago::all();
-
-        $datosTotal = array();
-
-        foreach ($formaspago as $forma) {
-
-            $total = 0;
-            $movimientos = FacPivotMovFormapago::movimientosConFormaPagoPorFecha($forma->id, $fechaIni, $fechaFin);
-            $recibos = FacPivotFormaRecibo::movimientosConFormaPagoPorFecha($forma->id, $fechaIni, $fechaFin);
-
-            $concatenated = $movimientos->concat($recibos);
-
-            foreach ($concatenated as $movimiento) {
-                $total = $total + $movimiento->valor;
-            }
-
-            if ($total > 0) {
-                array_push($datosTotal, [$forma->nombre, $concatenated, $total]);
-            }
-        }
-
-        $hoy = Carbon::now();
-
-
-        $data = ['datosTotal' => $datosTotal,
-                 'fechaIni' => $fechaIni,
-                 'fechaFin' => $fechaFin,
-                 'hoy' => $hoy, ];
-
-        $pdf = PDF::loadView('facturacion.movimientoconformadepagoporfecha', $data);
-
-        return $pdf->stream();
-    }
-
-    public function readTiqueteDibal($tiquete)
-    {
-        $arrayTotal = array();
-        $arrayItem = array();
-        $tiquete = intval($tiquete);
-
-        $ruta = GenEmpresa::find(1)->ruta_archivo_tiquetes_dibal;
-
-        $dia = date('d');
-
-        $mes = date('n');
-
-        if ($mes == 10 ) {
-            $mes = 'A';
-        } else if ($mes == 11) {
-            $mes = 'B';
-        } else if ($mes == 12) {
-            $mes = 'C';
-        }
-
-        $date = Carbon::now();
-        $fechaIni = $date->format('d/m/Y');
-        $fechaFin = $date->addDay()->format('d/m/Y');
-
-        // dd($fechaIni , $fechaFin);
-
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-        $lineasFacturadas = array();
-
-        foreach ($list as $item) {
-            array_push($lineasFacturadas, $item->num_linea_tiquete);
-        }
-
-        $val = $ruta.'/BL000'.$dia.$mes.'.TOT';
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-            while (($buffer = fgets($handle)) !== false) {
-
-                $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 2, 5)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
-
-                if (( (intval(substr($buffer, 2, 5)) == $tiquete)) && (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas)) ){
-                    array_push($arrayTotal, $arrayItem);
-                }
-            }
-
-            return $arrayTotal;
-
-            if (!feof($handle)) {
-                echo "Error: unexpected fgets() fail\n";
-            }
-            fclose($handle);
-        }
-    }
-
-    public function readTiqueteEpelsa($tiquete)
-    {
-        $arrayTotal = array();
-        $arrayItem = array();
-        $lineasFacturadas = array();
-        $tiquete = intval($tiquete);
-
-        $ruta = GenEmpresa::find(1)->ruta_archivo_tiquetes_epelsa;
-
-        $dia = date('d');
-
-        $mes = date('n');
-
-        if ($mes == 10 ) {
-            $mes = 'A';
-        } else if ($mes == 11) {
-            $mes = 'B';
-        } else if ($mes == 12) {
-            $mes = 'C';
-        }
-
-        $val = $ruta.'/tqgen'.$dia.$mes;
-
-        $date = Carbon::now();
-        $fechaIni = $date->format('d/m/Y');
-        $fechaFin = $date->addDay()->format('d/m/Y');
-
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-        foreach ($list as $item) {
-            array_push($lineasFacturadas, $item->num_linea_tiquete);
-        }
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-            while (($buffer = fgets($handle)) !== false) {
-
-                $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
-
-                if (( (intval(substr($buffer, 0, 4)) == $tiquete)) && (!in_array(intval(substr($buffer, 4, 3)), $lineasFacturadas)) ){
-
-                    if ((strpos($buffer, '-') === false )){
-                        array_push($arrayTotal, $arrayItem);
-                    } else {
-                        array_pop($arrayTotal);
-                    }
-                }
-            }
-
-            return $arrayTotal;
-
-            if (!feof($handle)) {
-                echo "Error: unexpected fgets() fail\n";
-            }
-            fclose($handle);
-        }
-    }
-
-    public function verificarTiqueteMarques($tiquete,$puesto, $fecha)
-    {
-
-        $date = Carbon::now()->subHours(5);
-        $fechaIni = $date->format('d/m/Y H:i:s');
-        $fechaFin = $date->addDay()->format('d/m/Y H:i:s');
-
-        $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete', $puesto)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-        return $list;
-    }
-
-    public function tiquetesNoFacturados($fecha)
-    {
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $empresa = GenEmpresa::find(1);
-
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-        $arrayTotal = array();
-        $arrayItem = array();
-        $totalGnal = 0;
-        $totalTiquete = 0;
-
-        $dia = substr($fecha, 0,2);
-
-        $mes = intval(substr($fecha, 3,2));
-
-        if ($mes == 10 ) {
-            $mes = 'A';
-        } else if ($mes == 11) {
-            $mes = 'B';
-        } else if ($mes == 12) {
-            $mes = 'C';
-        }
-
-        if ($empresa->tipo_escaner == 1) {
-            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
-        } else if ($empresa->tipo_escaner == 4) {
-            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
-        }
-
-
-        $tiqueteAnterior = 0;
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-
-            $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('TIQUETES NO FACTURADOS', 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-
-            while (($buffer = fgets($handle)) !== false) {
-
-                if ($empresa->tipo_escaner == 1) {
-                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
-                } else if ($empresa->tipo_escaner == 4) {
-                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
-                }
-
-                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
-                                            ->where('num_linea_tiquete', $arrayItem[4])
-                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-                if ( count($list) < 1) {
-
-                    if (intval($tiqueteAnterior) != intval($arrayItem[3])) {
-                        if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
-                            $vendedor = $v->nombre;
-                        } else {
-                            $vendedor = $arrayItem[5];
-                        }
-                        $etiqueta .= str_pad(' Tiq. # : '.$arrayItem[3].' - '.eliminar_acentos(str_replace('ñ', 'N',substr($vendedor,0, 30))).' ', 48, "-", STR_PAD_BOTH);
-                        $tiqueteAnterior = $arrayItem[3];
-                    }
-
-                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-                    if ($arrayItem[1] < 1) {
-                        $arrayItem[1] = 1;
-                    }
-                    if ($arrayItem[1] < 100) {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
-                    } else {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
-                    }
-
-                    // linea 1
-                    if ($producto) {
-                        $etiqueta .= str_pad($producto->codigo, 3, "0", STR_PAD_LEFT);
-                        $etiqueta .= ' ';
-                        $nombre = strtoupper($producto->nombre);
-                        $nombre = str_replace('ñ', 'N', $nombre);
-                        $etiqueta .= str_pad(substr($nombre, 0, 28), 29, " ", STR_PAD_RIGHT);
-                        $etiqueta .= ' ';
-                        $total = intval($arrayItem[2]);
-                        $totalGnal = $totalGnal + $total;
-                        $total =  number_format($total, 0, ',', '.');
-                        $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                        $etiqueta .= ' |';
-                        $etiqueta .= str_pad('', 2, " ", STR_PAD_LEFT);
-                        // linea 2
-                        $etiqueta .= '    ';
-                        if ($arrayItem[1] < 100) {
-                            $etiqueta .= str_pad(number_format($arrayItem[1], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
-                        } else {
-                            $etiqueta .= str_pad(number_format($arrayItem[1]/1000, 3, ',', '.'), 6, " ", STR_PAD_LEFT);
-                        }
-                        $etiqueta .= ' ';
-                        $etiqueta .= GenUnidades::find($producto->gen_unidades_id)->abrev_pos;
-                        $etiqueta .= ' ';
-                        $etiqueta .= 'X';
-                        $etiqueta .= ' ';
-                        $etiqueta .= '$';
-                        $etiqueta.= str_pad(number_format($precioUnit, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-                        $etiqueta .= ' ';    //22
-                        $etiqueta .= '                   ';
-                    } else {
-                        $etiqueta .= str_pad('El codigo '. $arrayItem[0]. 'no existe', 48, " ", STR_PAD_RIGHT);
-                    }
-                }
-
-            }
-
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
-            $etiqueta .= 'Total No Facturado:';
-            $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
-
-            $printer->text($etiqueta);
-            $printer->feed(2);
-            $printer->cut();
-            $printer->pulse();
-            $printer->close();
-
-            return 'done';
-
-            if (!feof($handle)) {
-                echo "Error: unexpected fgets() fail\n";
-            }
-            fclose($handle);
-        }
-    }
-
-    public function tiquetesNoFacturadosMarques($fecha)
-    {
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-
-        $empresa = GenEmpresa::find(1);
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-
-        $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-        $etiqueta .= str_pad('TIQUETES NO FACTURADOS', 48, " ", STR_PAD_BOTH);
-        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-        $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
-        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-
-        $fechaArray = explode('-', $fecha);
-
-        $fecha = $fechaArray[2].'-'.$fechaArray[1].'-'.$fechaArray[0];
-
-        $arrayTotal = array();
-        $arrayItem = array();
-        $arrayLines = array();
-        $totalGnal = 0;
-        $totalTiquete = 0;
-
-        $marquesData = GenEmpresa::find(1)->ruta_ip_marques;
-
-        $basculas = explode('&', $marquesData);
-
-        foreach ($basculas as $bascula) {
-            $ip = explode('-', $bascula)[0];
-            $puesto = explode('-', $bascula)[1];
-
-            $tiquetesFacturados = $this->tiquetesDiaBascula($puesto, $fecha);
-
-            $primerTiquete = $tiquetesFacturados->first()->num_tiquete;
-
-            $primerTiquete = intval($primerTiquete) - 20;
-
-            for ($i=0; $i < 5; $i++) {
-
-                $primer = $primerTiquete + ($i * 100);
-
-                $url = 'http://' .$ip. '/year/documentos?seek={"tipo_doc":1,"posto":'.$puesto. ',"numero":' .$primer. '}&limit=100';
-
-                $tiquetesBascula = http_get($url);
-
-                foreach ($tiquetesBascula as $tiqueteBasc) {
-
-                    if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
-
-
-                        $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
-
-                        $lineasTiquete = http_get($url);
-
-                        foreach ($lineasTiquete as $key => $linea) {
-
-                            if ($tiqueteBasc['numero'] == $linea['numero']) {
-
-                                $lineaFacturada = $tiquetesFacturados->where('num_tiquete', $linea['numero'])->where('num_linea_tiquete', $linea['linha_f'])->all();
-
-                                if (count($lineaFacturada) < 1) {
-
-                                    if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
-                                        $vendedor = $v->nombre;
-                                    } else {
-                                        $vendedor = $tiqueteBasc['num_vendedor'];
-                                    }
-
-                                    $producto = Producto::where('codigo', intval($linea['codigo']))->get()->first();
-
-                                    $total = intval($linea['valor']);
-
-                                    // linea 1
-                                    if ($producto) {
-
-                                        if (intval($tiqueteAnterior) != intval($tiqueteBasc['numero'])) {
-                                            $etiqueta .= str_pad(' Tiq. # : '.$tiqueteBasc['numero'].' - '.eliminar_acentos(str_replace('ñ', 'N',substr($vendedor,0, 30))).' ', 48, "-", STR_PAD_BOTH);
-                                            $tiqueteAnterior = $tiqueteBasc['numero'];
-                                        }
-
-                                        $total = intval($linea['valor']);
-                                        $totalGnal = $totalGnal + $total;
-
-                                        $etiqueta .= str_pad($producto->codigo, 3, "0", STR_PAD_LEFT);
-                                        $etiqueta .= ' ';
-                                        $nombre = strtoupper($producto->nombre);
-                                        $nombre = str_replace('ñ', 'N', $nombre);
-                                        $etiqueta .= str_pad(substr($nombre, 0, 28), 29, " ", STR_PAD_RIGHT);
-                                        $etiqueta .= ' ';
-                                        $etiqueta .= str_pad(number_format($total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-                                        $etiqueta .= ' |';
-                                        $etiqueta .= str_pad('', 2, " ", STR_PAD_LEFT);
-                                        // linea 2
-                                        $etiqueta .= '    ';
-                                        $etiqueta .= str_pad(number_format($linea['quantidade'], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
-                                        $etiqueta .= ' ';
-                                        $etiqueta .= GenUnidades::find($producto->gen_unidades_id)->abrev_pos;
-                                        $etiqueta .= ' ';
-                                        $etiqueta .= 'X';
-                                        $etiqueta .= ' ';
-                                        $etiqueta .= '$';
-                                        $etiqueta.= str_pad(number_format( $linea['preco_unit'], 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-                                        $etiqueta .= ' ';    //22
-                                        $etiqueta .= '                   ';
-
-                                        array_push($arrayLines, array(
-                                            'tiquete' => $tiqueteBasc['numero'],
-                                            'vendedor' => $vendedor,
-                                            'linea_tiquete'=> $key + 1,
-                                            'codigo' => $producto->codigo,
-                                            'producto' => strtoupper($producto->nombre),
-                                            'total' => $total,
-                                            'cantidad' => $linea['quantidade'],
-                                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
-                                            'precio' => $linea['preco_unit']
-                                        ));
-
-                                    } else {
-                                        $etiqueta .= str_pad('El codigo '. $linea['codigo']. 'no existe', 48, " ", STR_PAD_RIGHT);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-        $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
-        $etiqueta .= 'Total No Facturado:';
-        $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
-
-        $printer->text($etiqueta);
-        $printer->feed(2);
-        $printer->cut();
-        $printer->pulse();
-        $printer->close();
-
-        return 'done';
-    }
-
-    public function tiquetesNoFacturadosPDF($fecha)
-    {
-        $empresa = GenEmpresa::find(1);
-
-        if ($empresa->tipo_escaner == 2) {
-
-            $arrayLines = $this->marquesPDF($fecha);
-
-        } else  {
-
-            $arrayLines = $this->epelsaDibalPDF($fecha);
-        }
-
-        $data = ['etiqueta' => $arrayLines];
-
-        $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
-
-        return $pdf->stream();
-    }
 
     public function dataFacturaElectronica($id)
     {
@@ -2275,6 +1077,14 @@ class FacMovimientosController extends Controller
         $movimiento = FacMovimiento::find($id);
         $tipoDoc = $movimiento->tipoDoc;
 
+        if ($tipoDoc->naturaleza != 1) {
+            $correction_concept = SoenacPivotCorrectionFacMovConcepts::where('fac_mov_id', $id)->get()->first();//->correction_id;
+            if ($correction_concept) {
+                $correction_id = $correction_concept->correction_id;
+            } else {
+                $correction_id = 2;
+            }
+        }
         $cliente = TerceroSucursal::find($movimiento->cliente_id);
 
         $cliente->tercero;
@@ -2318,7 +1128,8 @@ class FacMovimientosController extends Controller
                  'empresa' => $empresa,
                  'movPrimario' => $movPrimario,
                  'tipoDocPrimario' => $tipoDocPrimario,
-                 'lineas' => $lineas];
+                 'lineas' => $lineas,
+                 'correction_id' => $correction_id];
         }
 
         return $data;
@@ -2429,20 +1240,6 @@ class FacMovimientosController extends Controller
         return 'done';
     }
 
-    public function tiquetesDiaBascula($bascula, $fecha){
-
-        $date= explode('-', $fecha);
-        $fecha = $date[2].'/'.$date[1].'/'.$date[0];
-
-        $tiquetes = FacPivotMovProducto::tiquetesDiaBascula($bascula, $fecha);
-
-        if (count($tiquetes)) {
-            return $tiquetes;
-        } else {
-            return 'Error no hay tiquetes el dia '. $fecha . ' con la bascula '. $bascula;
-        }
-    }
-
     public function allNotas ()
     {
         // dd('hola');
@@ -2468,255 +1265,57 @@ class FacMovimientosController extends Controller
 
     public function testimpresioncxc(){
 
-        // $datos = FacMovimiento::todosConTipoSucursalGrupoTipoCustom();
-        // // $clientes  = $lineas->unique('documento')->sortBy('tercero');
-        // $quantityNotes = $datos->unique('id')->where('notescount', '>', 0)->count();
-        // $quantityReceipts = $datos->unique('id')->where('ReceipsCount','>', 0)->count();
-        // $print = 'Notas Globales  ' . $quantityNotes . '  Recibos Globales' . $quantityReceipts;
-        // return $print;
-        // ventasPorFechaTest
         $index= Producto::todosConGrupos();
         return $index;
     }
 
     public function sendFactToSoenac(Request $request){
 
-        $http = http_post($request->url, $request->body);
+        $http = Tools::http_post($request->url, $request->body);
+
+        $res = json_decode($http, 1);
+
+        if (!empty($res['errors_messages'])) {
+
+            if(strpos($res['errors_messages'][0], 'Regla: 90') !== false) {
+
+                $cufe = explode("'", $res['errors_messages'][0])[1];
+
+                $prefNum = $res['number'];
+
+                $num = $res['payload']['number'];
+
+                $prefix = explode($num, $prefNum)[0];
+
+                $facTipoDoc = FacTipoDoc::where('prefijo', $prefix)->get()->first();
+
+                $movimiento = FacMovimiento::where('consecutivo', $num)->where('fac_tipo_doc_id', $facTipoDoc->id)->get()->first();
+
+                $movimiento->cufe = $cufe;
+
+                $movimiento->save();
+
+                $res['errors_messages'][] = 'El cufe se ha actualizado por favor refresque la pagina y vuelva a enviar.';
+
+                return json_encode($res);
+            }
+        }
 
         return $http;
     }
 
-    public function marquesPDF($fecha)
-    {
-
-        $fechaArray = explode('-', $fecha);
-
-        $fecha = $fechaArray[2].'-'.$fechaArray[1].'-'.$fechaArray[0];
-
-        $arrayTotal = array();
-        $arrayItem = array();
-        $arrayLines = array();
-        $totalGnal = 0;
-        $totalTiquete = 0;
-
-        $marquesData = GenEmpresa::find(1)->ruta_ip_marques;
-
-        $basculas = explode('&', $marquesData);
-
-        foreach ($basculas as $bascula) {
-            $ip = explode('-', $bascula)[0];
-            $puesto = explode('-', $bascula)[1];
-
-            $tiquetesFacturados = $this->tiquetesDiaBascula($puesto, $fecha);
-            $test = substr($tiquetesFacturados, 0, 5);
-
-            if(substr($tiquetesFacturados, 0, 5) != "Error"){
-
-                $primerTiquete = $tiquetesFacturados->first()->num_tiquete;
-                $primerTiquete = intval($primerTiquete) - 20;
-
-                for ($i=0; $i < 5; $i++) {
-
-                    $primer = $primerTiquete + ($i * 100);
-                    $url = 'http://' .$ip. '/year/documentos?seek={"tipo_doc":1,"posto":'.$puesto. ',"numero":' .$primer. '}&limit=100';
-                    $tiquetesBascula = http_get($url);
-
-                    if($tiquetesBascula != null){
-
-                        foreach ($tiquetesBascula as $tiqueteBasc) {
-
-                            if (($tiqueteBasc['d_doc'] == $fecha) && ($tiqueteBasc['posto'] == $puesto)) {
-
-                                $url = 'http://'.$ip.'/year/documentos_lnh?seek={"tipo_doc":1,"posto":'.$puesto.',"numero":'.$tiqueteBasc['numero'].',"linha_f":0}&limit='.$tiqueteBasc['nr_parcelas'];
-                                $lineasTiquete = http_get($url);
-
-                                foreach ($lineasTiquete as $key => $linea) {
-
-                                    if ($tiqueteBasc['numero'] == $linea['numero']) {
-
-                                        $lineaFacturada = $tiquetesFacturados->where('num_tiquete', $linea['numero'])->where('num_linea_tiquete', $linea['linha_f'])->all();
-
-                                        if (count($lineaFacturada) < 1) {
-
-                                            if ($v = GenVendedor::where('codigo_unico', intval($tiqueteBasc['num_vendedor']))->get()->first()) {
-                                                $vendedor = $v->nombre;
-                                            } else {
-                                                $vendedor = $tiqueteBasc['num_vendedor'];
-                                            }
-
-                                            $producto = Producto::where('codigo', intval($linea['codigo']))->get()->first();
-
-                                            $total = intval($linea['valor']);
-
-                                            // linea 1
-                                            if ($producto) {
-
-                                                $total = intval($linea['valor']);
-                                                $totalGnal = $totalGnal + $total;
-
-                                                array_push($arrayLines, array(
-                                                    'tiquete' => $tiqueteBasc['numero'],
-                                                    'vendedor' => $vendedor,
-                                                    'linea_tiquete'=> $key + 1,
-                                                    'codigo' => $producto->codigo,
-                                                    'producto' => strtoupper($producto->nombre),
-                                                    'total' => $total,
-                                                    'cantidad' => $linea['quantidade'],
-                                                    'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
-                                                    'precio' => $linea['preco_unit']
-                                                ));
-
-                                            } else {
-                                                array_push($arrayLines, array(
-                                                    'tiquete' => $tiqueteBasc['numero'],
-                                                    'vendedor' => $vendedor,
-                                                    'linea_tiquete'=> $key + 1,
-                                                    'codigo' =>  $linea['codigo'],
-                                                    'producto' => 'PRODUCTO NO EXISTENTE',
-                                                    'total' => $total,
-                                                    'cantidad' => $linea['quantidade'],
-                                                    'unidades' => '',
-                                                    'precio' => $linea['preco_unit']
-                                                ));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $arrayLines;
+    public function limpiarTiquetesBascula (){
+        FacMovimiento::limpiarTiquetesBascula();
     }
 
-    public function epelsaDibalPDF($fecha)
-    {
-
-        $empresa = GenEmpresa::find(1);
-
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-        $arrayTotal = array();
-        $arrayItem = array();
-        $arrayLines = array();
-        $totalGnal = 0;
-        $totalTiquete = 0;
-
-        $dia = substr($fecha, 0,2);
-
-        $mes = intval(substr($fecha, 3,2));
-
-        if ($mes == 10 ) {
-            $mes = 'A';
-        } else if ($mes == 11) {
-            $mes = 'B';
-        } else if ($mes == 12) {
-            $mes = 'C';
+    public static function  descargarDevolucionInventario($id){
+        $lineas = FacPivotMovProducto::porMovimiento($id);
+        foreach($lineas as $linea){
+            self::afectarInventario($linea->producto_id, $linea->cantidad, 1);
         }
+    }
 
-        if ($empresa->tipo_escaner == 1) {
-            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
-        } else if ($empresa->tipo_escaner == 4) {
-            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
-        }
-
-        $tiqueteAnterior = 0;
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-
-            $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
-
-            while (($buffer = fgets($handle)) !== false) {
-
-                if ($empresa->tipo_escaner == 1) {
-                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
-                } else if ($empresa->tipo_escaner == 4) {
-                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
-                }
-
-                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
-                                            ->where('num_linea_tiquete', $arrayItem[4])
-                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-                if ( count($list) < 1) {
-
-                    if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
-                        $vendedor = $v->nombre;
-                    } else {
-                        $vendedor = $arrayItem[5];
-                    }
-
-                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-
-                    if ($arrayItem[1] < 1) {
-                        $arrayItem[1] = 1;
-                    }
-
-                    if ($arrayItem[1] < 100) {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
-                    } else {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
-                        $arrayItem[1] = $arrayItem[1]/1000;
-                    }
-
-                    // linea 1
-                    if ($producto) {
-
-                        $total = intval($arrayItem[2]);
-                        $totalGnal = $totalGnal + $total;
-
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' => $producto->codigo,
-                            'producto' => strtoupper($producto->nombre),
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
-                            'precio' => $precioUnit
-                        ));
-
-                    } else {
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' =>  $arrayItem[0],
-                            'producto' => 'PRODUCTO NO EXISTENTE',
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => '',
-                            'precio' => ''
-                        ));
-                    }
-
-                    if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
-                        array_pop($arrayLines);
-                        array_pop($arrayLines);
-                    }
-                }
-            }
-
-            return $arrayLines;
-
-        } else {
-
-            return 'El archivo para la fecha especificada no existe';
-        }
+    public static function dataSoenacCorrections($tipo_doc_id){
+        return FacMovimiento::dataSoenacCorrections($tipo_doc_id);
     }
 }

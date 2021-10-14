@@ -7,7 +7,7 @@
 	.table {
 	  font-family: Courier, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -87,7 +87,6 @@
 </style>
 </head>
 <body>
-
 	<table class="table table-font">
 		<thead>
 			<tr>
@@ -101,7 +100,6 @@
 			</tr>
 		</thead>
 		<tbody>
-
 			@php
 				$totalCounter = 0;
 				$granTotal = 0;

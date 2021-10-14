@@ -3,9 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class GenEmpresa extends Model
 {
+
+    private $caractLinea = 0;
+
     protected $table = 'gen_empresa';
 
     protected $fillable = [
@@ -31,11 +35,23 @@ class GenEmpresa extends Model
     	'ruta_archivo_precios_epelsa',
         'fact_grupo',
         'print_logo_pos',
-        'email_backup_fact_elect'
+        'email_backup_fact_elect',
+        'cantidad_caracteres',
+        'bloquear_tercero',
+        'precio_bascula_marques'
     ];
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
+
+    public function setCaractLinea($int){
+        $this->caractLinea = $int;
+    }
+
+    public  function getCaractLinea($int){
+        return $this->caractLinea;
+    }
+
 }

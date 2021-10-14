@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class TerceroSucursal extends Model
 {
@@ -55,6 +57,49 @@ class TerceroSucursal extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
+    }
+
+    public static function getDataSucursalNoId(){
+        return DB::table('tercero_sucursales')
+        ->select(DB::raw('terceros.id as tercero_id,
+                terceros.nombre as tercero_nombre,
+                tercero_sucursales.id as sucursal_id,
+                tercero_sucursales.nombre as sucursal_nombre,
+                tercero_sucursales.direccion as sucursal_direccion,
+                tercero_sucursales.telefono as sucursal_telefono,
+                tercero_sucursales.prodListaPrecio_id as prodListaPrecio_id,
+                gen_municipios.id as municipio_id,
+                gen_municipios.nombre as municipio_nombre,
+                gen_departamentos.id as departamento_id,
+                gen_departamentos.nombre as departamento_nombre'))
+            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+            ->join('gen_municipios','gen_municipios.id', '=', 'tercero_sucursales.gen_municipios_id')
+            ->join('gen_departamentos','gen_departamentos.id', '=', 'gen_municipios.departamento_id')
+            ->whereIn('terceros.id', [4,5])
+            ->orderBy('terceros.id')
+            //->whereIn('id', [1, 2, 3])
+            ->get();
+    }
+
+    public static function getDataSucursal($id){
+        return DB::table('tercero_sucursales')
+        ->select(DB::raw('terceros.id as tercero_id,
+                terceros.nombre as tercero_nombre,
+                terceros.plazo_facturacion,
+                tercero_sucursales.id as sucursal_id,
+                tercero_sucursales.nombre as sucursal_nombre,
+                tercero_sucursales.direccion as sucursal_direccion,
+                tercero_sucursales.telefono as sucursal_telefono,
+                tercero_sucursales.prodListaPrecio_id as prodListaPrecio_id,
+                gen_municipios.id as municipio_id,
+                gen_municipios.nombre as municipio_nombre,
+                gen_departamentos.id as departamento_id,
+                gen_departamentos.nombre as departamento_nombre'))
+            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+            ->join('gen_municipios','gen_municipios.id', '=', 'tercero_sucursales.gen_municipios_id')
+            ->join('gen_departamentos','gen_departamentos.id', '=', 'gen_municipios.departamento_id')
+            ->where('tercero_sucursales.id', '=', $id)
+            ->get();
     }
 }

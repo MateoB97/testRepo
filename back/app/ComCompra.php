@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class ComCompra extends Model
 {
@@ -27,7 +28,7 @@ class ComCompra extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConTipoSucursalGrupoTipo(){
@@ -43,9 +44,9 @@ class ComCompra extends Model
                 'com_compras.estado as estado',
                 'com_compras.fecha_compra as fecha_compra',
                 'com_compras.fecha_vencimiento as fecha_vencimiento',
+                'com_compras.doc_referencia',
                 'tercero_sucursales.nombre as sucursal',
                 'terceros.nombre as tercero',
-                'com_tipo_compras.nombre as tipo',
                 'users.name as usuario',
                 'com_tipo_compras.naturaleza'
             )
@@ -110,6 +111,7 @@ class ComCompra extends Model
             ->where('com_compras.estado', 1)
             ->orderBy('terceros.documento','asc')
             ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('com_compras.fecha_compra', 'asc')
             ->get();
     }
 
@@ -139,6 +141,7 @@ class ComCompra extends Model
             ->where('terceros.id', $tercero_id)
             ->orderBy('terceros.documento','asc')
             ->orderBy('tercero_sucursales.id','asc')
+            ->orderBy('com_compras.fecha_compra', 'asc')
             ->get();
     }
 

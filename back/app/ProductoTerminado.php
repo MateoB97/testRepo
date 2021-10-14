@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class ProductoTerminado extends Model
 {
@@ -13,10 +14,10 @@ class ProductoTerminado extends Model
      *
      * @var array
      */
-    protected $fillable = ['prog_lotes_id','invent_id','almacenamiento','dias_vencimiento'];
+    protected $fillable = ['prog_lotes_id','invent_id','almacenamiento','dias_vencimiento','num_piezas', 'marinado', 'fecha_vencimiento'];
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 }

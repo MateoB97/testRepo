@@ -130,7 +130,7 @@ export default {
         productos: this.productos
       },
       temp: {
-        cantidad: 0
+        cantidad: null
       },
       dataNotas: []
     }
@@ -200,7 +200,6 @@ export default {
             newProduct.cantidad = -parseFloat(newProduct.cantidad)
             app.ultimoMovimiento = 'Se restaron ' + newProduct.cantidad + ' ' + typeUnit + ' de ' + newProduct.producto
           }
-          app.isVisible = false
           app.$emit('addProducto', newProduct)
           app.itemsCounter = app.itemsCounter + 1
           app.numLineas = app.numLineas + 1

@@ -22,6 +22,7 @@ class CreateLotDecomisosTable extends Migration
             $table->foreign('producto_id')->references('id')->on('productos');
 
             $table->unsignedBigInteger('lotProgramacion_id');
+
             $table->foreign('lotProgramacion_id')->references('id')->on('lot_programaciones');
 
             $table->timestamps();

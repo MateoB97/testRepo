@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class SalMercancia extends Model
 {
@@ -19,7 +20,7 @@ class SalMercancia extends Model
      *
      * @var array
      */
-    protected $fillable = ['terceroSucursal_id','temperatura','vehiculo'];
+    protected $fillable = ['terceroSucursal_id','temperatura','vehiculo', 'consecutivo', 'temperatura_congelado'];
 
     /**
      * SalMercancia belongs to TerceroSucursal.
@@ -45,12 +46,13 @@ class SalMercancia extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 
     public static function todosConSucursales(){
     return DB::table('sal_mercancias')
             ->select(   'sal_mercancias.id As id',
+                        'sal_mercancias.consecutivo As consecutivo',
                         'terceros.nombre as tercero',
                         'tercero_sucursales.id as tercero_sucursal_id',
                         'tercero_sucursales.nombre as sucursal',
@@ -113,5 +115,18 @@ class SalMercancia extends Model
             ->whereBetween('sal_mercancias.created_at', [$fecha_inicial, $fecha_final])
             ->where('sal_mercancias.terceroSucursal_id', '=', $sucursal)
             ->get();
+    }
+
+    public static function findByCosec($consec){
+        return DB::table('sal_mercancias')
+        ->select(   'sal_mercancias.id As id',
+                    'sal_mercancias.temperatura',
+                    'sal_mercancias.vehiculo',
+                    'sal_mercancias.terceroSucursal_id',
+                    'sal_mercancias.consecutivo',
+                    'sal_mercancias.created_at',
+                    'sal_mercancias.updated_at')
+        ->where('sal_mercancias.consecutivo', '=', $consec)
+        ->get();
     }
 }

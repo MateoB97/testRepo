@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class ProdAlmacenamiento extends Model
 {
@@ -18,7 +19,7 @@ class ProdAlmacenamiento extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','activo'];
+    protected $fillable = ['nombre','activo', 'reprocesado', 'empaque', 'almacenamiento'];
 
     /**
      * ProdAlmacenamiento has many ProdVencimiento.
@@ -33,13 +34,13 @@ class ProdAlmacenamiento extends Model
 
     protected $columns = array('id','nombre','activo','created_at','updated_at'); // add all columns from you table
 
-    public function scopeExclude($query,$value = array()) 
+    public function scopeExclude($query,$value = array())
     {
         return $query->select( array_diff( $this->columns,(array) $value) );
     }
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 }

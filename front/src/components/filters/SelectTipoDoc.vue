@@ -9,7 +9,7 @@
         multiple
         emit-value
         map-options
-        @input="$emit('input', model)"
+        @input="setTiposDoc()"
     >
       <template v-slot:option="{ itemProps, itemEvents, opt, selected, toggleOption }">
         <q-item
@@ -41,6 +41,13 @@ export default {
   },
   mixins: [globalFunctions],
   methods: {
+    setTiposDoc () {
+      if (this.model.length > 0) {
+        this.$emit('input', this.model)
+      } else {
+        this.$emit('input', null)
+      }
+    }
   },
   created: function () {
     this.globalGetForSelect('api/facturacion/tipos/filtro/facturas', 'facturas')

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ProdAlmacenamiento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProdAlmacenamientoController extends Controller
 {
@@ -15,6 +16,12 @@ class ProdAlmacenamientoController extends Controller
     public function index()
     {
         $index= ProdAlmacenamiento::orderBy('created_at', 'desc')->exclude(['created_at','updated_at'])->get();
+        return $index;
+    }
+
+    public function reprocesado($reprocesado)
+    {
+        $index= ProdAlmacenamiento::where('reprocesado','=',$reprocesado)->orderBy('created_at', 'desc')->exclude(['created_at','updated_at'])->get();
         return $index;
     }
 
@@ -47,7 +54,7 @@ class ProdAlmacenamientoController extends Controller
     public function estado($id, $cambio)
     {
          $model = ProdAlmacenamiento::find($id);
-         
+
          $modificacion = ($cambio == 'activar') ? $model->activo = 1 : $model->activo =0;
          $validate = $model->save();
          $return = $validate ? 'true' : 'false';
@@ -73,5 +80,10 @@ class ProdAlmacenamientoController extends Controller
         if ($delete) {
             return 'deleted';
         }
+    }
+
+    public function eliminarVencimiento($id) {
+        DB::delete("delete from prod_vencimientos where id = '$id'");
+        return 'done';
     }
 }

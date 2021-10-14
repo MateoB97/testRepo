@@ -200,7 +200,8 @@ export default {
             }
             axios.post(app.$store.state.jhsoft.url + 'api/facturacion/enviarfacturasoenac', { url: 'https://supercarnes-jh.apifacturacionelectronica.xyz/api/ubl2.1/mail/send/' + item.cufe + token, body: dataCorreo }).then(
               function (response3) {
-                if (parseInt(response3.data.is_valid) === 1) {
+                console.log(response3.data.is_valid)
+                if (response3.data.is_valid === true) {
                   app.$q.notify({ color: 'positive', message: 'Notificacion enviada al correo ' + item.email })
                 } else {
                   app.$q.notify({ color: 'negative', message: 'Error al enviar el email.' })

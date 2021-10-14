@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class LotPesoPlanta extends Model
 {
@@ -23,7 +24,7 @@ class LotPesoPlanta extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 
     public static function pesosTotalesLote () {

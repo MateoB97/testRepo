@@ -227,6 +227,7 @@ class ReportesGenerados extends Model
     public static function selectViewAccount($fecha_inicial, $fecha_final){
         return DB::select("select * from AccountantView where fecha_facturacion between '$fecha_inicial' and '$fecha_final' order by consecutivo");
     }
+
     public static function impuestosFactura(){
         return DB::table('fac_movimientos')
         ->select(DB::raw('fac_movimientos.id As id,
@@ -257,9 +258,9 @@ class ReportesGenerados extends Model
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             // inner join prod_subgrupos sp on p.prod_subgrupo_id = sp.id
-            ->get()
-            ->take(20);
+            ->get();
     }
+
     public static function todosConTipoSucursalGrupoTipoCustom(){
         return DB::table('fac_movimientos')
         ->select(DB::raw('fac_movimientos.id As id,
@@ -315,5 +316,362 @@ class ReportesGenerados extends Model
             ->take(20);
     }
 
+    // Reporte para interfaz de las contadoras
+    public static function reporteFacturasIva($fecha_inicial, $fecha_final){
+        return DB::select("
+        select
+            *
+        from AccountInterfaceView
+        where fecha_facturacion between '$fecha_inicial' and '$fecha_final' order by consecutivo");
+    }
 
+
+    public static function ventasContadoCredito($fecha){
+        return DB::select(
+            "
+            select
+                fac_tipo_doc.nombre as VentasTipoDoc,
+                min(fac_movimientos.consecutivo) as VentasMinConsecutivo,
+                max(fac_movimientos.consecutivo) as VentasMaxConsecutivo,
+                sum(fac_movimientos.total) as total
+            from fac_movimientos
+            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
+            where fecha_facturacion = '$fecha'
+                and fac_movimientos.estado != 3
+                and fac_tipo_doc.naturaleza in (1,4)
+                and fac_tipo_doc.legal >0
+            group by fac_tipo_doc.nombre
+            "
+        );
+    }
+
+    public static function devolucionesContadoCredito($fecha){
+        return DB::select(
+            "
+            select
+                fac_tipo_doc.nombre as DevTipoDoc,
+                sum(fac_movimientos.total) as total
+            from fac_movimientos
+            inner join fac_tipo_doc on fac_movimientos.fac_tipo_doc_id =  fac_tipo_doc.id
+            where fecha_facturacion = '$fecha'
+                and fac_movimientos.estado = 3
+                and fac_tipo_doc.naturaleza in (1,4)
+                and fac_tipo_doc.legal >0
+            group by fac_tipo_doc.nombre
+            "
+        );
+    }
+
+    public static function recibosAbonosCreditos($fecha){
+        return DB::select(
+            "
+            select
+                trc.nombre,
+                sum(fp.valor) as Valor
+            from fac_recibos_caja rc
+            inner join fac_pivot_forma_recibo fp on rc.id =fp.fac_recibo_id
+            inner join fac_formas_pago fm on fp.fac_formas_pago_id = fm.id
+            inner join fac_tipo_rec_caja trc on rc.fac_tipo_rec_caja_id = trc.id
+            where rc.fecha_recibo = '$fecha'
+            group by trc.nombre
+            "
+        );
+    }
+
+    public static function efectivosRecibos($fecha){
+        return
+        DB::select("
+        select
+            fac_formas_pago.nombre,
+            sum(fac_pivot_forma_recibo.valor) as Valor
+        from fac_recibos_caja
+        inner join fac_pivot_forma_recibo on  fac_recibos_caja.id =  fac_pivot_forma_recibo.fac_recibo_id
+        inner join fac_formas_pago on  fac_pivot_forma_recibo.fac_formas_pago_id = fac_formas_pago.id
+        where fac_recibos_caja.fecha_recibo = '$fecha'
+        group by fac_formas_pago.nombre
+        ");
+
+    }
+
+    public static function impuestoFiscal($fecha){
+        return DB::select("
+        select
+        a.tipo_documento,
+        a.fecha_facturacion,
+        a.naturaleza,
+        a.legal,
+        a.[impuesto],
+        sum(a.ValorTotalSinIva) As [ValorTotalSinIVA],
+        sum(a.ValorIva) as [ValorIVA],
+        sum(a.ValorTotalSinIva) + sum(a.ValorIva) as [ValorTotalConIVA]
+    from (
+    select
+            d.consecutivo,
+            d.fecha_facturacion,
+            td.id,
+            td.naturaleza,
+            td.nombre as tipo_documento,
+            td.legal,
+            dd.descporcentaje,
+            dd.iva as [impuesto],
+            dd.precio as ValorUnit,
+            dd.cantidad,
+            (dd.precio * dd.cantidad) as ValorTotalSinIva,
+            (dd.precio * dd.cantidad) * (cast(dd.iva as float)/100) as ValorIva,
+            (dd.precio * dd.cantidad) + ((dd.precio * dd.cantidad) * (cast(dd.iva as float)/100)) as ValorTotal
+        from fac_movimientos d
+        inner join tercero_sucursales ts on d.cliente_id = ts.id
+        inner join terceros t on t.id = ts.tercero_id
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join productos p on dd.producto_id = p.id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        where
+            td.naturaleza in (1,4) and td.legal >0
+            and d.estado != 3
+            and  fecha_facturacion = '$fecha'
+    )a
+    group by a.tipo_documento, a.fecha_facturacion, a.naturaleza,a.legal, a.[impuesto]
+    order by a.tipo_documento");
+    }
+
+    public static function pesoAcomuladoVentasNotasDevs($fecha_inicial, $fecha_final){
+        return
+        DB::select("
+        select
+            a.producto_id,
+            a.nombre,
+            isnull(a.PesoVenta, 0) as PesoVenta,
+            isnull(b.PesoDevs, 0) as PesoDevs,
+            isnull(c.PesoNotas, 0) as PesoNotas,
+            isnull(a.PesoVenta, 0) - isnull(b.PesoDevs, 0) - isnull(c.PesoNotas, 0) as PesoTotal
+        from (
+        select
+            p.id as producto_id,
+            p.nombre,
+            sum(dd.cantidad) as PesoVenta
+        from fac_movimientos d
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        inner join productos p on dd.producto_id = p.id
+        where d.fecha_facturacion between '$fecha_inicial' and '$fecha_final' and d.estado != 3 and td.naturaleza in (1,4)
+        group by p.id, p.nombre
+        )a
+        left join (
+        select
+            p.id as producto_id,
+            p.nombre,
+            sum(dd.cantidad) as PesoDevs
+        from fac_movimientos d
+        inner join fac_pivot_mov_productos dd on d.id = dd.fac_mov_id
+        inner join fac_tipo_doc td on d.fac_tipo_doc_id = td.id
+        inner join productos p on dd.producto_id = p.id
+        where d.fecha_facturacion between '$fecha_inicial' and '$fecha_final' and d.estado = 3
+        group by p.id, p.nombre
+        )b on a.producto_id = b.producto_id
+        left join (
+        SELECT
+            productos.id as producto_id,
+            productos.nombre,
+            sum(cast(fac_pivot_mov_productos.cantidad as float) ) as PesoNotas
+        FROM fac_cruce
+        inner join fac_movimientos mf on mf.id = fac_cruce.fac_mov_principal
+        inner join fac_movimientos mn on mn.id = fac_cruce.[fac_mov_secundario]
+        inner join fac_pivot_mov_productos on mn.id = fac_pivot_mov_productos.fac_mov_id
+        inner join fac_tipo_doc on fac_tipo_doc.id = mn.fac_tipo_doc_id
+        inner join productos on fac_pivot_mov_productos.producto_id = productos.id
+        where cast(mf.created_at as date) between '$fecha_inicial' and '$fecha_final'  and cast(mn.created_at as date) between '$fecha_inicial' and '$fecha_final' and fac_tipo_doc.naturaleza = 2
+        group by productos.id, productos.nombre
+        )c on a.producto_id = c.producto_id
+        ");
+    }
+
+    public static function reporteFiscal ($fecha_inicial, $fecha_final){
+        return DB::select("
+        select
+            gen_empresa.nombre as Empresa,
+            gen_empresa.nit as Nit,
+            fac_movimientos.id As id,
+            fac_pivot_mov_productos.id,
+            fac_movimientos.consecutivo  as consecutivo,
+            fac_movimientos.fecha_facturacion as fecha,
+            fac_movimientos.subtotal,
+            fac_movimientos.total,
+            fac_movimientos.saldo,
+            fac_pivot_mov_productos.cantidad as cantidad,
+            fac_pivot_mov_productos.precio as precio,
+            fac_pivot_mov_productos.descporcentaje,
+            gen_iva.id iva_id,
+            gen_iva.nombre Tipo_IVA,
+            fac_pivot_mov_productos.iva iva_detalle,
+            (fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) as precio_base,
+            (fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * cast(fac_pivot_mov_productos.iva as float)/100 as iva_base_producto,
+            (fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) - ((fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * (fac_pivot_mov_productos.descporcentaje/100)) + ((fac_pivot_mov_productos.cantidad *	fac_pivot_mov_productos.precio) * (cast(fac_pivot_mov_productos.iva as float)/100)) as precio_total_producto,
+            fac_tipo_doc.id  as tipo_id,
+            fac_tipo_doc.nombre  as tipo,
+            fac_tipo_doc.naturaleza
+        from fac_movimientos
+        inner join fac_pivot_mov_productos on fac_pivot_mov_productos.fac_mov_id = fac_movimientos.id
+        inner join fac_tipo_doc on  fac_tipo_doc.id  =  fac_movimientos.fac_tipo_doc_id
+        inner join productos on productos.id = fac_pivot_mov_productos.producto_id
+        inner join gen_iva on gen_iva.id = productos.gen_iva_id
+        inner join gen_empresa on gen_empresa.id = 1
+        where
+            fac_movimientos.estado not in ( 3 , 10)
+            and fac_movimientos.fecha_facturacion between '$fecha_inicial' and '$fecha_final'
+            and fac_tipo_doc.naturaleza in (1, 2, 3, 4)
+            and fac_tipo_doc.legal in (1)
+        order by fac_tipo_doc.nombre, fac_movimientos.consecutivo, fac_movimientos.fecha_facturacion
+        ");
+    }
+
+    public static function  HeadersFiscal($fecha_ini, $fecha_fin){
+        return DB::select("
+        select
+        a.naturaleza,
+        a.tipo,
+        min(a.consecutivo) as consec_ini,
+        max(a.consecutivo) as consec_fin
+    from (
+    select
+        fac_movimientos.consecutivo  as consecutivo,
+        fac_tipo_doc.id  as tipo_id,
+        fac_tipo_doc.nombre  as tipo,
+        fac_tipo_doc.naturaleza,
+        fac_movimientos.fecha_facturacion as fecha
+    from fac_movimientos
+    inner join fac_tipo_doc on  fac_tipo_doc.id  =  fac_movimientos.fac_tipo_doc_id
+    where
+        fac_movimientos.estado not in (3, 10)
+        and fac_movimientos.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+        and fac_tipo_doc.naturaleza in (1, 2 ,3, 4)
+        and fac_tipo_doc.legal in (1)
+    )a
+    group by  a.naturaleza, a.tipo
+        ");
+    }
+
+    public static function DetailsFiscal($fecha_ini, $fecha_fin){
+        return DB::select("
+        select
+	a.fecha,
+	sum(a.precio_base_POS) as TotalEfectivo,
+	sum(a.precio_base_creditos) as TotalCreditos,
+	sum(a.precio_base_creditos + a.precio_base_POS) as VentaTotalDia,
+	sum(a.iva_base_producto_creditos + a.iva_base_producto_POS) as Impuesto
+from (
+select
+	fac_movimientos.fecha_facturacion as fecha,
+    fac_movimientos.consecutivo  as consecutivo,
+	fac_tipo_doc.id  as tipo_id,
+    fac_tipo_doc.nombre  as tipo,
+	fac_tipo_doc.naturaleza,
+	isnull(case when fac_tipo_doc.naturaleza = 1 then (fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) end, 0 ) as precio_base_creditos,
+	isnull(case when fac_tipo_doc.naturaleza = 1 then(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * cast(fac_pivot_mov_productos.iva as float)/100 end , 0 ) as iva_base_producto_creditos,
+	isnull(case when fac_tipo_doc.naturaleza = 4 then (fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) end, 0 ) as precio_base_POS,
+	isnull(case when fac_tipo_doc.naturaleza = 4 then(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * cast(fac_pivot_mov_productos.iva as float)/100 end , 0 ) as iva_base_producto_POS
+from fac_movimientos
+inner join fac_pivot_mov_productos on fac_pivot_mov_productos.fac_mov_id = fac_movimientos.id
+inner join fac_tipo_doc on  fac_tipo_doc.id  =  fac_movimientos.fac_tipo_doc_id
+inner join productos on productos.id = fac_pivot_mov_productos.producto_id
+inner join gen_iva on gen_iva.id = productos.gen_iva_id
+where
+	fac_movimientos.estado not in (3, 10)
+	and fac_movimientos.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+	and fac_tipo_doc.naturaleza in (1, 2 ,3, 4)
+	and fac_tipo_doc.legal in (1)
+)a
+group by a.fecha
+        ");
+    }
+
+    public static function impuestosFiscal($fecha_ini,$fecha_fin) {
+        return DB::select("
+        select
+            a.nombre_iva,
+            sum(a.precio_base) as base,
+            sum(a.iva_base_producto) as impuestos
+from (
+select
+    fac_movimientos.consecutivo  as consecutivo,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) as precio_base,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * cast(fac_pivot_mov_productos.iva as float)/100 as iva_base_producto,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) - ((fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * (fac_pivot_mov_productos.descporcentaje/100)) + ((fac_pivot_mov_productos.cantidad *	fac_pivot_mov_productos.precio) * (cast(fac_pivot_mov_productos.iva as float)/100)) as precio_total_producto,
+	fac_tipo_doc.id  as tipo_id,
+    fac_tipo_doc.nombre  as tipo,
+	fac_tipo_doc.naturaleza,
+	fac_movimientos.fecha_facturacion as fecha,
+	gen_iva.nombre nombre_iva
+from fac_movimientos
+inner join fac_pivot_mov_productos on fac_pivot_mov_productos.fac_mov_id = fac_movimientos.id
+inner join fac_tipo_doc on  fac_tipo_doc.id  =  fac_movimientos.fac_tipo_doc_id
+inner join productos on productos.id = fac_pivot_mov_productos.producto_id
+inner join gen_iva on gen_iva.id = productos.gen_iva_id
+where
+	fac_movimientos.estado not in (3, 10)
+	and fac_movimientos.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+	and fac_tipo_doc.naturaleza in (1, 2 ,3, 4)
+	and fac_tipo_doc.legal in (1)
+)a group by a.nombre_iva
+        ");
+    }
+
+    public static function impuestoNcFiscal ($fecha_ini,$fecha_fin) {
+        return DB::select("
+        select
+            a.nombre_iva,
+            sum(a.precio_base) as base,
+            sum(a.iva_base_producto) as impuestos
+from (
+select
+    fac_movimientos.consecutivo  as consecutivo,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) as precio_base,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * cast(fac_pivot_mov_productos.iva as float)/100 as iva_base_producto,
+	(fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) - ((fac_pivot_mov_productos.cantidad * fac_pivot_mov_productos.precio) * (fac_pivot_mov_productos.descporcentaje/100)) + ((fac_pivot_mov_productos.cantidad *	fac_pivot_mov_productos.precio) * (cast(fac_pivot_mov_productos.iva as float)/100)) as precio_total_producto,
+	fac_tipo_doc.id  as tipo_id,
+    fac_tipo_doc.nombre  as tipo,
+	fac_tipo_doc.naturaleza,
+	fac_movimientos.fecha_facturacion as fecha,
+	gen_iva.nombre nombre_iva
+from fac_movimientos
+inner join fac_pivot_mov_productos on fac_pivot_mov_productos.fac_mov_id = fac_movimientos.id
+inner join fac_tipo_doc on  fac_tipo_doc.id  =  fac_movimientos.fac_tipo_doc_id
+inner join productos on productos.id = fac_pivot_mov_productos.producto_id
+inner join gen_iva on gen_iva.id = productos.gen_iva_id
+where
+	fac_movimientos.estado not in (3, 10)
+	and fac_movimientos.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+	and fac_tipo_doc.naturaleza in (2)
+	and fac_tipo_doc.legal in (1)
+)a group by a.nombre_iva
+        ");
+    }
+
+    public static function impuestoBolsaFiscal($fecha_ini,$fecha_fin) {
+        return DB::select("
+            select
+                p.nombre,
+                dd.precio,
+                sum(dd.cantidad) as cantidad
+            from gen_empresa e
+            inner join productos p on e.producto_bolsa_id = p.id
+            inner join fac_pivot_mov_productos dd on p.id = dd.producto_id
+            inner join fac_movimientos d on dd.fac_mov_id = d.id
+            where d.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+            and d.estado != 3
+            group by p.nombre, dd.precio
+        ");
+    }
+
+    public static function formaPagoFiscal($fecha_ini,$fecha_fin) {
+        return DB::select("
+            select
+                fp.nombre,
+                sum(fpd.valor_pagado) as valor
+            from fac_pivot_mov_formaspago fpd
+            inner join fac_movimientos d on fpd.fac_mov_id = d.id
+            inner join fac_formas_pago fp on fpd.fac_formas_pago_id = fp.id
+            where d.fecha_facturacion between '$fecha_ini' and '$fecha_fin' and d.estado != 3
+            group by fp.nombre
+        ");
+    }
 }

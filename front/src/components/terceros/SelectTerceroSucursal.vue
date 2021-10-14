@@ -39,7 +39,7 @@
             input-debounce="0"
             :options="options.sucursales"
             @filter="filterSucursales"
-            @input="$emit('input', datos.sucursal)"
+            @input="sendToParent()"
           >
             <template v-slot:no-option>
               <q-item>
@@ -64,12 +64,13 @@ const axios = require('axios')
 import { globalFunctions } from 'boot/mixins.js'
 
 export default {
-  props: ['columnas', 'labelTercero', 'editor'],
+  props: ['columnas', 'labelTercero', 'editor', 'validateTercero'],
   name: 'SelectTerceroSucursal',
   data: function () {
     return {
       terceros: [],
       sucursales: [],
+      empresa: [],
       datos: {
         tercero_id: null,
         sucursal: null
@@ -84,8 +85,48 @@ export default {
   methods: {
     selectedTercero () {
       var app = this
+      app.sucursales = []
+      var consecs = ''
+      var i = 0
       this.$emit('tercero_id', this.datos.tercero_id.id)
       this.datos.sucursal = null
+      if (!this.validateTercero === true) {
+        axios.get(this.$store.state.jhsoft.url + 'api/terceros/validarfacturasterceros/' + this.datos.tercero_id.id).then(
+          function (response) {
+            if (response.data.length > 0) {
+              for (i = 0; i < response.data.length; i++) {
+                consecs += response.data[i]['consecutivo'] + ','
+              }
+              app.sucursales = []
+              app.$q.notify({ color: 'negative', message: 'El cliente tiene facturas pendientes por pagar.' + consecs })
+              if (app.empresa.bloquear_tercero === true) {
+                app.sucursales = []
+              } else {
+                app.filterByTerceroId()
+              }
+            } else {
+              app.filterByTerceroId()
+            }
+          }
+        ).catch(
+          function (error) {
+            var logs = []
+            var today = new Date()
+            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+            var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds()
+            var dateTime = date + ' ' + time
+            var errorLog = 'Error:  ' + error.response + '  Fecha: ' + dateTime
+            logs.push(errorLog)
+            localStorage.logErrores = logs
+            app.filterByTerceroId()
+          }
+        )
+      } else {
+        app.filterByTerceroId()
+      }
+    },
+    filterByTerceroId () {
+      var app = this
       axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursales/tercerofilter/' + this.datos.tercero_id.id).then(
         function (response) {
           app.sucursales = response.data
@@ -103,11 +144,16 @@ export default {
         const needle = val.toLowerCase()
         this.options.sucursales = this.sucursales.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
+    },
+    sendToParent () {
+      this.$emit('input', this.datos.sucursal)
+      this.$emit('setPlazo', this.datos.tercero_id.plazo_facturacion)
     }
   },
   created: function () {
     this.globalGetForSelect('api/terceros/items/estado/activos', 'terceros')
-    this.globalGetForSelect('api/terceros/sucursales', 'sucursales')
+    this.globalGetForSelect('api/terceros/sucursalesactivas', 'sucursales')
+    this.globalGetForSelect('api/generales/empresa', 'empresa')
   },
   computed: {
     sucursalActiva: function () {
@@ -119,7 +165,7 @@ export default {
       var app = this
       if (val !== this.datos.sucursal) {
         if (val !== null) {
-          axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursales').then(
+          axios.get(this.$store.state.jhsoft.url + 'api/terceros/sucursalesactivas').then(
             function (response) {
               app.sucursales = response.data
               app.datos.sucursal = app.sucursales.find(element => parseInt(element.id) === parseInt(val))

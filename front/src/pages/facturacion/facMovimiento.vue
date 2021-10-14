@@ -39,6 +39,42 @@
             </q-layout>
           </q-dialog>
         <!-- fin popup impresion al guardar -->
+
+        <!-- ini popup inventario notas -->
+          <q-dialog tabindex="0" v-model="openInventarioNotas" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 30vh; max-width: 800px" class="bg-white">
+
+              <q-page-container>
+                  <q-page padding>
+                  <div class="row">
+                    <div class="text-center">
+                      <h4>¿ Este movimiento debe afectar inventario ?</h4>
+                    </div>
+                  </div>
+                  <div class="row q-col-gutter-md">
+                    <div class="col-6">
+                      <q-btn class="q-mt-sm w100"
+                        color="positive"
+                        v-close-popup
+                        label="Si"
+                        @click="storeItems.afectaInventario = true, globalValidate('guardar')"
+                      />
+                    </div>
+                    <div class="col-6">
+                      <q-btn class="q-mt-sm w100"
+                          color="negative"
+                          v-close-popup
+                          label="No"
+                          @click="storeItems.afectaInventario = false, globalValidate('guardar')"
+                      />
+                    </div>
+                  </div>
+                  </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popup inventario notas -->
+
         <!-- inicio popup ingresar pago -->
           <q-dialog tabindex="0" @keyup.enter="localValidate()" v-model="openedAddPago" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
             <q-layout view="Lhh lpR fff" container style="height: 50vh; max-width: 800px" class="bg-white">
@@ -79,7 +115,7 @@
                 <NavMovComponent @insertLine="insertLineFromNav" @setFactData="setFactDataFromNav" />
             </div>
             <div v-if="viewTerceros" class="col-12 row q-col-gutter-md">
-              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Cliente'/>
+              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" @setPlazo="setPlazo" columnas='col-12' labelTercero='Cliente'/>
             </div>
             <div class="col-12 row q-col-gutter-md">
               <!-- // -->
@@ -166,16 +202,17 @@
                 </q-select>
               </div>
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
-                <q-input v-if="empresa.tipo_escaner == 1" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteDibal" label="Escanear..."   />
-                <q-input v-if="empresa.tipo_escaner == 2" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteMarques" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa" label="Escanear..."  />
-                <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho" label="Escanear..." />
+                <q-input v-if="empresa.tipo_escaner == 1" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteDibal()" label="Escanear..."   />
+                <q-input v-if="empresa.tipo_escaner == 2" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteMarques()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 3" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasCodigoBarras()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 4" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasTiqueteEpelsa()" label="Escanear..."  />
+                <q-input v-if="empresa.tipo_escaner == 5" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasDespacho()" label="Escanear..." />
+                <q-input v-if="empresa.tipo_escaner == 6" filled v-model="num_tiquete" ref="scan" v-on:keyup.enter="buscarLineasEtiquetaProducto()" label="Escanear..." />
               </div>
               <div  v-if="parseInt(tipoDoc.naturaleza) === 1 || parseInt(tipoDoc.naturaleza) === 4" class="col-6">
                 <q-input filled v-model="orden" ref="scan" v-on:keyup.enter="buscarLineasOrden" label="Orden..." />
               </div>
-              <div  v-if="empresa.fact_grupo" class="col-12">
+              <div  v-if="empresa.fact_grupo" class="col-6">
                 <q-select
                   class="w-100"
                   v-model="storeItems.prod_grupo_id"
@@ -199,6 +236,34 @@
                     </q-item>
                   </template>
                 </q-select>
+              </div>
+              <div  v-if="parseInt(tipoDoc.naturaleza) === 2 || parseInt(tipoDoc.naturaleza) === 3" class="col-6">
+                <q-select
+                  class="w-100"
+                  v-model="storeItems.correction_soenac_id"
+                  use-input
+                  hide-selected
+                  fill-input
+                  option-value="correction_soenac_id"
+                  option-label="nombre"
+                  label="Concepto de Nota"
+                  option-disable="inactive"
+                  map-options
+                  input-debounce="0"
+                  :options="options.datasoenaccorrections"
+                  @filter="filterConcepts"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        No results
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
+              <div v-if="tipoDoc.naturaleza == 1" class="col-6">
+                <q-input label="Guia Transporte" v-model="storeItems.guiaTransporte" class="date-field" :rules="['string'] " />
               </div>
               <!-- Fin datos solo para facturas -->
               <!-- // -->
@@ -262,9 +327,8 @@
                   />
                 </div>
                 <div class="col-12 w-100 q-mt-sm">
-                  <q-btn  v-if="tipoDoc.naturaleza != 4 && updateMode == false" class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
-                  <q-btn  v-if="tipoDoc.naturaleza == 1 && updateMode == true" class="btn-coral w-100" v-on:click="globalValidate('guardar-edicion', movActualId)" label="Guardar Edicion" />
-                  <q-btn  v-if="tipoDoc.naturaleza == 4 && updateMode == false" class="btn-azul w-100" v-on:click="localValidate()" label="Guardar" />
+                  <q-btn  v-if="updateMode == true" class="btn-coral w-100" v-on:click="localValidate()" label="Guardar Edicion" />
+                  <q-btn  v-if="updateMode == false" class="btn-azul w-100" v-on:click="localValidate()" label="Guardar" />
                 </div>
                 <div v-if="tipoDoc.naturaleza == 4" class="col-12 text-center q-mt-md">
                     <q-toggle v-model="valueToggle" label="AutoImpresión"/>
@@ -360,6 +424,7 @@
 
 <script>
 import { globalFunctions } from 'boot/mixins.js'
+import { helperFacturacionScanerLineas } from 'boot/helpers/facturacion/scanerLineas.js'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
 import AddProductoManual from 'components/productos/addProductoManual'
 import NavMovComponent from 'components/facturacion/navegador.vue'
@@ -379,6 +444,7 @@ export default {
   },
   data: function () {
     return {
+      tempRouteStateId: 0,
       valueToggle: true,
       money: {
         decimal: ',',
@@ -391,11 +457,13 @@ export default {
       urlAPI: 'api/facturacion/movimientos',
       tipoDoc: {},
       storeItems: {
+        fecha_vencimiento: null
       },
       datos: {
         despacho: null
       },
       dataNotas: [],
+      afectaInventario: null,
       orden: null,
       movActualId: null,
       num_tiquete: null,
@@ -425,6 +493,7 @@ export default {
       vendedores: [],
       formasPago: [],
       updateMode: false,
+      openInventarioNotas: false,
       options: {
         despachos: this.despachos,
         tiposDoc: this.tiposDoc,
@@ -432,7 +501,8 @@ export default {
         productos: this.productos,
         vendedores: this.vendedores,
         formasPago: this.formasPago,
-        grupos: this.grupos
+        grupos: this.grupos,
+        datasoenaccorrections: this.datasoenaccorrections
       },
       verTabla: true,
       interval: null,
@@ -467,7 +537,7 @@ export default {
       }
     }
   },
-  mixins: [globalFunctions],
+  mixins: [globalFunctions, helperFacturacionScanerLineas],
   methods: {
     postSave (callback = null) {
       this.$router.push({ name: 'movimientos', params: { id: this.$route.params.id, consecmov: 'nuevo' } })
@@ -492,6 +562,7 @@ export default {
         }
         this.getTerceroPOS()
         this.prepareFormaspago()
+        this.$refs.scan.focus()
       }
       this.storeItems = {}
       this.sendingCheck = 0
@@ -502,18 +573,33 @@ export default {
       var yyyy = today.getFullYear()
       today = yyyy + '/' + mm + '/' + dd
       this.storeItems.fecha_facturacion = today
-      this.storeItems.fecha_vencimiento = today
-      this.$refs.scan.focus()
+      // this.storeItems.fecha_vencimiento = today
     },
     preSave () {
+      var app = this
+      console.log(this.doc)
+      console.log(app.tipoDoc)
+      console.log(app.docReferencia)
+      if (this.tipoDoc.naturaleza === '4') {
+        this.setPlazo(30)
+      }
+      if (this.storeItems.afectaInventario === true) {
+        this.storeItems.afectar_inventario = 1
+      } else {
+        this.storeItems.afectar_inventario = 0
+      }
+      if (this.storeItems.gen_vendedor_id === null) {
+        delete this.storeItems.gen_vendedor_id
+      }
+      if (this.storeItems.prod_grupo_id) {
+        this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
+      }
       if (parseInt(this.tipoDoc.naturaleza) === 1 || parseInt(this.tipoDoc.naturaleza) === 4) {
+        this.storeItems.sal_mercancia_consec = parseInt(this.storeItems.guiaTransporte)
         this.storeItems.lineas = this.dataResumen
         this.storeItems.cliente_id = this.sucursal
         if (this.storeItems.gen_vendedor_id) {
           this.storeItems.gen_vendedor_id = this.storeItems.gen_vendedor_id.id
-        }
-        if (this.storeItems.prod_grupo_id) {
-          this.storeItems.prod_grupo_id = this.storeItems.prod_grupo_id.id
         }
         this.storeItems.total = parseInt(this.total)
         this.storeItems.subtotal = parseInt(this.subtotal)
@@ -541,28 +627,10 @@ export default {
         this.options.vendedores = this.vendedores.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
-    filterDespachos (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.despachos = this.despachos.filter(v => v.id.toLowerCase().indexOf(needle) > -1)
-      })
-    },
     filterMovimientos (val, update, abort) {
       update(() => {
         const needle = val.toLowerCase()
         this.options.movimientos = this.movimientos.filter(v => v.consecutivo.toLowerCase().indexOf(needle) > -1)
-      })
-    },
-    filterTiposDoc (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.tiposDoc = this.tiposDoc.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
-      })
-    },
-    filterFormasPago (val, update, abort) {
-      update(() => {
-        const needle = val.toLowerCase()
-        this.options.formasPago = this.formasPago.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
     filterGrupos (val, update, abort) {
@@ -571,36 +639,23 @@ export default {
         this.options.grupos = this.grupos.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
       })
     },
-    getPeso () {
-      var v = this
-      this.interval = setInterval(function () {
-        axios.get('http://127.0.0.1:5002/basculas').then(
-          function (response) {
-            v.temp.cantidad = response.data.substr(7, 7)
-          }
-        )
-      }, 1000)
-    },
-    stopGetPeso () {
-      clearInterval(this.interval)
-    },
-    getPesoData () {
-      var app = this
-      axios.get('http://127.0.0.1:5002/basculas').then(
-        function (response) {
-          app.temp.cantidad = response.data.substr(7, 7)
-        }
-      )
+    filterConcepts (val, update, abort) {
+      // if (!this.datasoenaccorrections.length > 0 || this.options.datasoenaccorrections.lenght > 0) {
+      //   console.log(this.datasoenaccorrections)
+      //   this.globalGetForSelect('api/facturacion/datasoenaccorrections/' + this.$route.params.id, 'datasoenaccorrections')
+      // }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.options.datasoenaccorrections = this.datasoenaccorrections.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
+      })
     },
     openedAddProductoMethod () {
       this.openedAddProducto = true
-      this.getPeso()
     },
     closeAddProducto () {
       this.producto_selected = null
       this.temp.cantidad = null
       this.precio_producto = parseInt(0)
-      this.stopGetPeso()
       this.openedAddProducto = false
     },
     addProductFromComponent (newProduct) {
@@ -621,20 +676,25 @@ export default {
       return ((Math.round(row.precio) - row.desc) * (row.iva / 100))
     },
     localValidate () {
-      if (parseInt(this.totalAbono) < parseInt(this.total)) {
-        this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
-      } else if (parseInt(this.total) < 1) {
-        this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
-      } else {
-        if (this.sendingCheck === 0) {
-          this.openedAddPago = false
-          if (this.updateMode === true) {
-            this.globalValidate('guardar-edicion', this.movActualId)
-          } else {
+      // if is pos and no update, total abono must be bigger than total
+      if (parseInt(this.tipoDoc.naturaleza) === 4 && this.updateMode === false) {
+        if (parseInt(this.totalAbono) < parseInt(this.total)) {
+          this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
+        } else if (parseInt(this.total) < 1) {
+          this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
+        } else {
+          if (this.sendingCheck === 0) {
+            this.openedAddPago = false
             this.globalValidate('guardar')
+            this.sendingCheck = 1
           }
-          this.sendingCheck = 1
         }
+      } else if (parseInt(this.tipoDoc.naturaleza) === 2 || parseInt(this.tipoDoc.naturaleza) === 3) {
+        this.openInventarioNotas = true
+      } else if (parseInt(this.tipoDoc.naturaleza) === 1 && this.updateMode === true) {
+        this.globalValidate('guardar-edicion', this.movActualId)
+      } else {
+        this.globalValidate('guardar')
       }
     },
     setPorcentaje (v) {
@@ -644,7 +704,7 @@ export default {
           index = i
         }
       })
-      this.dataResumen[index].descporcentaje = (this.dataResumen[index].desc / (this.dataResumen[index].precio) * 100).toFixed(2)
+      this.dataResumen[index].descporcentaje = (this.dataResumen[index].desc / (this.dataResumen[index].precio) * 100).toFixed(0)
     },
     setPrecio (v) {
       var index
@@ -666,7 +726,7 @@ export default {
           index = i
         }
       })
-      this.dataResumen[index].desc = ((this.dataResumen[index].precio) * (this.dataResumen[index].descporcentaje / 100)).toFixed(2)
+      this.dataResumen[index].desc = ((this.dataResumen[index].precio) * (this.dataResumen[index].descporcentaje / 100)).toFixed(0)
       this.verTabla = true
       // console.log(this.dataResumen[index])
     },
@@ -700,6 +760,7 @@ export default {
     },
     selectMovimiento () {
       var app = this
+      app.dataResumen = []
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/movimientositems/filtro/pormovimiento/' + this.storeItems.docReferencia.id).then(
         function (response) {
           response.data.forEach(function (element, i) {
@@ -718,344 +779,6 @@ export default {
           })
         }
       )
-    },
-    buscarLineasTiqueteDibal () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readtiquetedibal/' + app.num_tiquete).then(
-          function (response) {
-            if (response.data.length > 0) {
-              var vendedor = null
-              response.data.forEach(function (element, j) {
-                const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
-                if (productoImpuesto !== undefined) {
-                  if (parseInt(element[1]) > 50) {
-                    element[1] = element[1] / 1000
-                  }
-                  var newProduct = {
-                    id: app.itemsCounter,
-                    producto: productoImpuesto.nombre,
-                    producto_id: productoImpuesto.id,
-                    producto_codigo: productoImpuesto.codigo,
-                    cantidad: element[1],
-                    precio: parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                    iva: productoImpuesto.impuesto,
-                    gen_iva_id: productoImpuesto.gen_iva_id,
-                    desc: 0.00,
-                    descporcentaje: 0.00,
-                    despacho: false,
-                    num_tiquete: element[3],
-                    num_linea_tiquete: element[4]
-                  }
-                  app.dataResumen.push(newProduct)
-                  vendedor = element[5]
-                  app.itemsCounter = app.itemsCounter + 1
-                  app.numLineas = app.numLineas + 1
-                } else {
-                  app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
-                }
-              })
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-              if (app.storeItems.gen_vendedor_id === undefined) {
-                app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-              }
-            } else {
-              app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete  o todos los elementos ya fueron facturados.' })
-            }
-            app.num_tiquete = null
-            app.$q.loading.hide()
-          }
-        )
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El tiquete ya esta cargado.' })
-        app.num_tiquete = null
-        app.$q.loading.hide()
-      }
-    },
-    buscarLineasDespacho () {
-      var app = this
-      axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readdespacho/' + app.num_tiquete).then(
-        function (response) {
-          if (response.data[0].length > 0) {
-            app.sucursal = response.data[1]
-            var vendedor = null
-            response.data[0].forEach(function (element, j) {
-              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
-              if (productoImpuesto !== undefined) {
-                var newProduct = {
-                  id: app.itemsCounter,
-                  producto: productoImpuesto.nombre,
-                  producto_id: productoImpuesto.id,
-                  producto_codigo: productoImpuesto.codigo,
-                  cantidad: element.peso,
-                  precio: parseInt(element.precio) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                  iva: productoImpuesto.impuesto,
-                  gen_iva_id: productoImpuesto.gen_iva_id,
-                  desc: 0.00,
-                  descporcentaje: 0.00,
-                  despacho: false,
-                  num_tiquete: app.num_tiquete,
-                  num_linea_tiquete: 0
-                }
-                app.dataResumen.push(newProduct)
-                vendedor = 1
-                app.itemsCounter = app.itemsCounter + 1
-                app.numLineas = app.numLineas + 1
-              } else {
-                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-              }
-            })
-            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-            if (app.storeItems.gen_vendedor_id === undefined) {
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-            }
-          } else {
-            app.$q.notify({ color: 'negative', message: 'Error al leer el despac.' })
-          }
-          app.num_tiquete = null
-          app.$q.loading.hide()
-        }
-      )
-    },
-    buscarLineasOrden () {
-      var app = this
-      axios.get(app.$store.state.jhsoft.url + 'api/ordenes/readordenfactura/' + app.orden + '/' + app.tipoDoc.id).then(
-        function (response) {
-          if (response.data.length > 0) {
-            var vendedor = null
-            response.data.forEach(function (element, j) {
-              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.id) === parseInt(element.producto_id))
-              if (productoImpuesto !== undefined) {
-                var newProduct = {
-                  id: app.itemsCounter,
-                  producto: productoImpuesto.nombre,
-                  producto_id: productoImpuesto.id,
-                  producto_codigo: productoImpuesto.codigo,
-                  cantidad: element.cantidad,
-                  precio: element.precio,
-                  iva: element.iva,
-                  gen_iva_id: productoImpuesto.gen_iva_id,
-                  desc: 0.00,
-                  descporcentaje: 0.00,
-                  despacho: false,
-                  num_tiquete: app.num_tiquete,
-                  num_linea_tiquete: 0
-                }
-                app.dataResumen.push(newProduct)
-                vendedor = 1
-                app.itemsCounter = app.itemsCounter + 1
-                app.numLineas = app.numLineas + 1
-              } else {
-                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-              }
-            })
-            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-            if (app.storeItems.gen_vendedor_id === undefined) {
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-            }
-          } else {
-            app.$q.notify({ color: 'negative', message: 'Error al leer la orden.' })
-          }
-          app.num_tiquete = null
-          app.$q.loading.hide()
-        }
-      )
-      app.orden = null
-    },
-    buscarLineasCodigoBarras () {
-      this.$q.loading.show()
-      var app = this
-      const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.ean13) === parseInt(app.num_tiquete))
-      if (productoImpuesto !== undefined) {
-        var valExist = app.dataResumen.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
-        if (valExist !== undefined) {
-          valExist.cantidad = valExist.cantidad + 1
-        } else {
-          const objectPrecio = this.listadoPrecios.find(v => parseInt(v.producto_id) === parseInt(productoImpuesto.id))
-          var newProduct = {
-            id: app.itemsCounter,
-            producto: productoImpuesto.nombre,
-            producto_id: productoImpuesto.id,
-            producto_codigo: productoImpuesto.codigo,
-            cantidad: 1,
-            precio: objectPrecio.precio,
-            iva: productoImpuesto.impuesto,
-            gen_iva_id: productoImpuesto.gen_iva_id,
-            desc: 0.00,
-            descporcentaje: 0.00,
-            despacho: false
-          }
-          app.dataResumen.push(newProduct)
-          app.itemsCounter = app.itemsCounter + 1
-          app.numLineas = app.numLineas + 1
-        }
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(app.num_tiquete) + ' no esta creado.' })
-      }
-      app.num_tiquete = null
-      this.$q.loading.hide()
-    },
-    buscarLineasTiqueteEpelsa () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/readtiqueteepelsa/' + app.num_tiquete).then(
-          function (response) {
-            if (response.data.length > 0) {
-              var vendedor = null
-              response.data.forEach(function (element, j) {
-                const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
-                if (productoImpuesto !== undefined) {
-                  if (parseInt(element[1]) > 50) {
-                    element[1] = element[1] / 1000
-                  }
-                  var newProduct = {
-                    id: app.itemsCounter,
-                    producto: productoImpuesto.nombre,
-                    producto_id: productoImpuesto.id,
-                    producto_codigo: productoImpuesto.codigo,
-                    cantidad: element[1],
-                    precio: parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuesto.impuesto) / 100)),
-                    iva: productoImpuesto.impuesto,
-                    gen_iva_id: productoImpuesto.gen_iva_id,
-                    desc: 0.00,
-                    descporcentaje: 0.00,
-                    despacho: false,
-                    num_tiquete: element[3],
-                    num_linea_tiquete: element[4]
-                  }
-                  app.dataResumen.push(newProduct)
-                  vendedor = element[5]
-                  app.itemsCounter = app.itemsCounter + 1
-                  app.numLineas = app.numLineas + 1
-                } else {
-                  app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
-                }
-              })
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-              if (app.storeItems.gen_vendedor_id === undefined) {
-                app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-              }
-            } else {
-              app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete.' })
-            }
-            app.num_tiquete = null
-            app.$q.loading.hide()
-          }
-        )
-      } else {
-        app.$q.notify({ color: 'negative', message: 'El tiquete ya esta cargado.' })
-        app.num_tiquete = null
-        app.$q.loading.hide()
-      }
-    },
-    buscarLineasTiqueteMarques () {
-      this.$q.loading.show()
-      var app = this
-      var tiqueteLeido = false
-      var tiquetesLeidos = []
-      if (app.dataResumen.length !== 0) {
-        tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete.substr(6, 6)))
-        if (tiquetesLeidos.length > 0) {
-          tiqueteLeido = true
-        }
-      }
-      if (!tiqueteLeido) {
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/movimientos/verificartiquetemarques/' + parseInt(app.num_tiquete.substr(6, 6)) + '/' + parseInt(app.num_tiquete.substr(4, 2)) + '/' + app.diaHoy).then(
-          function (response) {
-            if (response.data.length > 0) {
-              app.$q.notify({ color: 'negative', message: 'El tiquete ya fue facturado.' })
-              app.num_tiquete = null
-              app.$q.loading.hide()
-            } else {
-              var ipMarques = null
-              let ipMarquesArray = app.empresa.ruta_ip_marques.split('&')
-              ipMarquesArray.forEach(function (element, j) {
-                let itemMarques = element.split('-')
-                if (parseInt(itemMarques[1]) === parseInt(app.num_tiquete.substr(4, 2))) {
-                  ipMarques = itemMarques[0]
-                }
-              })
-              if (ipMarques !== null) {
-                axios.get('http://' + ipMarques + '/year/documentos?seek={"tipo_doc":1,"posto":' + parseInt(app.num_tiquete.substr(4, 2)) + ',"numero":' + parseInt(app.num_tiquete.substr(6, 6)) + '}&limit=1').then(
-                  function (response) {
-                    let cantLineas = response.data[0]['nr_parcelas']
-                    axios.get('http://' + ipMarques + '/year/documentos_lnh?seek={"tipo_doc":1,"posto":' + parseInt(app.num_tiquete.substr(4, 2)) + ',"numero":' + parseInt(app.num_tiquete.substr(6, 6)) + ',"linha_f":0}&limit=' + cantLineas).then(
-                      function (response) {
-                        if (response.data.length > 0) {
-                          var vendedor = null
-                          response.data.forEach(function (element, j) {
-                            // console.log(element.numero)
-                            if (parseInt(element.numero) === parseInt(app.num_tiquete.substr(6, 6))) {
-                              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element.codigo))
-                              if (productoImpuesto !== undefined) {
-                                var newProduct = {
-                                  id: app.itemsCounter,
-                                  producto: productoImpuesto.nombre,
-                                  producto_id: productoImpuesto.id,
-                                  producto_codigo: productoImpuesto.codigo,
-                                  cantidad: element.quantidade,
-                                  precio: parseInt(element.preco_unit / (1 + (parseInt(productoImpuesto.impuesto) / 100))),
-                                  iva: productoImpuesto.impuesto,
-                                  gen_iva_id: productoImpuesto.gen_iva_id,
-                                  desc: 0.00,
-                                  descporcentaje: 0.00,
-                                  despacho: false,
-                                  num_tiquete: element.numero,
-                                  puesto_tiquete: element.posto,
-                                  num_linea_tiquete: element.linha_f
-                                }
-                                app.dataResumen.push(newProduct)
-                                vendedor = 1
-                                app.itemsCounter = app.itemsCounter + 1
-                                app.numLineas = app.numLineas + 1
-                              } else {
-                                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-                              }
-                            }
-                          })
-                          app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-                          if (app.storeItems.gen_vendedor_id === undefined) {
-                            app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
-                            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-                          }
-                        } else {
-                          app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete ó verifique la conexion a las basculas.' })
-                        }
-                        app.num_tiquete = null
-                        app.$q.loading.hide()
-                      }
-                    )
-                  }
-                )
-              } else {
-                app.$q.notify({ color: 'negative', message: 'Bascula ' + parseInt(app.num_tiquete.substr(4, 2)) + ' no configurada.' })
-              }
-            }
-          }
-        )
-      }
     },
     verificarTipoDoc () {
       this.$q.loading.show()
@@ -1162,18 +885,30 @@ export default {
       app.pagos = item.pagos
       app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(item.vendedor))
     },
-    fechasHoy () {
+    setPlazo (value) {
+      console.log('SetPlazo !!!:' + value)
+      this.fechasHoy(value)
+    },
+    fechasHoy (plazo) {
+      console.log(plazo)
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
       var mm = String(today.getMonth() + 1).padStart(2, '0')
       var yyyy = today.getFullYear()
       this.storeItems.fecha_facturacion = yyyy + '/' + mm + '/' + dd
-      var today2 = new Date()
-      today2.setDate(today2.getDate() + 15)
-      dd = String(today2.getDate()).padStart(2, '0')
-      mm = String(today2.getMonth() + 1).padStart(2, '0')
-      yyyy = today2.getFullYear()
-      this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      // fecha venciomiento
+      if (plazo !== undefined) {
+        var today2 = new Date()
+        today2.setDate(today2.getDate() + parseInt(plazo))
+        console.log('Today 2 ' + today2)
+        dd = String(today2.getDate()).padStart(2, '0')
+        console.log('DD ' + dd)
+        mm = String(today2.getMonth() + 1).padStart(2, '0')
+        console.log('MM ' + mm)
+        yyyy = today2.getFullYear()
+        console.log('YYYY ' + yyyy)
+        this.storeItems.fecha_vencimiento = yyyy + '/' + mm + '/' + dd
+      }
     }
   },
   created: function () {
@@ -1184,26 +919,32 @@ export default {
     this.globalGetForSelect('api/productos/todosconimpuestos', 'productosImpuestos')
     this.globalGetForSelect('api/generales/iva', 'impuestos')
     this.fechasHoy()
+    if (this.tempRouteStateId !== this.$route.params.id) {
+      this.globalGetForSelect('api/facturacion/datasoenaccorrections/' + this.$route.params.id, 'datasoenaccorrections')
+    }
   },
   computed: {
     subtotal: function () {
       var response = 0
       this.dataResumen.forEach(function (element, i) {
-        response = (Math.round(element.precio) * element.cantidad) + parseInt(response)
+        var quantity = (Math.round(element.precio)) * element.cantidad
+        response += Math.round(parseFloat(quantity))
       })
-      return response
+      return response.toFixed(0)
     },
     descuento: function () {
       var response = 0
       this.dataResumen.forEach(function (element, i) {
-        response = (element.desc * element.cantidad) + parseInt(response)
+        var quantity = (Math.round(element.desc)) * element.cantidad
+        response += Math.round(parseFloat(quantity))
+        // response = (Math.round(element.desc) * element.cantidad) + parseFloat(response)
       })
-      return response
+      return response.toFixed(0)
     },
     ivatotal: function () {
       var responseIVA = 0
       this.arrayImpuestos.forEach(function (impuesto, i) {
-        responseIVA = parseInt(impuesto[1]) * ((parseInt(impuesto[0]) / 100)) + parseInt(responseIVA)
+        responseIVA = Math.round(impuesto[1]) * ((Math.round(impuesto[0]) / 100)) + parseFloat(responseIVA)
       })
       return responseIVA
     },
@@ -1240,7 +981,7 @@ export default {
         var app = this
         this.dataResumen.forEach(function (element, i) {
           element.descporcentaje = parseInt(app.descuentoGnal)
-          element.desc = ((element.precio) * (element.descporcentaje / 100)).toFixed(2)
+          element.desc = ((Math.round(element.precio)) * (element.descporcentaje / 100)).toFixed(2)
         })
       }
     },
@@ -1259,7 +1000,10 @@ export default {
           const list = app.dataResumen.filter(v => v.iva === item)
           var subtotal = 0
           list.forEach(function (itemList, i) {
-            subtotal = subtotal + ((Math.round(itemList.precio) - parseInt(itemList.desc)) * parseFloat(itemList.cantidad))
+            var desc = (Math.round(itemList.precio)) - itemList.desc
+            var quantity = Math.round(desc) * itemList.cantidad
+            subtotal += Math.round(parseFloat(quantity))
+            // subtotal = subtotal + ((Math.round(itemList.precio) - parseFloat(itemList.desc)) * parseFloat(itemList.cantidad))
           })
           app.arrayImpuestos.push([item, subtotal])
         })
@@ -1353,6 +1097,9 @@ export default {
       color: #21ba45;
     }
     .q-table__container{
+        width: 100%;
+    }
+    .w100{
         width: 100%;
     }
     .my-sticky-header-table .q-table__middle{

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class FacMovimiento extends Model
 {
@@ -26,12 +27,14 @@ class FacMovimiento extends Model
         'qr',
         'estado_fe',
         'nota',
-        'prod_grupo_id'
+        'prod_grupo_id',
+        'sal_mercancia_consec',
+        'afectar_inventario'
     ];
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public function tipoDoc()
@@ -69,6 +72,7 @@ class FacMovimiento extends Model
             ->join('gen_cuadre_caja','gen_cuadre_caja.id', '=', 'fac_movimientos.gen_cuadre_caja_id')
             ->join('users','users.id', '=', 'gen_cuadre_caja.usuario_id')
             ->orderBy('fac_movimientos.id','desc')
+            // ->take(5000)
             ->get();
     }
 
@@ -121,9 +125,9 @@ class FacMovimiento extends Model
             ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
             ->where('fac_tipo_doc.naturaleza', 1)
             ->where('tercero_sucursales.id', $sucursal_id)
-            ->whereIn('fac_tipo_doc.id', [$tipodoc_id])
+            ->whereIn('fac_tipo_doc.id', $tipodoc_id)
             ->where('fac_movimientos.estado', 1)
-            ->orderBy('fac_movimientos.consecutivo','desc')
+            ->orderBy('fac_movimientos.consecutivo','asc')
             ->get();
     }
 
@@ -144,7 +148,7 @@ class FacMovimiento extends Model
         ->where('fac_tipo_doc_id', $tipodoc)
         ->where('fac_tipo_doc.traslado', 0)
         ->where('gen_cuadre_caja_id', $cuadre)
-        ->where('estado', 3)
+        ->where('fac_movimientos.estado', 3)
         ->get();
     }
 
@@ -383,62 +387,92 @@ class FacMovimiento extends Model
         ->get();
     }
 
-public static function notasRelacionadas($id)
-{
-    return  DB::table('fac_movimientos')
-    ->select
-    (
-        'fac_movimientos.id as id',
-        'fac_movimientos.consecutivo as consecutivo',
-        'fac_tipo_doc.nombre as tipomov',
-        'tercero_sucursales.nombre as sucursal',
-        'terceros.nombre as tercero',
-        'fac_movimientos.estado as estado',
-        'fac_movimientos.fecha_facturacion as fecha_facturacion',
-        'fac_movimientos.fecha_vencimiento as fecha_vencimiento',
-        'fac_movimientos.descuento as descuento',
-        'fac_movimientos.ivatotal as ivatotal',
-        'fac_movimientos.subtotal as subtotal',
-        'fac_movimientos.total as total'
-    )
-    ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
-    ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
-    ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
-    ->join('fac_cruce','fac_cruce.fac_mov_secundario','=','fac_movimientos.id')
-    ->where('fac_cruce.fac_mov_principal',$id)
-    ->get();
+    public static function notasRelacionadas($id)
+    {
+        return  DB::table('fac_movimientos')
+        ->select
+        (
+            'fac_movimientos.id as id',
+            'fac_movimientos.consecutivo as consecutivo',
+            'fac_tipo_doc.nombre as tipomov',
+            'tercero_sucursales.nombre as sucursal',
+            'terceros.nombre as tercero',
+            'fac_movimientos.estado as estado',
+            'fac_movimientos.fecha_facturacion as fecha_facturacion',
+            'fac_movimientos.fecha_vencimiento as fecha_vencimiento',
+            'fac_movimientos.descuento as descuento',
+            'fac_movimientos.ivatotal as ivatotal',
+            'fac_movimientos.subtotal as subtotal',
+            'fac_movimientos.total as total'
+        )
+        ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
+        ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+        ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
+        ->join('fac_cruce','fac_cruce.fac_mov_secundario','=','fac_movimientos.id')
+        ->where('fac_cruce.fac_mov_principal',$id)
+        ->get();
+    }
+
+    //Recibos relacionados a una factura
+    public static function reciboRelacionados($id)
+    {
+        return  DB::table('fac_recibos_caja')
+        ->select
+        (
+            'fac_recibos_caja.id as id',
+            'fac_recibos_caja.consecutivo as consecutivo',
+            'fac_tipo_rec_caja.nombre as tipomov',
+            'tercero_sucursales.nombre as sucursal',
+            'terceros.nombre as tercero',
+            'fac_pivot_rec_mov.valor as valor',
+            'fac_recibos_caja.fecha_recibo as fecha'
+        )
+        ->join('fac_pivot_rec_mov','fac_pivot_rec_mov.fac_recibo_id', '=', 'fac_recibos_caja.id')
+        ->join('fac_movimientos','fac_movimientos.id', '=', 'fac_pivot_rec_mov.fac_mov_id')
+        ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
+        ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+        ->join('fac_tipo_rec_caja','fac_tipo_rec_caja.id', '=', 'fac_recibos_caja.fac_tipo_rec_caja_id')
+        ->where('fac_pivot_rec_mov.fac_mov_id',$id)
+        ->get();
+    }
+
+    public static function limpiarTiquetesBascula () {
+        DB::statement('UPDATE fac_pivot_mov_productos SET num_tiquete = null where CAST(created_at as date)  = CAST(GETDATE() as date)');
+        // return DB::raw("UPDATE fac_pivot_mov_productos SET num_tiquete = null where CAST(created_at as date)  = CAST(GETDATE() as date)");
+    }
+
+    //Recibos relacionados a una factura
+    public static function notasCreditoPorCuadre($cuadreId)
+    {
+        return  DB::table('fac_movimientos')
+        ->select
+        (
+            'fac_movimientos.id as id',
+            'fac_movimientos.consecutivo as consecutivo',
+            'fac_movimientos.total as total'
+        )
+        ->join('fac_tipo_doc','fac_tipo_doc.id', '=', 'fac_movimientos.fac_tipo_doc_id')
+        ->where('fac_movimientos.gen_cuadre_caja_id',$cuadreId)
+        ->where('fac_tipo_doc.naturaleza', 2)
+        ->get();
+    }
+
+    public static function dataSoenacCorrections($fac_doc_id)
+    {
+        return  DB::table('soenac_correction_concepts')
+        ->select
+        (
+            'soenac_correction_concepts.id as id',
+            'soenac_correction_concepts.nombre as nombre',
+            'soenac_correction_concepts.soenac_doc_type_id',
+            'soenac_correction_concepts.correction_soenac_id',
+            'soenac_correction_concepts.codigo',
+            'fac_tipo_doc.naturaleza'
+        )
+        ->join('fac_tipo_doc','fac_tipo_doc.soenac_tipo_doc_api_id', '=', 'soenac_correction_concepts.soenac_doc_type_id')
+        ->where('fac_tipo_doc.id', $fac_doc_id)
+        ->get();
+    }
+
 }
 
-//Recibos relacionados a una factura
-public static function reciboRelacionados($id)
-{
-    return  DB::table('fac_recibos_caja')
-    ->select
-    (
-        'fac_recibos_caja.id as id',
-        'fac_recibos_caja.consecutivo as consecutivo',
-        'fac_tipo_rec_caja.nombre as tipomov',
-        'tercero_sucursales.nombre as sucursal',
-        'terceros.nombre as tercero',
-        'fac_pivot_rec_mov.valor as valor',
-        'fac_recibos_caja.fecha_recibo as fecha'
-    )
-    ->join('fac_pivot_rec_mov','fac_pivot_rec_mov.fac_recibo_id', '=', 'fac_recibos_caja.id')
-    ->join('fac_movimientos','fac_movimientos.id', '=', 'fac_pivot_rec_mov.fac_mov_id')
-    ->join('tercero_sucursales','tercero_sucursales.id', '=', 'fac_movimientos.cliente_id')
-    ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
-    ->join('fac_tipo_rec_caja','fac_tipo_rec_caja.id', '=', 'fac_recibos_caja.fac_tipo_rec_caja_id')
-    ->where('fac_pivot_rec_mov.fac_mov_id',$id)
-    ->get();
-}
-
-// // // public static function todosConTipoSucursalGrupoTipoCustom () {
-// // //     return DB::table('fac_movimientos AS f')
-// // //             ->select( DB::raw( 'fac_movimientos.id, COUNT(distinct fac_cruce.fac_mov_secundario)' ))
-// // //             ->join('fac_cruce','fac_cruce.fac_mov_secundario', '=', 'f.id')
-// // //             ->join('fac_movimientos','fac_movimientos.id', '=', 'fac_cruce.fac_mov_principal')
-// // //             ->groupBy('fac_movimientos.id')
-// // //             ->get();
-// // // }
-
-}

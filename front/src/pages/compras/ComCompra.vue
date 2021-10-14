@@ -144,7 +144,7 @@
         <div class="row q-col-gutter-md col-4">
             <h4 style="margin: 0px">{{ tipoCompra.nombre }}</h4>
             <div v-if="viewTerceros" class="col-12 row q-col-gutter-md">
-              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Proveedor'/>
+              <SelectTerceroSucursal v-model="sucursal" :editor="sucursal" columnas='col-12' labelTercero='Proveedor' validateTercero="false"/>
             </div>
             <div class="col-12 row q-col-gutter-md">
               <!-- // -->
@@ -573,7 +573,6 @@ export default {
       axios.get(app.$store.state.jhsoft.url + 'api/ordenes/readordencompra/' + app.orden + '/' + app.tipoCompra.id).then(
         function (response) {
           if (response.data.length > 0) {
-            var vendedor = null
             response.data.forEach(function (element, j) {
               const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.id) === parseInt(element.producto_id))
               if (productoImpuesto !== undefined) {
@@ -590,16 +589,11 @@ export default {
                   descporcentaje: 0.00
                 }
                 app.dataResumen.push(newProduct)
-                vendedor = 1
                 app.itemsCounter = app.itemsCounter + 1
               } else {
                 app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
               }
             })
-            app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(vendedor))
-            if (app.storeItems.gen_vendedor_id === undefined) {
-              app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
-            }
           } else {
             app.$q.notify({ color: 'negative', message: 'Error al leer la orden.' })
           }

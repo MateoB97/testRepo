@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class Inventario extends Model
 {
@@ -13,23 +14,35 @@ class Inventario extends Model
 
 	public function getDateFormat()
 	{
-	    return dateTimeSql();
+	    return Tools::dateTimeSql();
 	}
 
-	public static function todosConCodigoProducto(){
+    public function producto()
+    {
+        // belongsTo(RelatedModel, foreignKey = prodSubgrupo_id, keyOnRelatedModel = id)
+        return $this->belongsTo('App\Producto', 'producto_id');
+    }
+
+	public static function todosConCodigoProducto($tipo_invent){
     return DB::table('inventarios')
             ->select(
             	'productos.id As id',
-            	'productos.nombre As nombre',
+                'productos.nombre As nombre',
+            	'productos.id As producto_id',
             	'prod_subgrupos.nombre As subgrupo',
             	'prod_grupos.nombre As grupo',
             	'inventarios.costo_promedio As costo_promedio',
-            	'inventarios.cantidad As cantidad',
-            	'productos.codigo As codigo'
+                'inventarios.cantidad As cantidad',
+            	'productos.codigo As codigo',
+                'prod_pivot_lista_productos.precio as precio'
             )
             ->join('productos', 'productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos', 'productos.prod_subgrupo_id', '=', 'prod_subgrupos.id')
             ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
+            ->join('prod_pivot_lista_productos', 'productos.id', '=', 'prod_pivot_lista_productos.producto_id')
+            ->where('tipo_invent', $tipo_invent)
+            ->where('prod_pivot_lista_productos.prodListaPrecio_id', 1)
+            ->orderBy('codigo', 'asc')
             ->get();
     }
 
@@ -48,7 +61,8 @@ class Inventario extends Model
                 'prod_grupos.nombre as grupo',
                 'sal_pivot_invent_salidas.salMercancia_id as despacho',
                 'producto_terminados.almacenamiento as empaque',
-                'lot_programaciones.id as programacion'
+                'lot_programaciones.id as programacion',
+                'producto_terminados.num_piezas as numero_piezas'
             )
             ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
             ->join('lot_programaciones','lot_programaciones.id', '=', 'producto_terminados.prog_lotes_id')
@@ -58,7 +72,7 @@ class Inventario extends Model
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             ->leftJoin('sal_pivot_invent_salidas', 'sal_pivot_invent_salidas.inventario_id', '=', 'inventarios.id')
             ->when($lote, function ($query, $lote) {
-                return $query->where('lotes.id', $lote);
+                return $query->where('lotes.consecutivo', $lote);
             })
             ->when($producto_id, function ($query, $producto_id) {
                 return $query->where('productos.id', $producto_id);
@@ -82,12 +96,34 @@ class Inventario extends Model
                 'productos.nombre As producto',
                 'inventarios.cantidad as peso',
                 'lotes.id as lote',
+                'lotes.consecutivo as consecutivo',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
+                'lotes.fecha_empaque_lote_tercero',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
                 'producto_terminados.created_at as fecha_empaque',
+                'producto_terminados.fecha_vencimiento as prod_terminado_fecha_vencimiento',
+                'producto_terminados.num_piezas as num_piezas',
                 'prod_grupos.registro_sanitario as registro_sanitario',
-                'prod_grupos.nombre as grupo'
+                'prod_grupos.nombre as grupo',
+                'prod_subgrupos.nombre as subgrupo_nombre',
+                'prod_subgrupos.encabezado_etiqueta',
+                'lotes.producto_aprobado',
+                'lotes.producto_empacado',
+                'producto_terminados.dias_vencimiento as dias_vencimiento',
+                'producto_terminados.almacenamiento as almacenamiento',
+                'lotes.tercero_reprocesado',
+                'lotes.fecha_venc_refrigerado_granel',
+                'lotes.fecha_venc_congelado_granel',
+                'lotes.fecha_venc_refrigerado_vacio',
+                'lotes.fecha_venc_congelado_vacio',
+                'prod_almacenamientos.empaque',
+                'prod_almacenamientos.almacenamiento as prod_tipo_almacenamiento_id',
+                'tercero_sucursales.id as tercero_sucursal_id',
+                'tercero_sucursales.nombre as tercero_sucursal_nombre',
+                'terceros.id as tercero_id',
+                'terceros.nombre as tercero_nombre',
+                'producto_terminados.marinado'
             )
             ->join('producto_terminados', 'producto_terminados.invent_id', '=', 'inventarios.id')
             ->join('lot_programaciones','lot_programaciones.id', '=', 'producto_terminados.prog_lotes_id')
@@ -95,9 +131,14 @@ class Inventario extends Model
             ->join('productos','productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
+            ->join('prod_almacenamientos','prod_almacenamientos.nombre', '=', 'producto_terminados.almacenamiento')
+            ->join('com_compras','com_compras.id', '=', 'lotes.com_compras_id')
+            ->join('tercero_sucursales','tercero_sucursales.id', '=', 'com_compras.proveedor_id')
+            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('inventarios.id','=', $id)
             ->get();
     }
+
 
     public static function GetDataSalMercancia($id){
     return DB::table('inventarios')
@@ -115,20 +156,21 @@ class Inventario extends Model
 
     public static function GetDataExistentes($idproducto, $idprogramacion){
     return DB::table('inventarios')
-            ->select(DB::raw('count(*) as existentes_counter'))
+            ->select(DB::raw('sum(producto_terminados.num_piezas) as existentes'))
             ->join('producto_terminados','producto_terminados.invent_id', '=', 'inventarios.id')
             ->where('inventarios.producto_id','=', $idproducto)
             ->where('producto_terminados.prog_lotes_id','=', $idprogramacion)
             ->get();
     }
 
-    public static function todosConDatos(){
+    public static function todosConDatosProduccion(){
     return DB::table('inventarios')
             ->select(
                 'inventarios.id as id',
                 'productos.nombre As producto',
                 'inventarios.cantidad as peso',
                 'lotes.id as lote',
+                'lotes.consecutivo',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
@@ -142,7 +184,8 @@ class Inventario extends Model
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
             ->orderBy('inventarios.id','desc')
-            ->take(1000)
+            ->where('tipo_invent',2)
+            ->take(100)
             ->get();
     }
 
@@ -174,10 +217,11 @@ class Inventario extends Model
                 'productos.nombre As producto',
                 'productos.id as producto_id',
                 'inventarios.cantidad as peso',
-                'lotes.id as lote',
+                'lotes.consecutivo as lote',
                 'lotes.marca as marca',
                 'lotes.fecha_sacrificio as fecha_sacrificio',
                 'lot_programaciones.fecha_desposte as fecha_desposte',
+                'producto_terminados.almacenamiento as almacenamiento',
                 'producto_terminados.created_at as fecha_empaque',
                 'prod_grupos.nombre as grupo',
                 'lot_programaciones.id as programacion'
@@ -188,7 +232,7 @@ class Inventario extends Model
             ->join('productos','productos.id', '=', 'inventarios.producto_id')
             ->join('prod_subgrupos','prod_subgrupos.id', '=', 'productos.prod_subgrupo_id')
             ->join('prod_grupos','prod_grupos.id', '=', 'prod_subgrupos.prodGrupo_id')
-            ->where('lotes.id', $id)
+            ->where('lotes.consecutivo', $id)
             ->get();
     }
 

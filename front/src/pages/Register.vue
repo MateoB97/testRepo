@@ -20,15 +20,16 @@
                         <q-input type="password" required v-model="password_confirmation" label="Confirmar Contraseña"/>
                     </div>
                     <div class="form-group col-6">
-                        <q-select
-                          label="Seleccione tipo de usuario"
-                          v-model="role"
-                          :options="optionsUsuarios"
-                          option-label="label"
-                          option-value="value"
-                          map-options
-                          emit-value
-                        />
+                        <div class="col">
+                          <q-select
+                            label="Seleccione Rol"
+                            v-model="user_rol_id"
+                            :options="roles"
+                            option-value="id"
+                            option-label="nombre"
+                            option-disable="inactive"
+                          />
+                        </div>
                     </div>
                     <div class="form-group col-6">
                         <q-select
@@ -99,9 +100,11 @@ export default {
     return {
       urlAPI: 'api/users',
       tableData: [],
+      roles: null,
       name: '',
       email: '',
       role: null,
+      user_rol_id: null,
       password: '',
       password_confirmation: '',
       has_error: false,
@@ -123,29 +126,7 @@ export default {
         { name: 'actions', required: true, label: 'Acciones', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' }
       ],
       separator: 'horizontal',
-      filter: '',
-      optionsUsuarios: [
-        {
-          label: 'Cajero',
-          value: 'cajero'
-        },
-        {
-          label: 'Admin',
-          value: 'admin'
-        },
-        {
-          label: 'Supervisor',
-          value: 'supervisor'
-        },
-        {
-          label: 'Operario',
-          value: 'operario'
-        },
-        {
-          label: 'Superoperario',
-          value: 'Superoperario'
-        }
-      ]
+      filter: ''
     }
   },
   mixins: [globalFunctions],
@@ -164,7 +145,8 @@ export default {
           name: app.name,
           email: app.name + '@jhsoftlite.com',
           password: app.password,
-          role: app.role,
+          role: app.user_rol_id.nombre,
+          user_rol_id: app.user_rol_id.id,
           gen_impresora_id: app.gen_impresora_id.id,
           password_confirmation: app.password_confirmation
         },
@@ -192,7 +174,8 @@ export default {
       app.$q.loading.show()
       var data = {
         name: app.name,
-        role: app.role,
+        role: app.user_rol_id.nombre,
+        user_rol_id: app.user_rol_id.id,
         gen_impresora_id: app.gen_impresora_id.id
       }
       axios.post(this.$store.state.jhsoft.url + this.urlAPI + '/' + app.storeItems.user.id, data).then(
@@ -276,6 +259,7 @@ export default {
   created: function () {
     this.getUsers()
     this.globalGetForSelect('api/generales/impresoras/estado/activos', 'impresoras')
+    this.globalGetForSelect('api/users/permisos/roles', 'roles')
   }
 }
 </script>

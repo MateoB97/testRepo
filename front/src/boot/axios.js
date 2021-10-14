@@ -31,10 +31,11 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://fusion.test/api'
   // Vue.axios.defaults.baseURL = 'http://desktop-caermcs/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://sgc.estebangonzalez.xyz/back//api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.7/sgcdev/back/public/api'
-  Vue.axios.defaults.baseURL = 'http://192.168.1.100/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.100.6/sgc/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgctesting/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.2/sgcdev/back/public/api'
+  Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
 
   axios.interceptors.request.use(function (config) {
     return config
@@ -49,14 +50,17 @@ export default ({ Vue }) => {
     //   document.location.reload()
     // }
     if (response.data.message === 'Token has expired and can no longer be refreshed') {
-      localStorage.removeItem('default_auth_token')
+      localStorage.removeItem('sgc_jwt_token')
       document.location.reload()
     }
     return response
   }, function (error) {
     if (error.response.status === 401) {
-      console.log('default_auth_token')
+      console.log('sgc_jwt_token')
       Vue.auth.refresh()
+    }
+    if (error.response.status === 403) {
+      window.location.replace('http://' + location.host)
     }
   })
 }

@@ -155,6 +155,8 @@ export const globalFunctions = {
         }).finally(function () {
           app.showForUpdate = false
         })
+      } else {
+        app.$q.loading.hide()
       }
     },
     globalStoreItemEdit (noValidate = 0, id) {
@@ -170,7 +172,6 @@ export const globalFunctions = {
       }
       if (itemNull !== 1) {
         this.$q.notify({ color: 'warning', message: 'Guardando item...' })
-        app.validarDocumentosNotas(id)
         axios.put(this.$store.state.jhsoft.url + this.urlAPI + '/' + id, this.storeItems).then(
           function (response) {
             if (response.data === 'done') { // si se desea restaurar el formulario el api debe devolver "done"
@@ -204,16 +205,15 @@ export const globalFunctions = {
           }
         ).catch(function (error) {
           app.$q.notify({ color: 'negative', message: 'Hubo un error no se pudo guardar!' })
-          console.log('Joder!')
           console.log(error)
         }).finally(function () {
           app.showForUpdate = false
+          if (callback !== 0) {
+            app.postSave(callback)
+          } else {
+            app.postSave()
+          }
         })
-      }
-      if (callback !== 0) {
-        app.postSave(callback)
-      } else {
-        app.postSave()
       }
     },
     globalGetForSelect (url, objeto, objUpdate) {
@@ -252,6 +252,7 @@ export const globalFunctions = {
     globalEnviarFacturaElectronica (id) {
       // event.target.disabled
       var app = this
+      console.log(id)
       this.$q.loading.show()
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/datafacturacionelectronica/' + id).then(
         function (response) {
@@ -331,7 +332,8 @@ export const globalFunctions = {
               'type_liability_id': response.data.cliente.soenac_responsabilidad,
               'type_organization_id': response.data.cliente.soenac_tipo_organizacion,
               'type_document_identification_id': response.data.cliente.soenac_tipo_documento,
-              'merchant_registration': response.data.cliente.tercero.registro_mercantil
+              'merchant_registration': response.data.cliente.tercero.registro_mercantil,
+              'municipality_id': 1
             },
             'legal_monetary_totals': {
               'line_extension_amount': parseFloat(lineasAmountTotal).toFixed(2),
@@ -354,7 +356,11 @@ export const globalFunctions = {
               'uuid': response.data.movPrimario.cufe,
               'issue_date': response.data.movimiento.fecha_facturacion
             }
+            FactElect.discrepancy_response = {
+              'correction_concept_id': response.data.correction_id
+            }
             FactElect.credit_note_lines = FactElect.invoice_lines
+            // FactElect.correction_concept_id = response.data.correction_id
             delete FactElect.invoice_lines
           }
           // Nota debito
@@ -364,6 +370,9 @@ export const globalFunctions = {
               'number': response.data.tipoDocPrimario.prefijo + response.data.movPrimario.consecutivo,
               'uuid': response.data.movPrimario.cufe,
               'issue_date': response.data.movimiento.fecha_facturacion
+            }
+            FactElect.discrepancy_response = {
+              'correction_concept_id': response.data.correction_id
             }
             FactElect.debit_note_lines = FactElect.invoice_lines
             FactElect.requested_monetary_totals = FactElect.legal_monetary_totals
@@ -381,6 +390,7 @@ export const globalFunctions = {
           console.log(FactElect)
           axios.post(app.$store.state.jhsoft.url + 'api/facturacion/enviarfacturasoenac', { url: urlCompleta, body: FactElect }).then(
             function (response1) {
+              console.log(response1.data)
               app.erroresFE = []
               app.$q.loading.hide()
               var dataFac = {
@@ -412,7 +422,7 @@ export const globalFunctions = {
                 }
                 axios.post(app.$store.state.jhsoft.url + 'api/facturacion/enviarfacturasoenac', { url: 'https://supercarnes-jh.apifacturacionelectronica.xyz/api/ubl2.1/mail/send/' + response1.data.uuid + token, body: dataCorreo }).then(
                   function (response3) {
-                    if (parseInt(response3.data.is_valid) === 1) {
+                    if (response3.data.is_valid === true) {
                       app.$q.notify({ color: 'positive', message: 'Notificacion enviada al correo ' + FactElect.customer.email })
                     } else {
                       app.$q.notify({ color: 'negative', message: 'Error al enviar el email.' })
@@ -428,7 +438,7 @@ export const globalFunctions = {
                 app.erroresFE = response1.data.errors_messages
                 app.openedErrores = true
               }
-              if (response1.data.is_valid !== null && response1.data.zip_key !== null) {
+              if (response1.data.uuid !== null) {
                 app.globalAgregarCufe(id, dataFac)
               }
               if (response1.data.is_valid === null && FactElect.sync === false) {
@@ -458,6 +468,15 @@ export const globalFunctions = {
           }
         }
       )
+    },
+    globalValidarPermiso (permiso) {
+      var user = this.$auth.user().permisos.permisos.split(',')
+      var pos = user.indexOf(permiso)
+      if (pos > 0) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   filters: {

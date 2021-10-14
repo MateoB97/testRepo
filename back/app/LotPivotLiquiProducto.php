@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class LotPivotLiquiProducto extends Model
 {
@@ -12,6 +13,6 @@ class LotPivotLiquiProducto extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 }

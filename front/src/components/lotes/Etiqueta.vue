@@ -4,7 +4,6 @@
             <div class="row q-col-gutter-md">
                 <div class="col-3">
                     <q-select
-                      v-if="type == 0"
                       label="Seleccione tipo de almacenamiento"
                       v-model="storeItems.prodAlmacenamiento_id"
                       :options="almacenamientos"
@@ -23,18 +22,6 @@
                         </q-icon>
                       </template>
                     </q-input>
-                </div>
-                <div class="col-3">
-                  <q-select
-                      label="Seleccione bascula"
-                      v-model="datos.bascula"
-                      :options="basculas"
-                      option-value="value"
-                      option-label="label"
-                      option-disable="inactive"
-                      emit-value
-                      map-options
-                    />
                 </div>
                 <div class="col-3">
                   <q-select
@@ -65,7 +52,7 @@
                 </div>
               </div>
               <div class="col-3">
-                <q-input v-model="datos.lote_id" label="Buscar por Lote" />
+                <q-input v-model="datos.consecutivo" label="Buscar por Lote" />
               </div>
               <div class="col-4 self-center">
                 <q-btn class="btn-100w" :class="classActive == 'Lote' ? 'bg-positive' : ''" color="primary" v-on:click="getPorLote(), classActive = 'Lote'" label="Buscar" />
@@ -74,15 +61,15 @@
             <div class="row q-mt-md q-col-gutter-md">
                 <div class="col-5 col-lotes" >
                     <div class="q-pa-md q-gutter-md">
-                        <q-card class="my-card-prog" v-for="programacion in programaciones" :key="programacion.programacion_id" @click="selectedProgramacion(programacion)">
+                        <q-card class="my-card-prog" :class="cardActive == programacion.programacion_id ? 'card-active' : ''" v-for="programacion in programaciones" :key="programacion.programacion_id" @click="selectedProgramacion(programacion)">
                             <q-card-section>
                                <p class="no-margin">programación: {{ programacion.programacion_id }}</p>
                                <p v-if="type == 0" class="no-margin">Tercero: {{ programacion.tercero }}</p>
                                <p v-if="type == 0" class="no-margin">Sucursal: {{ programacion.sucursal }}</p>
                                <p v-if="type == 0" class="no-margin">Fecha desposte: {{ programacion.fecha_desposte }}</p>
                                <p class="no-margin">Marca: {{ programacion.marca }}</p>
-                               <p class="no-margin">Lote: {{ programacion.lote_id }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
-                               <p v-if="type == 1" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
+                               <p class="no-margin">Lote: {{ programacion.consecutivo }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
+                               <p v-if="type == 1 || type == 2" class="no-margin">Lote Tercero: {{ programacion.lote_tercero }}</p>
                             </q-card-section>
                         </q-card>
                     </div>
@@ -96,7 +83,7 @@
                         </q-card>
                     </div>
                     <div v-if="show.productos" class="q-pa-md row items-start q-gutter-md">
-                        <q-card class="my-card" v-for="producto in listas.productos" :key="producto.id" @click="selectedProducto(producto)">
+                        <q-card class="my-card" :class="productoActive == producto.id ? 'card-active' : ''" v-for="producto in listas.productos" :key="producto.id" @click="selectedProducto(producto)">
                             <q-card-section>
                                 <p>{{ producto.nombre }}</p>
                             </q-card-section>
@@ -109,7 +96,7 @@
                 <div class="col-3">
                     <div class="row">
                       <h5>Lote:</h5>
-                      <p>{{ datos.lote }}</p>
+                      <p>{{ datos.consecutivo }}</p>
                     </div>
                     <div class="row">
                       <h5>Marca:</h5>
@@ -128,11 +115,49 @@
                       <p>{{ datos.producto }}</p>
                     </div>
                     <div class="row">
-                      <h5>Peso:</h5>
-                      <q-input v-model="storeItems.cantidad" @focus="getPeso" @blur="stopGetPeso" label="Peso" />
+                      <div class="col-12">
+                          <Bascula
+                            ref="basculaComponent"
+                            v-model="storeItems.cantidad"
+                            :withBasculaSelect="true"
+                            :inicioAutomatico="false"
+                          />
+                      </div>
                     </div>
                     <div class="row q-mt-md">
-                      <q-btn color="primary" v-on:click="globalStoreItem(0)" label="Guardar" />
+                      <div class="row q-col-gutter-xl">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(1)" color="primary" label="1" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(2)" color="primary" label="2" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(3)" color="primary" label="3" />
+                        </div>
+                      </div>
+                      <div class="row q-col-gutter-xl" style="margin-top:-20px">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(4)" color="primary" label="4" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(5)" color="primary" label="5" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(6)" color="primary" label="6" />
+                        </div>
+                      </div>
+                      <div class="row q-col-gutter-xl" style="margin-top:-20px">
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(7)" color="primary" label="7" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(8)" color="primary" label="8" />
+                        </div>
+                        <div class="col-3">
+                          <q-btn class="print-btn" @click="printEtiquetas(9)" color="primary" label="9" />
+                        </div>
+                      </div>
                     </div>
                 </div>
             </div>
@@ -143,24 +168,25 @@
 <script>
 const axios = require('axios')
 import { globalFunctions } from 'boot/mixins.js'
+import Bascula from 'components/generales/BasculasComponent.vue'
 
 export default {
   name: 'LotEmpaque',
-  props: ['type'],
+  components: {
+    Bascula
+  },
+  props: ['type', 'almac'],
   data () {
     return {
       urlAPI: 'api/inventario/items',
-      basculas: [
-        { label: 'Local',
-          value: 'http://127.0.0.1:5002/basculas'
-        }
-      ],
       impresoras: [],
       left: true,
       right: true,
       listas: [],
       almacenamientos: [],
       programaciones: [],
+      cardActive: null,
+      productoActive: null,
       storeItems: {
         prog_lotes_id: null,
         cantidad: null,
@@ -169,6 +195,7 @@ export default {
         marinado: false
       },
       datos: {
+        consecutivo: 'Debe seleccionar una programación.',
         lote: 'Debe seleccionar una programación.',
         marca: 'Debe seleccionar una programación.',
         grupo: 'Debe seleccionar una programación.',
@@ -188,42 +215,28 @@ export default {
   },
   mixins: [globalFunctions],
   methods: {
+    beforeRouteLeave: function (to, from, next) {
+      if (this.$refs.basculaComponent) {
+        this.$refs.basculaComponent.stopGetPeso()
+      }
+      next()
+    },
     preSave () {
     },
     postSave () {
       this.cantidad = null
     },
-    async getPeso () {
-      var v = this
-      this.interval = setInterval(function () {
-        v.getPesoData().then(vx => {
-          v.datos.peso = vx
-        })
-      }, 250)
-    },
-    stopGetPeso () {
-      clearInterval(this.interval)
-    },
-    async getPesoData () {
-      try {
-        let data = await axios.get(this.datos.bascula)
-        this.storeItems.cantidad = data.data.substr(8, 7)
-        // this.storeItems.cantidad = data.data.substr(7, 7)
-        // this.storeItems.cantidad = data.data.substr(12, 2).split('').reverse().join('') + '.' + data.data.substr(8, 3).split('').reverse().join('')
-      } catch (error) {
-      } finally {
-      }
-    },
     async selectedProgramacion (programacion) {
+      this.cardActive = programacion.programacion_id
       this.show.subgrupos = false
       this.show.productos = false
       this.show.noProductos = false
       this.datos.lote = programacion.lote_id
+      this.datos.consecutivo = programacion.consecutivo
       this.datos.programacion_id = programacion.programacion_id
       this.datos.marca = programacion.marca
       this.datos.grupo = programacion.grupo
       this.datos.num_animales = programacion.num_animales_programacion
-      console.log(this.datos.num_animales)
       this.storeItems.prog_lotes_id = parseInt(programacion.programacion_id)
       try {
         let data = await axios.get(this.$store.state.jhsoft.url + 'api/productos/subgrupos/grupofilter/' + programacion.grupo_id)
@@ -254,19 +267,10 @@ export default {
       } finally {
       }
     },
-    async selectedProducto (producto) {
-      console.log(producto)
+    selectedProducto (producto) {
+      this.productoActive = producto.id
       this.storeItems.producto_id = producto.id
       this.datos.producto = producto.nombre
-      try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + producto.id + '/' + this.datos.programacion_id)
-        var tempData = data.data
-        var existentes = tempData[0].existentes_counter
-        this.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(this.datos.num_animales)) - parseInt(existentes)
-      } catch (error) {
-        this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar los productos!' })
-      } finally {
-      }
     },
     async getPorGrupo (id) {
       this.$q.loading.show()
@@ -283,7 +287,8 @@ export default {
     async getPorLote (id) {
       this.$q.loading.show()
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.lote_id + '/' + this.type)
+        // let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.lote_id + '/' + this.type)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.consecutivo + '/' + this.type)
         this.programaciones = data.data
       } catch (error) {
         this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar las programaciones!' })
@@ -291,15 +296,39 @@ export default {
         this.$q.loading.hide()
         this.$forceUpdate()
         this.datos.lote_id = null
+        this.datos.consecutivo = null
       }
     },
     async getTodos () {
       this.globalGetForSelect('api/lotes/programaciones/abiertas', 'programaciones')
+    },
+    printEtiquetas (numPiezas) {
+      this.storeItems.num_piezas = numPiezas
+      var producto = this.listas.productos.find(v => parseInt(v.id) === parseInt(this.storeItems.producto_id))
+      var app = this
+      axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + app.storeItems.producto_id + '/' + this.storeItems.prog_lotes_id).then(
+        function (response) {
+          var existentes = response.data[0].existentes
+          if (existentes === null) {
+            existentes = 0
+          }
+          app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
+          if (app.datos.faltantes >= numPiezas || app.type === '1' || app.type === '2') {
+            app.globalStoreItem(0)
+          } else {
+            app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
+          }
+        }
+      ).catch(function (error) {
+        console.log(error)
+        app.$q.notify({ color: 'negative', message: 'Hubo un error al filtrar los productos!' })
+      })
     }
   },
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/' + this.type, 'programaciones')
-    this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
+    this.globalGetForSelect('api/productos/almacenamiento/reprocesado/' + this.almac, 'almacenamientos')
+    // this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')
   },
   computed: {
@@ -321,6 +350,10 @@ export default {
   }
   .my-card-prog{
     cursor: pointer;
+  }
+  .card-active{
+    background-color: #26a69a;
+    color: white;
   }
   .my-card-prog:hover{
     background-color: #26a69a;

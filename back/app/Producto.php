@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class Producto extends Model
 {
@@ -19,7 +20,7 @@ class Producto extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','codigo', 'prod_subgrupo_id','gen_iva_id','gen_unidades_id','unid_por_animal','activo','cod_ean_13', 'cuenta_contable_venta'];
+    protected $fillable = ['nombre','codigo', 'prod_subgrupo_id','gen_iva_id','gen_unidades_id','unid_por_animal','activo','cod_ean_13', 'cuenta_contable_venta_id','cod_prod_padre'];
 
 
     public function prodSubgrupo()
@@ -54,7 +55,7 @@ class Producto extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConGrupos(){
@@ -65,13 +66,14 @@ class Producto extends Model
             ->get();
     }
 
-    public static function productosCustom () {
+    public static function productoSubgrupoByID ($id) {
         return DB::table('productos')
-        ->select( DB::raw( 'productos.id As id,productos.nombre As nombre,productos.codigo As codigo,prod_subgrupos.nombre As subgrupo, prod_grupos.nombre as grupo, productos.activo as activo, cast(codigo as int) as codigoInt' ))
+        ->select('productos.id As id','productos.nombre As nombre','productos.codigo As codigo','prod_subgrupos.nombre As subgrupo', 'prod_subgrupos.encabezado_etiqueta As encabezado_etiqueta','prod_grupos.nombre as grupo','productos.activo as activo')
         ->join('prod_subgrupos', 'productos.prod_subgrupo_id', '=', 'prod_subgrupos.id')
         ->join('prod_grupos', 'prod_subgrupos.prodGrupo_id', '=', 'prod_grupos.id')
+        ->where('productos.id', $id)
         ->get();
-    }
+}
 
     public static function todosConImpuestos(){
     return DB::table('productos')

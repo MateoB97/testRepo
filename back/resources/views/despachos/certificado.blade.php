@@ -7,7 +7,7 @@
 	.table {
 	  font-family: arial, sans-serif;
 	  border-collapse: collapse;
-	  
+
 	}
 
 	.table-info {
@@ -71,31 +71,43 @@
 </style>
 </head>
 <body>
-	<p>Fecha: {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
-	<h3 style="text-align:center;">CERTIFICADO DE CALIDAD</h3> 
-
+    <table class="table-info">
+        <tbody>
+            <tr>
+                <td>
+                    <h3  style="text-align:center;">GUIA DE TRANSPORTE</h3>
+                <td>
+                <td>
+                    <img style="width: 140px; height:90px;" src="{{ asset('images/logo.png') }}">
+                <td>
+            </tr>
+            {{--  <tr>
+                <td>
+                    <h3  style="text-align:center;">GUIA DE TRANSPORTE</h3>
+                <td>
+            </tr>  --}}
+        </tbody>
+    </table>
 	<table class="table-info">
 		<tbody>
-			<tr>
+            <tr>
 				<td>
-
+                    <p><strong>Fecha:</strong> {{ $itemsSumatoria[0]->fecha_sal_mercancia }}</p>
 					<p><strong>{{ strtoupper($empresa->razon_social) }}</strong></p>
 					<p>{{ $empresa->nit }}</p>
 					<p>Tel {{ $empresa->telefono }}</p>
 					<p>{{ $empresa->direccion }}</p>
 					<p>{{ $empresa->municipio }} - {{ $empresa->departamento }}</p>
-					<p>Codigo Inscripción 002DM</p>
-			
-				</td>
+					<p><strong>Codigo Inscripción:</strong> 002DM</p>
+                    <p><strong>N° de Guía:</strong> 002DM - {{str_pad($salMercancia->consecutivo, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</p>
+                </td>
 				<td>
-
 					<p> <strong>Cliente: {{ $tercero->nombre}}</strong></p>
 					<p><strong>Nit:</strong> {{ $tercero->documento}}</p>
-					<p><strong>Sucursal:</strong> {{ $sucursal->nombre}}</p>
-					<p><strong>Dirección:</strong> {{ $sucursal->direccion}}</p>
-					<p><strong>Teléfono:</strong> {{ $sucursal->telefono}}</p>
-					<p><strong>{{ $sucursal->municipio }} - {{ $sucursal->departamento }} </strong></p>
-		
+					<p><strong>Sucursal:</strong> {{ $sucursal->sucursal_nombre}}</p>
+					<p><strong>Dirección:</strong> {{ $sucursal->sucursal_direccion}} - {{ $sucursal->municipio_nombre }} - {{ $sucursal->departamento_nombre }}</p>
+					<p><strong>Teléfono:</strong> {{ $sucursal->sucursal_telefono}}</p>
+                    <p><strong>Vehículo de Transporte:</strong> {{ strtoupper($salMercancia->vehiculo) }}</p>
 				</td>
 			</tr>
 		</tbody>
@@ -108,9 +120,14 @@
 				<td>
 					<p><strong>Temperatura de despacho:</strong> {{ number_format($salMercancia->temperatura, 2, ',', '.') }} °C</p>
 				</td>
-				<td>
+                @if ($salMercancia->temperatura_congelado)
+                    <td>
+                        <p><strong>Temperatura Congelación de despacho:</strong> {{ number_format($salMercancia->temperatura_congelado, 2, ',', '.') }} °C</p>
+                    </td>
+                @endif
+				{{--  <td>
 					<p><strong>Vehículo de Transporte:</strong> {{ strtoupper($salMercancia->vehiculo) }}</p>
-				</td>
+				</td>  --}}
 			</tr>
 		</tbody>
 	</table>
@@ -125,8 +142,8 @@
 				<th>Peso (Kg)</th>
 				<th># Canastas</th>
 				<th>Fecha de Sacrificio</th>
-				<th>Fecha de Desposte</th>
-				<th>Fecha de Empaque</th>
+				<th>Fecha de Producción</th>
+				{{--  <th>Fecha de Empaque</th>  --}}
 				<th>Fecha de Vencimiento</th>
 			</tr>
 		</thead>
@@ -134,12 +151,12 @@
 			@foreach ($itemsSumatoria as $element)
 				<tr>
 					<td>{{ $element->producto }}</td>
-					<td style="text-align: right;">{{ $element->lote	}}</td>
-					<td style="text-align: right;">{{ $element->peso	}}</td>
+					<td style="text-align: right;">{{ $element->consecutivo	}}</td>
+					<td style="text-align: right;">{{ number_format($element->peso,2,',','.')	}}</td>
 					<td style="text-align: right;">{{ $element->canastas }}</td>
 					<td style="text-align: right;">{{ $element->fecha_sacrificio }}</td>
 					<td style="text-align: right;">{{ $element->fecha_desposte }}</td>
-					<td style="text-align: right;">{{ $element->fecha_empaque	}}</td>
+					{{--  <td style="text-align: right;">{{ $element->fecha_empaque	}}</td>  --}}
 					<td style="text-align: right;">{{ $element->fecha_vencimiento	}}</td>
 				</tr>
 			@endforeach
@@ -182,7 +199,7 @@
 			<tr>
 				<td>Temperatura despacho</td>
 				<td>Cumple</td>
-				<td>Producto en refrigeración de 0-4°C
+				<td>Producto en refrigeración de 0-7°C
 				Producto en Congelación a -18°C</td>
 				<td>Toma directa centro masa muscular</td>
 			</tr>
@@ -194,10 +211,11 @@
 			<img style="max-width: 100%" src="{{ asset('images/firma.png') }}">
 		</div>
 		<div style="width: 49%; float: right; text-align: justify;">
-			<p class="text-footer">Los animales de los cuales proviene la carne son de animales beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas(Refrigeración de 0-4ºC, Congelacion -18ºC).</p>
-			<p class="text-footer">En caso de petición, queja o reclamo te puedes comunicar al correo pqrssupercarnesjh@gmail.com.</p>
+            {{--  <p class="text-footer"> OBSERVACIONES:</p>  --}}
+			<p class="text-footer">OBSERVACIONES <br/> Los animales de los cuales proviene la carne son beneficiados y despostados según la normatividad vigente.			El producto relacionado en el presente certificado cumple con todas las características de un producto apto para consumo humano.					Las caracteristicas sensoriales y vida útil de este producto se conservan siempre y cuando se almacene en las condiciones adecuadas (Refrigeración de 0-7ºC, Congelacion -18ºC).</p>
+			<p class="text-footer">En caso de petición, queja o reclamo comuníquese al correo pqrssupercarnesjh@gmail.com.</p>
 		</div>
 	</div>
-	
+
 </body>
 </html>

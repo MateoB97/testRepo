@@ -1,5 +1,8 @@
 <?php
 use Carbon\Carbon;
+use App\GenEmpresa;
+use App\GenMunicipio;
+use App\GenDepartamento;
 
 if (! function_exists('current_user')) {
 
@@ -142,5 +145,4 @@ if (! function_exists('current_user')) {
 
         return $response;
     }
-
 }

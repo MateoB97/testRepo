@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class LotProgramacion extends Model
 {
@@ -57,6 +58,7 @@ class LotProgramacion extends Model
                 'lotes.id as lote_id',
                 'lotes.marca as marca',
                 'lotes.prodGrupo_id as grupo_id',
+                'lotes.consecutivo as consecutivo',
                 'prod_grupos.nombre as grupo',
                 'terceros.nombre as tercero',
                 'tercero_sucursales.id as tercero_sucursal_id',
@@ -69,14 +71,17 @@ class LotProgramacion extends Model
             ->join('prod_grupos', 'lotes.prodGrupo_id', '=', 'prod_grupos.id')
             ->where('lotes.estado','=', 1)
             ->where('lot_programaciones.estado','!=', 2)
-            ->when($producto_empacado, function ($query, $producto_empacado) {
-                return $query->where('lotes.producto_empacado', $producto_empacado);
-            })
+            ->whereIn('lotes.producto_empacado', $producto_empacado)
+            // ->where('lotes.producto_empacado','=', $producto_empacado)
+            // ->when($producto_empacado, function ($query, $producto_empacado) {
+            //     return $query->where('lotes.producto_empacado', '=', $producto_empacado);
+            // })
             ->orderBy('programacion_id','desc')
+            ->limit(200)
             ->get();
     }
 
-    public static function todosConLoteAbiertoPorGrupo($id, $producto_empacado){
+    public static function todosConLoteAbiertoPorGrupo($grupoId, $producto_empacado){
     return DB::table('lot_programaciones')
             ->select(
                 'lot_programaciones.fecha_desposte As fecha_desposte',
@@ -97,13 +102,14 @@ class LotProgramacion extends Model
             ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('lotes.estado','=', 1)
             ->where('lot_programaciones.estado','!=', 2)
-            ->where('lotes.prodGrupo_id', $id)
+            ->where('lotes.prodGrupo_id', $grupoId)
             ->where('lotes.producto_empacado', $producto_empacado)
             ->orderBy('programacion_id','desc')
+            ->limit(200)
             ->get();
     }
 
-    public static function conLoteAbiertoPorId($id, $producto_empacado){
+    public static function conLoteAbiertoPorId($loteId, $producto_empacado){
     return DB::table('lot_programaciones')
             ->select(
                 'lot_programaciones.fecha_desposte As fecha_desposte',
@@ -112,6 +118,7 @@ class LotProgramacion extends Model
                 'lotes.id as lote_id',
                 'lotes.marca as marca',
                 'lotes.prodGrupo_id as grupo_id',
+                'lotes.consecutivo as consecutivo',
                 'prod_grupos.nombre as grupo',
                 'terceros.nombre as tercero',
                 'tercero_sucursales.id as tercero_sucursal_id',
@@ -124,7 +131,8 @@ class LotProgramacion extends Model
             ->leftJoin('tercero_sucursales', 'tercero_sucursales.id', '=', 'lot_programaciones.terceroSucursal_id')
             ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
             ->where('lotes.estado','=', 1)
-            ->where('lotes.id', $id)
+            // ->where('lotes.id', $loteId)
+            ->where('lotes.consecutivo', $loteId)
             ->where('lotes.producto_empacado', $producto_empacado)
             ->orderBy('programacion_id','desc')
             ->get();
@@ -132,6 +140,6 @@ class LotProgramacion extends Model
 
     public function getDateFormat()
     {
-        return 'Y-d-m H:i:s.v';
+        return Tools::dateTimeSql();
     }
 }

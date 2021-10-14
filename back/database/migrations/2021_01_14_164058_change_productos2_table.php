@@ -14,7 +14,9 @@ class ChangeProductos2Table extends Migration
     public function up()
     {
         Schema::table('productos', function (Blueprint $table) {
-            $table->bigInteger('cuenta_contable_venta')->nullable();
+
+            $table->unsignedBigInteger('cuenta_contable_venta_id')->nullable();
+            $table->foreign('cuenta_contable_venta_id')->references('id')->on('gen_puc');
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class FacPivotTipoDocTipoRec extends Model
 {
@@ -15,6 +16,6 @@ class FacPivotTipoDocTipoRec extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

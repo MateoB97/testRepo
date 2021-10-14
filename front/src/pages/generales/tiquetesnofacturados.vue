@@ -18,7 +18,7 @@
                 </div>
                 <div v-if="fecha !== null" class="col-3">
                     <q-btn color="primary" v-on:click="generar()" label="POS" />
-                    <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/tiquetenofacturadospdf/' + fecha.substring(8, 10) + '-' + fecha.substring(5, 7) + '-' + fecha.substring(0, 4) + '?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs" color="primary">Enviar</q-btn> </a>
+                    <a target="_blank" :href="$store.state.jhsoft.url+'api/basculas/tiquetenofacturadospdf/' + fecha.substring(8, 10) + '-' + fecha.substring(5, 7) + '-' + fecha.substring(0, 4) + '?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs" color="primary">Enviar</q-btn> </a>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@ export default {
         } else {
           url = 'tiquetenofacturados'
         }
-        axios.get(app.$store.state.jhsoft.url + 'api/facturacion/' + url + '/' + app.fecha.substring(8, 10) + '-' + app.fecha.substring(5, 7) + '-' + app.fecha.substring(0, 4)).then(
+        axios.get(app.$store.state.jhsoft.url + 'api/basculas/' + url + '/' + app.fecha.substring(8, 10) + '-' + app.fecha.substring(5, 7) + '-' + app.fecha.substring(0, 4)).then(
           function (response) {
             if (response.data === 'done') {
               app.$q.notify({ color: 'positive', message: 'Reporte Impreso.' })

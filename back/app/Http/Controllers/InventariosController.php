@@ -18,14 +18,21 @@ use App\Lote;
 use App\LotEtiquetaInterna;
 use PDF;
 use App\GenEmpresa;
+use App\GenEtiqueta;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\FacPivotAlmacenamientoLoteTercero;
 
 class InventariosController extends Controller
 {
     public function index()
     {
-        $list = Inventario::todosConCodigoProducto();
+        $tipo_invent = 1;
+        $list = Inventario::todosConCodigoProducto($tipo_invent);
+
+        foreach ($list as $value) {
+            $value->cantidad_cierre = 0;
+        }
 
         return $list;
 
@@ -33,23 +40,9 @@ class InventariosController extends Controller
 
     public function inventarioProduccion()
     {
-        $index= Inventario::todosConDatos();
+        $index= Inventario::todosConDatosProduccion();
         return $index;
     }
-
-    public function inventarioVentas()
-    {
-        $list = Inventario::todosConCodigoProducto();
-
-        return $list;
-
-    }
-
-    //     public function index()
-    // {
-    //     $index= Inventario::todosConDatos();
-    //     return $index;
-    // }
 
     public function indexFilter($lote,$fecha_ini,$fecha_fin,$producto_id,$estado)
     {
@@ -84,7 +77,6 @@ class InventariosController extends Controller
 
     public function store(Request $request)
     {
-
         $validateProgramacion = LotProgramacion::find($request->prog_lotes_id);
         $lote = Lote::find($validateProgramacion->lote_id);
 
@@ -92,19 +84,34 @@ class InventariosController extends Controller
             if (count(ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get()) > 0 || $lote->producto_empacado) {
 
                 $item = new Inventario($request->all());
+                $item->cantidad = str_replace('=', ' ', strval($item->cantidad));
+                $item->cantidad = floatval($item->cantidad);
                 $item->estado = 1;
                 $item->costo_promedio = 1;
                 $item->tipo_invent = 2;
-
                 $item->save();
 
                 $prodTerminado = new ProductoTerminado($request->all());
                 $prodTerminado->invent_id = $item->id;
+                $prodTerminado->num_piezas = $request->num_piezas;
+                $prodTerminado->marinado = $request->marinado;
 
-                if ($lote->producto_empacado) {
-                    $prodTerminado->almacenamiento = 0;
+                if ($lote->producto_empacado && $lote->tercero_reprocesado == 0) { // JH
+                    // // $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
+                    $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
+                    $prodTerminado->fecha_vencimiento = str_replace('/','-',$request->fecha_vencimiento);
+                    // // $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
+                    // $prodTerminado->almacenamiento = 0;
                     $prodTerminado->dias_vencimiento = 0;
+                } else if ($lote->tercero_reprocesado > 0 && $lote->producto_empacado) {
+                    $prodTerminado->fecha_vencimiento =  null;
+                    $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
+                    $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
+                    $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
+                    // if vacio -> take dias en productos almacenamiento
+                    // if granel -> take fechas de los lotes
                 } else {
+                    $prodTerminado->fecha_vencimiento = null;
                     $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
                     $prodTerminado->almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id)->nombre;
                     $prodTerminado->dias_vencimiento = $dias_vencimiento[0]->dias_vencimiento;
@@ -112,9 +119,10 @@ class InventariosController extends Controller
 
                 $prodTerminado->save();
 
-                $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                // $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
+                $response = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
-                return 'doneNoRestore';
+                return $response;
             } else {
                 return 'Error: Este producto no tiene este tipo de almacenamiento registrado';
             }
@@ -122,115 +130,6 @@ class InventariosController extends Controller
             return 'La programacion se encuentra cerrada.';
         }
 
-    }
-
-
-    public function imprimirEtiqueta ($impresora, $item, $marinado) {
-
-        $empresa = GenEmpresa::find(1);
-        $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
-        $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($impresora));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-
-        $data = Inventario::GetDataEtiqueta($item->id)->first();
-
-        $lote = Lote::find($data->lote);
-
-        $producto = Producto::where('id','=',$item->producto_id)->get();
-
-        $prodTerminado = ProductoTerminado::where('invent_id',$item->id)->get()->first();
-
-        $data->fecha_vencimiento = Carbon::parse($data->fecha_sacrificio)->addDays($prodTerminado->dias_vencimiento)->toDateString();
-        $data->fecha_empaque = Carbon::parse($data->fecha_empaque)->toDateString();
-        $data->peso = number_format($data->peso, 3, '.', '');
-
-        $almaRefrigerado = strrpos($prodTerminado->almacenamiento, "Refrigerado");
-        $almaCongelado = strrpos($prodTerminado->almacenamiento, "Congelado");
-
-        if ($almaRefrigerado !== false) { $almace = "^FT324,326^A0N,25,24^FH\^FDMANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^FS"; }
-        if ($almaCongelado !== false) { $almace = "^FT324,326^A0N,25,24^FH\^FDMANTENGASE CONGELADO A -18\F8C ^FS"; }
-
-        if ($data->grupo !== 'Res') { $porcMarinado = "10%"; }
-        if ($data->grupo !== 'Cerdo') { $porcMarinado = "12%"; }
-
-        $titulo = "CARNE DE ".strtoupper($data->grupo);
-
-        $proceso = "^FT117,42^A0N,31,31^FH\^FDDESPOSTADO POR:  ".strtoupper($empresa->razon_social)."^FS";
-
-        if ($marinado && $lote->producto_empacado) {
-            $proceso = "^FT117,42^A0N,31,31^FH\^FDPROCES. Y DISTR. POR:  ".strtoupper($empresa->razon_social)."^FS";
-        } elseif ($lote->producto_empacado) {
-            $proceso = "^FT117,42^A0N,31,31^FH\^FDDISTRIBUIDO POR:  ".strtoupper($empresa->razon_social)."^FS";
-        }
-
-        $etiqueta = "CT~~CD,~CC^~CT~
-                ^XA~TA000~JSN^LT0^MNW^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD15^JUS^LRN^CI0^XZ
-                ^XA
-                ^MMT
-                ^PW799
-                ^LL0639
-                ^LS0
-                ".$proceso."
-                ^FT199,82^A0N,25,24^FH\^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS";
-
-        if ($marinado) {
-            $etiqueta .= "^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
-            ^FT401,120^A0N,28,28^FH\^FD".$data->registro_sanitario."^FS";
-        }
-
-        $etiqueta .= "^FO1,135^GB798,0,3^FS
-                ^FT72,239^A0N,39,38^FH\^FD".strtoupper($data->producto)."^FS
-                ^FT543,239^A0N,39,38^FH\^FD".$data->peso."^FS
-                ^FT650,240^A0N,39,38^FH\^FDKg^FS
-                ^FT328,286^A0N,25,24^FH\^FDREQUIERE COCCI\E3N ANTES DE CONSUMIR^FS";
-
-        if ($lote->producto_empacado) {
-            $etiqueta .= "^FT28,469^A0N,25,24^FH\^FDFecha Vencimiento:^FS";
-        } else {
-            $etiqueta .= $almace."^FT30,372^A0N,25,24^FH\^FDFecha Sacrificio:^FS
-                ^FT29,403^A0N,25,24^FH\^FDFecha Desposte:^FS
-                ^FT29,435^A0N,25,24^FH\^FDFecha Empaque:^FS
-                ^FT28,469^A0N,25,24^FH\^FDFecha Vencimiento:^FS
-                ^FO382,349^GB0,139,2^FS";
-        }
-
-        if ($marinado){
-
-            $titulo = "CARNE DE ".strtoupper($data->grupo)." MARINADA";
-
-            $etiqueta .= "^FT400,370^A0N,28,28^FH\^FDINGREDIENTES:^FS
-                ^FT399,392^A0N,20,19^FH\^FDCarne marinada al ".$porcMarinado." por inyecci\A2n, agua,^FS
-                ^FT399,416^A0N,20,19^FH\^FDsalmuera (Sal), tripolifosfato de sodio E451^FS
-                ^FT399,440^A0N,20,19^FH\^FD(Emulsificador), fosfato de sodio 450 ^FS
-                ^FT399,464^A0N,20,19^FH\^FD(Estabilizante), fosfato tricalcico E341 ^FS
-                ^FT399,488^A0N,20,19^FH\^FD(Estabilizante) menor al 1%.^FS";
-        }
-
-        if ($lote->producto_empacado) {
-            $etiqueta .= "^FT231,467^A0N,25,24^FH\^FD".$data->fecha_vencimiento."^FS";
-        } else {
-            $etiqueta .= "^FT232,372^A0N,25,24^FH\^FD".$data->fecha_sacrificio."^FS
-                    ^FT232,402^A0N,25,24^FH\^FD".$data->fecha_desposte."^FS
-                    ^FT232,434^A0N,25,24^FH\^FD".$data->fecha_empaque."^FS
-                    ^FT231,467^A0N,25,24^FH\^FD".$data->fecha_vencimiento."^FS";
-        }
-
-        $etiqueta .= "^BY4,3,68^FT263,571^BCN,,Y,N
-                ^FD>:".$item->id."^FS
-                ^FT33,295^A0N,25,24^FH\^FDMarca:^FS
-                ^FT33,331^A0N,25,24^FH\^FDLote:^FS
-                ^FT109,296^A0N,28,28^FH\^FD".$data->marca."^FS
-                ^FT109,332^A0N,28,28^FH\^FD".$data->lote."^FS
-                ^FT254,183^A0N,28,28^FH\^FD".$titulo."^FS
-                ^PQ1,0,1,Y^XZ";
-
-        $printer->text($etiqueta);
-
-        $printer->close();
     }
 
     /**
@@ -307,132 +206,20 @@ class InventariosController extends Controller
 
     }
 
-    public function imprimirEtiquetaInterna(Request $request)
-    {
-        $empresa = GenEmpresa::find(1);
-        $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
-        $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-
-        $producto = Producto::find($request->producto_id);
-
-        $data_producto = $producto->nombre;
-
-        $data_grupo = $producto->prodSubgrupo->prodGrupo->nombre;
-
-        $data_registro_sanitario = $producto->prodSubgrupo->prodGrupo->registro_sanitario;
-
-        $data_fecha_empaque = Carbon::now()->toDateString();
-
-        $programacion = LotProgramacion::find($request->prog_lotes_id);
-
-        $data_fecha_desposte = $programacion->fecha_desposte;
-        $data_lote = $programacion->lote_id;
-        $data_marca = $programacion->lote->marca;
-        $data_fecha_sacrificio = $programacion->lote->fecha_sacrificio;
-
-        $almacenamiento = ProdAlmacenamiento::find($request->prodAlmacenamiento_id);
-
-        $dias_vencimiento = ProdVencimiento::where('producto_id','=',$request->producto_id)->where('prodAlmacenamiento_id','=',$request->prodAlmacenamiento_id)->get();
-
-        $data_fecha_vencimiento = Carbon::parse($data_fecha_sacrificio)->addDays($dias_vencimiento[0]->dias_vencimiento)->toDateString();
-
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper($request->impresora));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
-        $printer->setJustification(Printer::JUSTIFY_CENTER);
-
-        for ($i = 0; $i < $request->numEtiquetas ; $i++) {
-
-            $eti_interna = new LotEtiquetaInterna;
-            $eti_interna->prog_lotes_id = $programacion->id;
-            $eti_interna->reimpresion = $request->reimpresion;
-            $eti_interna->producto_id = $producto->id;
-
-            $almaRefrigerado = strrpos($almacenamiento, "Refrigerado");
-            $almaCongelado = strrpos($almacenamiento, "Congelado");
-
-            if ($data_grupo !== 'Res') { $porcMarinado = "10%"; }
-            if ($data_grupo !== 'Cerdo') { $porcMarinado = "12%"; }
-
-            if ($almaRefrigerado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE REFRIGERADO DE 0\F8C A 4\F8C^FS"; }
-            if ($almaCongelado !== false) { $almace = "^FT324,395^A0N,25,24^FH\^FDMANTENGASE CONGELADO A -18\F8C ^FS"; }
-
-            if ($request->marinado) {
-                $textoMarinado = "^FT256,119^A0N,25,24^FH\^FDReg. RSA^FS
-                                  ^FT401,120^A0N,28,28^FH\^FD".$data_registro_sanitario."^FS";
-                $tituloMarinado = " MARINADA";
-                $ingredientesMarinado  = "^FT400,438^A0N,28,28^FH\^FDINGREDIENTES:^FS
-                ^FT399,461^A0N,20,19^FH\^FDCarne marinada al ".$porcMarinado." por inyecci\A2n, agua,^FS
-                ^FT399,485^A0N,20,19^FH\^FDsalmuera (Sal), tripolifosfato de sodio E451^FS
-                ^FT399,509^A0N,20,19^FH\^FD(Emulsificador), fosfato de sodio 450 ^FS
-                ^FT399,533^A0N,20,19^FH\^FD(Estabilizante), fosfato tricalcico E341 ^FS
-                ^FT399,557^A0N,20,19^FH\^FD(Estabilizante) menor al 1%.^FS";
-            } else {
-                $textoMarinado = "";
-                $tituloMarinado = "";
-                $ingredientesMarinado = "";
-            }
-
-            $titulo = "CARNE DE ".strtoupper($data_grupo).$tituloMarinado;
-
-            $etiqueta = "CT~~CD,~CC^~CT~
-                ^XA~TA000~JSN^LT0^MNW^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD15^JUS^LRN^CI0^XZ
-                ^XA
-                ^MMT
-                ^PW799
-                ^LL0639
-                ^LS0
-                ^FT117,42^A0N,31,31^FH\^FDDESPOSTADO POR: ".strtoupper($empresa->razon_social)."^FS
-                ^FT199,82^A0N,25,24^FH\^FD".$empresa->municipio." ".$empresa->direccion." Tel ".$empresa->telefono."^FS"
-                .$textoMarinado.
-                "^FO1,135^GB798,0,3^FS
-                ^FT250,262^A0N,42,40^FH\^FD".strtoupper($data_producto)."^FS
-                ^FT328,354^A0N,25,24^FH\^FDREQUIERE COCCI\E3N ANTES DE CONSUMIR^FS"
-                .$almace.
-                "^FT30,441^A0N,25,24^FH\^FDFecha Sacrificio:^FS
-                ^FT29,472^A0N,25,24^FH\^FDFecha Desposte:^FS
-                ^FT29,504^A0N,25,24^FH\^FDFecha Empaque:^FS
-                ^FT28,538^A0N,25,24^FH\^FDFecha Vencimiento:^FS
-                ^FO382,417^GB0,140,2^FS"
-                .$ingredientesMarinado.
-                "^FT232,440^A0N,25,24^FH\^FD".$data_fecha_sacrificio."^FS
-                ^FT232,471^A0N,25,24^FH\^FD".$data_fecha_desposte."^FS
-                ^FT232,502^A0N,25,24^FH\^FD".$data_fecha_empaque."^FS
-                ^FT231,536^A0N,25,24^FH\^FD".$data_fecha_vencimiento."^FS
-                ^FT33,364^A0N,25,24^FH\^FDMarca:^FS
-                ^FT33,399^A0N,25,24^FH\^FDLote:^FS
-                ^FT109,365^A0N,28,28^FH\^FD".$data_marca."^FS
-                ^FT109,401^A0N,28,28^FH\^FD".$data_lote."^FS
-                ^FT254,183^A0N,28,28^FH\^FD".$titulo."^FS
-                ^PQ1,0,1,Y^XZ";
-            $printer->text($etiqueta);
-
-            /*
-                Para imprimir realmente, tenemos que "cerrar"
-                la conexión con la impresora. Recuerda incluir esto al final de todos los archivos
-            */
-            $done = $printer->close();
-
-            $eti_interna->save();
-
-        }
-
-        return 'doneNoRestore';
-    }
-
     public function reimprimir (Request $request) {
 
         $item = Inventario::find($request->etiqueta);
+        $marinado = ProductoTerminado::where('invent_id',$request->etiqueta)->get()->first();
+        // $r = self::imprimirEtiqueta($request->impresora, $item, $request->marinado);
+        $r = GenEtiqueta::imprimirEtiqueta($request->impresora, $item, $marinado->marinado);
+        // $r = $this->imprimirEtiqueta($request->impresora, $item, $request->marinado);
 
-        $this->imprimirEtiqueta($request->impresora, $item);
-
-        return 'done';
+        return $r;
     }
 
     public function GetInfoSalMercancia($id)
     {
         $verify = SalPivotInventSalida::where('inventario_id','=', $id)->get();
-
         if ( count($verify) < 1) {
             $data = Inventario::GetDataSalMercancia($id);
             return $data;
@@ -499,8 +286,6 @@ class InventariosController extends Controller
 
             return array('done', $item1->id, $item2->id);
         }
-
-
     }
 
     public function GetDataExistentes($idproducto, $idprogramacion)
@@ -512,15 +297,20 @@ class InventariosController extends Controller
 
     public function GetPiezasImpresas($idprogramacion, $idproducto)
     {
-        $data = LotEtiquetaInterna::where('producto_id',$idproducto)->where('prog_lotes_id',$idprogramacion)->get();
+        $data = LotEtiquetaInterna::getEtiquetasImpresas($idproducto, $idprogramacion);
 
-        $counter = count($data);
+        if (is_null($data[0]->cantidad)){
+            $data[0]->cantidad = 0;
+        }
 
-        return $counter;
+        return $data[0]->cantidad;
     }
 
-    public function GetProductosPorLotePDF($idlote)
+    public function GetProductosPorLotePDF()
     {
+
+        $idlote = $_GET['lote_id'];
+
         $data = Inventario::productosPorLote($idlote);
 
         $itemsSumatoria = array();
@@ -553,5 +343,27 @@ class InventariosController extends Controller
         return $pdf->stream();
     }
 
+    public function imprimirEtiquetaInterna(Request $request)
+    {
 
+        $eti_interna = new LotEtiquetaInterna;
+        $eti_interna->prog_lotes_id = $request->prog_lotes_id;
+        $eti_interna->reimpresion = $request->reimpresion;
+        $eti_interna->producto_id = $request->producto_id;
+        $eti_interna->cantidad = $request->numEtiquetas;
+
+        for ($i = 0; $i < $request->numEtiquetas ; $i++) {
+
+            $etiqueta = GenEtiqueta::imprimirEtiqueta($request->impresora, $request, $request->marinado, true);
+
+        }
+
+        $eti_interna->save();
+
+        if (strtoupper($request->impresora) != 'MANUAL') {
+            return 'doneNoRestore';
+        } else {
+            return $etiqueta;
+        }
+    }
 }

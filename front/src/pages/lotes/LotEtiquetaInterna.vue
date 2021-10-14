@@ -46,7 +46,7 @@
                 </div>
               </div>
               <div class="col-2">
-                <q-input v-model="datos.lote_id" label="Buscar por Lote" />
+                <q-input v-model="datos.consecutivo" label="Buscar por Lote" />
               </div>
               <div class="col-2 self-center">
                 <q-btn class="btn-100w" :class="classActive == 'Lote' ? 'bg-positive' : ''" color="primary" v-on:click="getPorLote(), classActive = 'Lote'" label="Buscar" />
@@ -63,7 +63,7 @@
                                <p>programación: {{ programacion.programacion_id }}</p>
                                <p>Fecha desposte: {{ programacion.fecha_desposte }}</p>
                                <p>Marca: {{ programacion.marca }}</p>
-                               <p>Lote: {{ programacion.lote_id }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
+                               <p>Lote: {{ programacion.consecutivo }}   //   Numero animales: {{ programacion.num_animales_programacion }}</p>
                             </q-card-section>
                         </q-card>
                     </div>
@@ -90,7 +90,7 @@
                 <div class="col-3">
                     <div class="row">
                       <h5>Lote:</h5>
-                      <p>{{ datos.lote }}</p>
+                      <p>{{ datos.consecutivo }}</p>
                     </div>
                     <div class="row">
                       <h5>Marca:</h5>
@@ -158,6 +158,7 @@ export default {
       programaciones: [],
       grupos: [],
       datos: {
+        consecutivo: 'Debe seleccionar una programación.',
         lote: 'Debe seleccionar una programación.',
         marca: 'Debe seleccionar una programación.',
         grupo: 'Debe seleccionar una programación.',
@@ -195,6 +196,7 @@ export default {
       this.show.productos = false
       this.show.noProductos = false
       this.datos.lote = programacion.lote_id
+      this.datos.consecutivo = programacion.consecutivo
       this.datos.programacion_id = programacion.programacion_id
       this.datos.marca = programacion.marca
       this.datos.grupo = programacion.grupo
@@ -250,10 +252,32 @@ export default {
         this.getPiezasImpresas()
       }
     },
+    // printEtiquetas (numEtiquetas) {
+    //   this.$q.notify({ color: 'warning', message: 'Enviando Etiquetas!' })
+    //   this.storeItems.numEtiquetas = numEtiquetas
+    //   var app = this
+    //   axios.get(this.$store.state.jhsoft.url + 'api/inventario/productonprogram/' + app.storeItems.producto_id + '/' + this.storeItems.prog_lotes_id).then(
+    //     function (response) {
+    //       var existentes = response.data[0].existentes
+    //       if (existentes === null) {
+    //         existentes = 0
+    //       }
+    //       app.datos.faltantes = (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) - parseInt(existentes)
+    //       if (app.datos.faltantes >= numPiezas) {
+    //         app.globalStoreItem(0)
+    //       } else {
+    //         app.$q.notify({ color: 'negative', message: 'Error: Limite de piezas, Piezas etiquetadas: ' + existentes + ', Piezas posibles: ' + (parseInt(producto.unid_por_animal) * parseInt(app.datos.num_animales)) })
+    //       }
+    //     }
+    //   ).catch(function (error) {
+    //     console.log(error)
+    //     app.$q.notify({ color: 'negative', message: 'Hubo un error al filtrar los productos!' })
+    //   })
+    // },
     async getPorGrupo (id) {
       this.$q.loading.show()
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporgrupo/' + id)
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporgrupo/' + id + '/0')
         this.programaciones = data.data
       } catch (error) {
         this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar las programaciones!' })
@@ -265,7 +289,7 @@ export default {
     async getPorLote (id) {
       this.$q.loading.show()
       try {
-        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.lote_id + '/0')
+        let data = await axios.get(this.$store.state.jhsoft.url + 'api/lotes/programaciones/abiertasporlote/' + this.datos.consecutivo + '/0')
         this.programaciones = data.data
       } catch (error) {
         this.$q.notify({ type: 'negative', message: 'Hubo un error al filtrar las programaciones!' })
@@ -273,6 +297,7 @@ export default {
         this.$q.loading.hide()
         this.$forceUpdate()
         this.datos.lote_id = null
+        this.datos.consecutivo = null
       }
     },
     async getTodos () {
@@ -282,7 +307,8 @@ export default {
   created: function () {
     this.globalGetForSelect('api/lotes/programaciones/abiertas/0', 'programaciones')
     this.globalGetForSelect('api/productos/grupos', 'grupos')
-    this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
+    this.globalGetForSelect('api/productos/almacenamiento/reprocesado/' + 0, 'almacenamientos')
+    // this.globalGetForSelect('api/productos/almacenamiento', 'almacenamientos')
     this.globalGetForSelect('api/generales/impresoras', 'impresoras')
   },
   computed: {

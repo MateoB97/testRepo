@@ -64,7 +64,7 @@
             </q-select>
           </div>
           <div v-if="temp.programacion" class="col">
-            N° Animales: {{ temp.programacion.num_animales_programacion }} - Lote: {{ temp.programacion.lote_id }}  - Marca: {{ temp.programacion.marca }} - Tercero: {{ temp.programacion.tercero }} - Sucursal: {{ temp.programacion.sucursal }}
+            N° Animales: {{ temp.programacion.num_animales_programacion }} - Lote: {{ temp.programacion.consecutivo }}  - Marca: {{ temp.programacion.marca }} - Tercero: {{ temp.programacion.tercero }} - Sucursal: {{ temp.programacion.sucursal }}
           </div>
         </div>
         <div class="row q-mt-md">

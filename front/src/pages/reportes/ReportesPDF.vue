@@ -141,7 +141,7 @@
                       <a target="_blank" :href="$store.state.jhsoft.url+ ruta_fecha_activa + fecha_inicial + '/' + fecha_final +'?token='+ $store.state.jhsoft.token">
                         <q-btn class="q-ml-xs" icon="assignment" color="primary">Generar</q-btn>
                       </a>
-                      <!-- <a target="_blank" :href="$store.state.jhsoft.url+'api/facturacion/movimientos/filtro/impresionmovsporfecha/' + fecha_inicial + '/' + fecha_final">
+                      <!-- <a target="_blank" :href="$store.state.jhsoft.url+'api/reportesgenerados/movsporfechat80/' + fecha_inicial + '/' + fecha_final">
                         <q-btn class="q-ml-xs" icon="local_printshop" color="primary">Generar POS</q-btn>
                       </a> -->
                     </div>
@@ -215,6 +215,13 @@
                       :tercerosFilter="true"
                     />
                   </div>
+                  <div class="col-4">
+                    <GlobalFiltersComponent
+                      titleBtn="CXC Traslados"
+                      url="api/reportesgenerados/reportes/saldocarteratr"
+                      :tercerosFilter="true"
+                    />
+                  </div>
                 <div class="col-4">
                     <a target="_blank" :href="$store.state.jhsoft.url+'api/compras/informes/cuentasporpagar'+'?token='+ $store.state.jhsoft.token"><q-btn class="q-ml-xs w-100" color="primary">CXP</q-btn> </a>
                 </div>
@@ -242,14 +249,46 @@
             </div>
             <div class="row q-col-gutter-md" v-if="this.$store.state.jhsoft.tipo_licencia !== 1">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Compras</h4></div>
-                <div class="col-4">
+                <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(2), datos.fecha_inicial = null, datos.fecha_final = null" label="Compras Netas x Fecha" />
+                </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha"
+                      url="api/reportesgenerados/reportes/comprasPorFecha"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha Detalles"
+                      url="api/reportesgenerados/reportes/comprasDetails"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
                 </div>
             </div>
             <div class="row q-col-gutter-md">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Movimientos</h4></div>
-                <div class="col-4">
+                <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(3), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimiento Forma Pago x Fecha" />
+                </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimiento Forma Pago x Fecha"
+                      url="api/reportesgenerados/reportes/movimientoFormaPagoPorFecha"
+                      :datesFilter="true"
+                      :dateUnique="0"
+                    />
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent
@@ -259,6 +298,16 @@
                       :tipoDocFilter="false"
                       :datesFilter="true"
                       :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimientos x Fecha x Sucursales"
+                      url="api/reportesgenerados/reportes/movimientosPorFechaPorSucursal"
+                      :tercerosFilter="true"
+                      :datesFilter="true"
                       :dateUnique="0"
                     />
                     <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
@@ -283,9 +332,79 @@
                     :dateUnique="1"
                   />
                 </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Movimientos x Producto"
+                      url="api/reportesgenerados/reportes/movimientosPorProducto"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :productosFilter="true"
+                      :dateUnique="0"
+                    />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Peso Factura - Devoluciones"
+                    url="api/reportesgenerados/reportes/pesoporfechaventasdevsnotas"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
                 <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsDetailsCustom(8), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos Detalles" />
                 </div> -->
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Reporte Fiscal"
+                    url="api/reportesgenerados/reportefiscal"
+                    :datesFilter="true"
+                    :dateUnique="1"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Pesos Totales - Productos"
+                    url="api/reportesgenerados/pesostotalesproductos"
+                    :datesFilter="true"
+                    :productosFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Exportar Reporte Fiscal"
+                    url="api/reportesgenerados/reportes/exportreportefiscal"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Interfaz Contable"
+                    url="api/reportesgenerados/ivas"
+                    :datesFilter="true"
+                    :dateUnique="0"
+                  />
+                </div>
+            </div>
+            <div class="row q-col-gutter-md">
+              <div class="col-12 q-mt-md"><h4 style="margin:0px">Produccion</h4></div>
+                <div class="col-4">
+                    <GlobalFiltersComponent
+                    titleBtn="Productos por Lote"
+                    url="api/reportesgenerados/productosporlote"
+                    :loteFilter="true"
+                  />
+                </div>
+                <div class="col-4">
+                    <GlobalFiltersComponent
+                    titleBtn="Peso planta por Lote"
+                    url="api/reportesgenerados/pesoplantalote"
+                    :loteFilter="true"
+                  />
+                </div>
             </div>
         </div>
     </q-page>
@@ -321,10 +440,10 @@ export default {
         listaprecios: this.listaprecios
       },
       rutas_fechas: [
-        'api/facturacion/informes/ventasnetasporfecha/',
-        'api/facturacion/informes/recaudoporfecha/',
+        'api/reportesgenerados/ventasnetasporfecha/',
+        'api/reportesgenerados/recaudoporfecha/',
         'api/compras/informes/comprasnetasporfecha/',
-        'api/facturacion/informes/formasdepagopormovimientoporfecha/',
+        'api/reportesgenerados/formasdepagopormovimientoporfecha/',
         'api/facturacion/informes/movimientosporfecha/',
         'api/facturacion/informes/movimientosporfechaportercero/',
         'api/reportesgenerados/reportes/saldosencartera/',
@@ -403,7 +522,7 @@ export default {
   },
   printPoscxc: function () {
     var app = this
-    axios.get('http://localhost/fusionback/public/api/facturacion/movimientos/filtro/imprescioncxc').then(
+    axios.get(app.$store.state.jhsoft.url + 'api/reportesgenerados/cxct80').then(
       function (response) {
         if (response) {
           return app.$q.notify({ color: 'negative', message: 'Impresión con exito' })

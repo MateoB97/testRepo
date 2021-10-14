@@ -46,7 +46,7 @@ class TerceroController extends Controller
     public function show($id)
     {
         $model = Tercero::find($id);
-        
+
         $arraySucursales = [];
 
         foreach ($model->terceroSucursal as $sucursal) {
@@ -67,7 +67,7 @@ class TerceroController extends Controller
     public function estado($id, $cambio)
     {
          $model = Tercero::find($id);
-         
+
          $modificacion = ($cambio == 'activar') ? $model->activo = 1 : $model->activo =0;
          $validate = $model->save();
          $return = $validate ? 'true' : 'false';
@@ -94,7 +94,7 @@ class TerceroController extends Controller
                 $suc->activo = 1;
                 $suc->save();
             }
-            
+
         }
 
         return 'done';
@@ -108,6 +108,11 @@ class TerceroController extends Controller
         if ($delete) {
             return 'deleted';
         }
+    }
+
+    public function validarFacturasTerceros($tercero_id){
+        return Tercero::validarFacturasTerceros($tercero_id);
+        // return Tercero::exampleFactuasTerceros($tercero_id);
     }
 
 }

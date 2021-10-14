@@ -45,6 +45,6 @@ class ViewVentasPorFecha extends Migration
      */
     public function down()
     {
-        B::statement("DROP VIEW ViewVentasPorFecha");
+        DB::statement("DROP VIEW ViewVentasPorFecha");
     }
 }

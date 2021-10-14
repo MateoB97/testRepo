@@ -29,6 +29,34 @@
             </q-layout>
           </q-dialog>
         <!-- fin popup Errores Fact Elect -->
+        <!-- inicio popup Limpiar Basculas -->
+          <q-dialog v-model="openedLimpiarBascula" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 250px; max-width: 800px; background-color: #ffffff; color: #FFFFFF">
+              <q-header >
+                <q-toolbar style="background-color: #7E7EF4!important;">
+                  <q-btn flat v-close-popup round dense icon="close" />
+                </q-toolbar>
+              </q-header>
+
+              <q-page-container>
+                <q-page padding>
+                  <div class="overflow-hidden">
+                    <div class="row q-col-gutter-sm">
+                      <div class="col">
+                        <q-input type="password" label="Ingrese la contraseña para limpiar " v-model="contraseñaLimpiarBascula"></q-input>
+                      </div>
+                    </div>
+                    <div class="row q-col-gutter-sm q-mt-md">
+                      <div class="col">
+                        <q-btn v-close-popup color="negative" v-on:click="limpiarTiquetesBasculas()" label="Limpiar Tiquetes no Facturados" />
+                      </div>
+                    </div>
+                  </div>
+                </q-page>
+              </q-page-container>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popup Limpiar Basculas -->
 
         <h3>Datos de la Empresa</h3>
         <div class="overflow-hidden">
@@ -54,6 +82,9 @@
                 <div class="col-3">
                     <q-checkbox v-model="storeItems.fact_grupo" label="Factura por Grupos"></q-checkbox>
                     <q-checkbox v-model="storeItems.print_logo_pos" label="POS con logo"></q-checkbox>
+                    <q-checkbox v-model="storeItems.bloquear_tercero" label="Bloquear Tercero?"></q-checkbox>
+                    <q-checkbox v-model="storeItems.precio_bascula_marques" label="Activar Precio Bascula Marques?"></q-checkbox>
+                    <!-- <q-checkbox v-model="storeItems.activar_precio_bascula" label="Activar Precio Bascula Marques?"></q-checkbox> -->
                 </div>
                 <div class="col-6">
                   <q-select
@@ -142,6 +173,20 @@
                 <div class="col-6">
                   <q-btn @click="importProductos()">Importar Productos</q-btn>
                 </div> -->
+                <div class="col-12">
+                  <h5 class="no-margin">Configuración impresora POS</h5>
+                </div>
+                <div class="col-12">
+                    <q-input
+                      ref="input"
+                      v-model="storeItems.cantidad_caracteres"
+                      label="Cantidad de caracteres"
+                      bottom-slots
+                      hint="use / en vez de \"
+                      error-message="Ha usado \ y no es valido"
+                      :error="!isValid"
+                    ></q-input>
+                </div>
                 <div class="col-12">
                   <h5 class="no-margin">Configuración Bascula Dibal</h5>
                 </div>
@@ -283,6 +328,9 @@
                   <div class="col">
                     <q-btn color="negative" v-on:click="openedEliminarDatosHabFE = true" label="Eliminar Datos Habil FE" />
                   </div>
+                  <div class="col">
+                    <q-btn color="negative" v-on:click="openedLimpiarBascula = true" label="Limpiar Tiquetes" />
+                  </div>
                 </div>
             </div>
             <div class="row q-mt-md">
@@ -312,7 +360,9 @@ export default {
       tableData: [],
       tipos: [],
       contraseñaEliminarHabFE: null,
+      contraseñaLimpiarBascula: null,
       openedEliminarDatosHabFE: false,
+      openedLimpiarBascula: false,
       groupSelected: [],
       columns: [
         { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 200px' },
@@ -349,7 +399,9 @@ export default {
         tipoEscaner: null,
         producto_bolsa_id: null,
         resolucion_soenac_id: null,
-        test_id_fe: null
+        test_id_fe: null,
+        cantidad_caracteres: 0,
+        precio_bascula_marques: null
       },
       tipos_escaner: [
         { label: 'Bascula Dibal',
@@ -370,6 +422,10 @@ export default {
         {
           label: 'Despacho',
           value: '5'
+        },
+        {
+          label: 'Etiqueta por producto',
+          value: '6'
         }
       ],
       departamentos: [],
@@ -385,11 +441,13 @@ export default {
       this.getData()
     },
     preSave () {
+      // var activated = this.storeItems.activar_precio_bascula === true ? 1 : 0
       this.storeItems.tercero_sucursal_pos_id = this.sucursal
       this.storeItems.prod_lista_precios_id = this.storeItems.prod_lista_precios_id.id
       if (this.storeItems.gen_municipios_id.id) {
         this.storeItems.gen_municipios_id = this.storeItems.gen_municipios_id.id
       }
+      // this.storeItems.precio_bascula_marques = activated
     },
     postEdit () {
     },
@@ -479,6 +537,27 @@ export default {
         this.$q.notify({ color: 'negative', message: 'Contraseña Incorrecta' })
       }
     },
+    limpiarTiquetesBasculas () {
+      if (this.contraseñaLimpiarBascula === 'adminsgc3.1416') {
+        this.contraseñaLimpiarBascula = null
+        var app = this
+        app.$q.loading.show()
+        axios.get(this.$store.state.jhsoft.url + 'api/facturacion/tiquetesnofacturados/limpiartiquetes').then(
+          function (response) {
+            if (response.data === 'done') {
+              app.$q.notify({ color: 'positive', message: 'Datos Eliminados.' })
+            }
+          }
+        ).catch(function (error) {
+          console.log(error)
+        }).finally(function () {
+          app.$q.loading.hide()
+        })
+      } else {
+        this.contraseñaLimpiarBascula = null
+        this.$q.notify({ color: 'negative', message: 'Contraseña Incorrecta' })
+      }
+    },
     subirDatosBasculaMarques () {
       var app = this
       app.$q.loading.show()
@@ -488,7 +567,6 @@ export default {
           axios.put('http://' + ipMarquesMaster[0] + '/year/familias', response.data[0]).then(
             function (response1) {
               app.$q.notify({ color: 'positive', message: 'Familias enviadas.' })
-              console.log(response.data[1].length)
               let j = 0
               while (j < response.data[1].length) {
                 axios.put('http://' + ipMarquesMaster[0] + '/year/artigos', response.data[1][j]).then(
@@ -509,11 +587,22 @@ export default {
     },
     eliminarFamiliasMarques () {
       var app = this
-      axios.delete(app.storeItems.ruta_ip_marques + '/year/familias?seek={"codigo":"0"}&limit=100').then(
-        function (response2) {
+      let ipMarquesMaster = app.storeItems.ruta_ip_marques.split('&')[0].split('-')
+      axios.delete('http://' + ipMarquesMaster[0] + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+        function (response) {
           app.$q.notify({ color: 'positive', message: 'familias eliminadas' })
         }
       )
+      // let i = 0
+      // while (i < dataSplit.length) {
+      //   // axios.delete(app.storeItems.ruta_ip_marques + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+      //   axios.delete('http://' + dataSplit[i].substring(0, 18) + '/year/familias?seek={"codigo":"0"}&limit=100').then(
+      //     function (response2) {
+      //       app.$q.notify({ color: 'positive', message: 'familias eliminadas' })
+      //     }
+      //   )
+      //   i = i + 1
+      // }
     },
     exportarProductos () {
       axios.get(this.$store.state.jhsoft.url + 'api/productos/export/data').then(
@@ -535,15 +624,13 @@ export default {
     },
     eliminarProductosMarques () {
       var app = this
-      let i = 0
-      while (i < 10) {
-        axios.delete(app.storeItems.ruta_ip_marques + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
-          function (response3) {
-            app.$q.notify({ color: 'positive', message: 'Articulos eliminados' })
-          }
-        )
-        i = i + 1
-      }
+      let ipMarquesMaster = app.storeItems.ruta_ip_marques.split('&')[0].split('-')
+      // axios.delete(app.storeItems.ruta_ip_marques + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
+      axios.delete('http://' + ipMarquesMaster[0] + '/year/artigos?seek={"codigo":"0"}&limit=100').then(
+        function (response3) {
+          app.$q.notify({ color: 'positive', message: 'Articulos eliminados' })
+        }
+      )
     },
     getData () {
       var app = this

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-
+use App\Tools;
 class ComComproEgreso extends Model
 {
     protected $table = 'com_compro_egresos';
@@ -13,7 +13,7 @@ class ComComproEgreso extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function todosConTipoSucursal(){

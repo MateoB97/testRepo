@@ -129,6 +129,7 @@
 									<p>{{ $movimiento->fecha_facturacion }}</p>
 								</td>
 							</tr>
+
 						</tbody>
 					</table>
 				</td>
@@ -161,8 +162,11 @@
 				<td class="wtercio">
 
 				@if ( $tipoDoc->naturaleza == 1)
-					<p><strong>Fecha Facturación:</strong> {{ $movimiento->fecha_facturacion }} </p>
+					<p><strong>Fecha Facturación:</strong> {{ $fecha_facturacion }} </p>
 					<p><strong>Fecha Vencimiento:</strong> {{ $movimiento->fecha_vencimiento }} </p>
+                    @if ( $movimiento->sal_mercancia_consec != null)
+                        <p><strong>N° de Guía 002DM - {{str_pad($movimiento->sal_mercancia_consec, 6, "0", STR_PAD_LEFT)}} - {{substr(date("Y"),2,4)}}</strong></p>
+                    @endif
 				@else
                     <p><strong>Fecha Movimiento:</strong> {{ $movimiento->fecha_facturacion }} </p>
                 @endif
@@ -186,7 +190,7 @@
 			@foreach ($lineas as $linea)
 				<tr>
 					<td>{{ $linea->producto }}</td>
-					<td style="text-align: right">{{ number_format($linea->cantidad, 2, ',', '.') }}</td>
+					<td style="text-align: right">{{ number_format($linea->cantidad, 1, ',', '.') }}</td>
 					<td style="text-align: right">{{ number_format($linea->precio, 0, ',', '.') }}</td>
 					<td style="text-align: right">{{ $linea->iva	}}%</td>
 					<td style="text-align: right">{{ $linea->descporcentaje	}}</td>

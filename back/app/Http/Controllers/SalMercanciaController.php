@@ -13,6 +13,9 @@ use PDF;
 use App\GenEmpresa;
 use App\GenMunicipio;
 use App\GenDepartamento;
+use App\TerceroSucursal;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class SalMercanciaController extends Controller
 {
@@ -41,29 +44,34 @@ class SalMercanciaController extends Controller
 
     public function store(Request $request)
     {
-        $nuevoItem = new SalMercancia($request->all());
-        $nuevoItem->save();
+        if ($request->temperatura_congelado <= -18) {
+            $nuevoItem = new SalMercancia($request->all());
+            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+            $nuevoItem->consecutivo = $lastConsect;
+            $nuevoItem->save();
 
-        foreach ($request->items as $item) {
-            $prod = new SalPivotInventSalida;
-            $prod->inventario_id = $item;
-            $prod->salMercancia_id = $nuevoItem->id;
-            $prod->save();
+            foreach ($request->items as $item) {
+                $prod = new SalPivotInventSalida;
+                $prod->inventario_id = $item;
+                $prod->salMercancia_id = $nuevoItem->id;
+                $prod->save();
 
-            $inv = Inventario::find($item);
-            $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
-            $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
-            $inv->save();
+                $inv = Inventario::find($item);
+                $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
+                $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
+                $inv->save();
+            }
+
+            foreach ($request->datos as $item) {
+                $nuevoPeso = new SalPivotSalProducto($item);
+                $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
+                $nuevoPeso->cantidad = $item['peso_despacho'];
+                $nuevoPeso->save();
+            }
+            return 'done';
+        } else {
+            return 'La temperatura de congelación debe ser menor a -18°';
         }
-
-        foreach ($request->datos as $item) {
-            $nuevoPeso = new SalPivotSalProducto($item);
-            $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
-            $nuevoPeso->cantidad = $item['peso_despacho'];
-            $nuevoPeso->save();
-        }
-
-        return 'done';
     }
 
     /**
@@ -136,40 +144,70 @@ class SalMercanciaController extends Controller
     public function generatePDF(Request $request,$id){
 
         $salMercancia = SalMercancia::find($id);
+        // dd($salMercancia);
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-
-        $sucursal = $salMercancia->terceroSucursal;
-        if ($sucursal->genMunicipio) {
-            $sucursal->municipio  = $sucursal->genMunicipio->nombre;
-            $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
-        }
+        // $sucursal = $salMercancia->terceroSucursal;
+        $sucursal = TerceroSucursal::getDataSucursal($salMercancia->terceroSucursal_id)->first();
+        // dd($sucursal);
+        // dd($sucurzal);
+        // if ($sucursal->genMunicipio) {
+        //     $sucursal->municipio  = $sucursal->genMunicipio->nombre;
+        //     $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
+        // }
 
         $tercero = $salMercancia->terceroSucursal->tercero;
 
-        $items = SalPivotInventSalida::GetDataCertificado($id);
-
+        // $items = SalPivotInventSalida::GetDataCertificado($id);
+        $items = SalPivotInventSalida::dataCertificado($id);
         $itemsSumatoria = array();
         $flag = 0;
         $totalCanastas = 0;
         $totalKilos = 0;
-
         foreach ($items as $element) {
 
             $flag = 0;
+            if (!$element->producto_empacado > 0) {
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                $element->peso = number_format($element->peso, 2, '.', '');
+            } else if ($element->producto_empacado == 1){
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
+                $element->fecha_desposte = Carbon::parse($element->fecha_empaque_lote_tercero)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                $element->fecha_vencimiento = Carbon::parse($element->prod_term_fecha_vencimiento)->toDateString();
+            } else {
+                $empaque = strrpos($element->almacenamiento, "vacio");
+                if ($empaque !== false) {
+                    if ($element->grupo == 'Res'){
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_desposte)->addDays($element->vencimiento)->toDateString();
+                    } else if ($element->grupo === 'Cerdo'  && $element->prod_tipo_almacenamiento_id == 1 ) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_refrigerado_vacio)->toDateString();
+                    } else if ($element->grupo === 'Cerdo'  && $element->prod_tipo_almacenamiento_id == 2 ) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_congelado_vacio)->toDateString();
+                    }
+                } else {
+                    $almacenamiento = strrpos($element->almacenamiento, "Refrigerado");
+                    if ($almacenamiento !== false) {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_refrigerado_granel)->toDateString();
+                    } else {
+                        $element->fecha_vencimiento = Carbon::parse($element->fecha_venc_congelado_granel)->toDateString();
+                    }
+                }
+                $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
+                $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
+                // $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
+                $element->peso = number_format($element->peso, 2, '.', '');
+            }
 
-            $element->fecha_empaque = Carbon::parse($element->fecha_empaque)->toDateString();
-            $element->fecha_sacrificio = Carbon::parse($element->fecha_sacrificio)->toDateString();
-            $element->fecha_vencimiento = Carbon::parse($element->fecha_sacrificio)->addDays($element->vencimiento)->toDateString();
-            $element->peso = number_format($element->peso, 2, '.', '');
             $totalKilos += $element->peso;
 
-            foreach ($itemsSumatoria  as $elementSumatoria) {
 
-                if (($element->lote == $elementSumatoria->lote) && ($element->producto_id == $elementSumatoria->producto_id)) {
+            foreach ($itemsSumatoria  as $elementSumatoria) {
+                if (($element->lote == $elementSumatoria->lote) && ($element->producto_id == $elementSumatoria->producto_id) && ($element ->almacenamiento ==  $elementSumatoria->almacenamiento)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
                     $totalCanastas += 1;
                     $flag = 1;
@@ -182,62 +220,41 @@ class SalMercanciaController extends Controller
                 array_push($itemsSumatoria, $element);
             }
         }
-
-        // dd($itemsSumatoria);
-
         $data = ['salMercancia' => $salMercancia, 'sucursal' => $sucursal, 'tercero' => $tercero, 'itemsSumatoria' => $itemsSumatoria, 'totalCanastas' => $totalCanastas, 'empresa' => $empresa, 'totalKilos' => $totalKilos];
+        // dd($data);
         $pdf = PDF::loadView('despachos.certificado', $data);
-  
         // return view('certificados.pdf');
 
         return $pdf->stream();
 
     }
 
-    public function despachoParaFactura ($id) {
+    public function despachoParaFactura ($consec) {
 
-        $salMercancia = SalMercancia::find($id);
-
-        $sucursal = $salMercancia->terceroSucursal;
-        if ($sucursal->genMunicipio) {
-            $sucursal->municipio  = $sucursal->genMunicipio->nombre;
-            $sucursal->departamento  = $sucursal->genMunicipio->genDepartamento->nombre;
-        }
-
-        $tercero = $salMercancia->terceroSucursal->tercero;
-
-        $items = SalPivotSalProducto::pesoDespachoParaFactura($id, $sucursal->prodListaPrecio_id);
-
+        $salMercancia = SalMercancia::findByCosec($consec)->first();
+        $sucursal = TerceroSucursal::getDataSucursal($salMercancia->terceroSucursal_id)->first();
+        $items = self::validarDespacho($consec, $sucursal);
         $itemsSumatoria = array();
         $flag = 0;
         $cantCanastas = 0;
-
         foreach ($items as $element) {
-
             $flag = 0;
-
             $element->peso = number_format($element->peso, 3, '.', '');
-
             foreach ($itemsSumatoria  as $elementSumatoria) {
-
                 if (($element->producto_id == $elementSumatoria->producto_id)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
+
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
 
                     $flag = 1;
                 }
             }
-
             if ($flag != 1) {
                 $element->canastas = 1;
                 array_push($itemsSumatoria, $element);
             }
         }
-
-        // dd($itemsSumatoria);
-
-        return [$itemsSumatoria, $sucursal->id];
+        return [$itemsSumatoria, $sucursal->sucursal_id, $sucursal->plazo_facturacion];
     }
 
     public function pesoDespacho ($id) {
@@ -268,7 +285,7 @@ class SalMercanciaController extends Controller
 
                 if (($element->producto_id == $elementSumatoria->producto_id)) {
                     $elementSumatoria->peso = $elementSumatoria->peso + $element->peso;
-                    
+
                     $elementSumatoria->canastas = $elementSumatoria->canastas + 1;
 
                     $flag = 1;
@@ -293,9 +310,7 @@ class SalMercanciaController extends Controller
         } else {
             $list = SalMercancia::DateSucursalFilter($fecha_inicial,$fecha_final,$sucursal);
         }
-
         return $list;
-
     }
 
     public function GetDataResumen(Request $request,$id){
@@ -317,7 +332,7 @@ class SalMercanciaController extends Controller
 
         $productos = Inventario::productosPorLote($request->lote_id);
 
-        $flag = 0;        
+        $flag = 0;
         $arrayItems = array();
 
         foreach ($productos as $item) {
@@ -328,8 +343,10 @@ class SalMercanciaController extends Controller
         }
 
         if ( $flag == 0 ){
-            
+
             $nuevoItem = new SalMercancia($request->all());
+            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+            $nuevoItem->consecutivo = $lastConsect;
             $nuevoItem->save();
 
             foreach ($productos as $item) {
@@ -344,29 +361,18 @@ class SalMercanciaController extends Controller
                 $inv->save();
             }
 
-            return 'done';           
+            return 'done';
         } else {
             return 'los siguientes items ya han sido despachados: '.print_r($arrayItems);
         }
     }
 
-    // public function guardarPesoDespacho(Request $request){
-
-    //     $existentes = SalPivotSalProducto::where('sal_mercancia_id',$request->sal_mercancia_id)->get();
-
-    //     foreach ($existentes as $item) {
-    //         $item->delete();   
-    //     }
-
-    //     foreach ($request->lineas as $item) {
-    //         $nuevoItem = new SalPivotSalProducto($item);
-    //         $nuevoItem->sal_mercancia_id = $request->sal_mercancia_id;
-    //         $nuevoItem->save();
-    //     }
-
-    //     return 'done';
-
-    // }
-
-
+    public static function validarDespacho($consec, $sucursal){
+        $items = null;
+        $items = SalPivotSalProducto::pesoDespachoParaFactura($consec, $sucursal->prodListaPrecio_id);
+        if($items->count() == 0 ){
+            $items = SalPivotInventSalida::GetDataCertificadoByConsec($consec); //Despachos de lote completo.
+        }
+        return $items;
+    }
 }

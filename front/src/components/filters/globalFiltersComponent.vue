@@ -23,13 +23,23 @@
                   columnas='col-12'
                   labelTercero='Tercero'
                 />
-                <SelectGrupoProducto
+                <MultiSelectGrupoProducto
                   v-if="gruposFilter"
                   v-model="datos.grupos_id"
+                />
+                <GrupoSubgrupoProductoFilter
+                  v-if="productosFilter"
+                  @grupo_id="setGrupo"
+                  @subgrupo_id="setSubgrupo"
+                  @producto_id="setProducto"
                 />
                 <SelectTipoDoc
                   v-if="tipoDocFilter"
                   v-model="datos.tiposdoc_id"
+                />
+                <LoteFilter
+                  v-if="loteFilter"
+                  v-model="datos.lote_id"
                 />
               </div>
               <div class="row q-col-gutter-sm">
@@ -52,21 +62,27 @@
 import { globalFunctions } from 'boot/mixins.js'
 import DateFilterComponent from 'components/filters/dataFilterComponent.vue'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
-import SelectGrupoProducto from 'components/filters/SelectGrupoProducto.vue'
+import MultiSelectGrupoProducto from 'components/filters/MultiSelectGrupoProducto.vue'
+import GrupoSubgrupoProductoFilter from 'components/filters/GrupoSubgrupoProductoFilter.vue'
+import LoteFilter from 'components/filters/LoteFilter.vue'
 import SelectTipoDoc from 'components/filters/SelectTipoDoc.vue'
 
 export default {
-  name: 'dateFilterComponent',
+  name: 'globalFilterComponent',
   components: {
     SelectTerceroSucursal,
     DateFilterComponent,
-    SelectGrupoProducto,
-    SelectTipoDoc
+    MultiSelectGrupoProducto,
+    SelectTipoDoc,
+    GrupoSubgrupoProductoFilter,
+    LoteFilter
   },
   props: [
     'datesFilter',
     'tercerosFilter',
     'gruposFilter',
+    'loteFilter',
+    'productosFilter',
     'tipoDocFilter',
     'dateUnique',
     'titleBtn',
@@ -82,7 +98,11 @@ export default {
         sucursal_id: null,
         tiposdoc_id: null,
         tiporec_id: null,
-        grupos_id: null
+        grupos_id: null,
+        grupo_id: null,
+        subgrupo_id: null,
+        producto_id: null,
+        lote_id: null
       },
       isVisible: false,
       params: ''
@@ -99,6 +119,15 @@ export default {
     },
     setSucursal (value) {
       this.datos.sucursal_id = value
+    },
+    setGrupo (value) {
+      this.datos.grupo_id = value
+    },
+    setSubgrupo (value) {
+      this.datos.subgrupo_id = value
+    },
+    setProducto (value) {
+      this.datos.producto_id = value
     }
   },
   computed: {
@@ -121,6 +150,24 @@ export default {
         params = params.slice(0, -1)
         console.log(params)
         app.params = params
+      }
+    },
+    isVisible: {
+      deep: true,
+      handler () {
+        this.datos = {
+          fecha_inicial: null,
+          fecha_final: null,
+          tercero_id: null,
+          sucursal_id: null,
+          tiposdoc_id: null,
+          tiporec_id: null,
+          grupos_id: null,
+          grupo_id: null,
+          subgrupo_id: null,
+          producto_id: null,
+          lote_id: null
+        }
       }
     }
   }

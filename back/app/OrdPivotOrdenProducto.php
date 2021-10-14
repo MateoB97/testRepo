@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tools;
 
 class OrdPivotOrdenProducto extends Model
 {
@@ -12,6 +13,6 @@ class OrdPivotOrdenProducto extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 }

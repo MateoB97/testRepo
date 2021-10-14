@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class GenPivotCuadreTiposdoc extends Model
 {
@@ -24,7 +25,7 @@ class GenPivotCuadreTiposdoc extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function porCuadreConTipodoc($id){

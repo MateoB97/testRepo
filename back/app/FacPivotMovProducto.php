@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class FacPivotMovProducto extends Model
 {
@@ -13,7 +14,7 @@ class FacPivotMovProducto extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function porMovimiento($id){
@@ -63,5 +64,29 @@ class FacPivotMovProducto extends Model
             ->where('fac_pivot_mov_productos.puesto_tiquete','=', $bascula)
             ->orderBy('fac_pivot_mov_productos.id')
             ->get();
+    }
+
+    public static function detallesFacturasConProductoUnidadMedida($fac_mov_id){
+        return DB::select(
+            "
+            select
+                d.id as detail_id,
+                d.fac_mov_id as detail_mov_id,
+                d.cantidad as detail_cantidad,
+                d.precio as detail_precio,
+                d.iva as detail_iva,
+                d.descporcentaje as detail_desc,
+                p.id as producto_id,
+                p.codigo as producto_codigo,
+                p.nombre as producto_nombre,
+                u.id as uni_medida_id,
+                u.nombre as uni_medida_nombre,
+                u.abrev_pos as uni_medida_abrev_pos
+            from fac_pivot_mov_productos d
+            inner join productos p on d.producto_id = p.id
+            inner join gen_unidades u on p.gen_unidades_id = u.id
+            where d.fac_mov_id = '$fac_mov_id'
+            "
+        );
     }
 }

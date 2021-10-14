@@ -52,7 +52,7 @@
 
       <q-list>
         <q-expansion-item
-          v-if="$auth.user().role === 'cajero' && cuadreAbierto === 1"
+          v-if="globalValidarPermiso('71') && cuadreAbierto === 1"
           class="expansion-block"
           expand-separator
           icon="storefront"
@@ -63,12 +63,13 @@
           <q-card>
             <q-card-section>
               <router-link v-for="doc in docFacturacion" :key="doc.id" :to="{ name: 'movimientos', params: { id: doc.id, consecmov: 'nuevo' } }" class="menuItem">{{ doc.nombre }}</router-link>
-              <router-link to="/egresos/items" class="menuItem q-mt-sm">Gestion de efectivo</router-link>
+              <router-link to="/gestion-efectivo/ingresos" class="menuItem q-mt-sm">ingreso de efectivo</router-link>
+              <router-link to="/gestion-efectivo/egresos" class="menuItem q-mt-sm">Egreso de efectivo</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="$auth.user().role === 'operario' && this.$store.state.jhsoft.lotes"
+          v-if="globalValidarPermiso('54') && this.$store.state.jhsoft.lotes"
           class="expansion-block"
           expand-separator
           icon="business_center"
@@ -82,6 +83,7 @@
               <router-link to="/lotes/peso-planta" class="menuItem">Peso Planta</router-link>
               <router-link to="/lotes/empaque" class="menuItem">Empaque</router-link>
               <router-link to="/lotes/empaque-terminado" class="menuItem">Empaque Prod Terminado</router-link>
+              <router-link to="/lotes/empaque-reprocesado" class="menuItem">Empaque Reprocesado</router-link>
               <router-link to="/lotes/etiqueta-interna" class="menuItem">Etiqueta Interna</router-link>
               <router-link to="/lotes/peso-programacion" class="menuItem">Peso por programación</router-link>
               <router-link to="/lotes/peso-marinacion" class="menuItem">Peso Marinacion</router-link>
@@ -107,7 +109,7 @@
           </q-card>
         </q-expansion-item>
         <q-expansion-item
-          v-if="$auth.user().role === 'cajero' && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
+          v-if="globalValidarPermiso('71') && cuadreAbierto === 1 && this.$store.state.jhsoft.recibos"
           class="expansion-block"
           expand-separator
           icon="attach_money"
@@ -192,6 +194,7 @@
               <q-card-section>
                 <router-link to="/generales/impuestos" class="menuItem">Crear Impuesto</router-link>
                 <router-link to="/generales/iva" class="menuItem">Crear IVA</router-link>
+                <router-link to="/generales/puc" class="menuItem">Crear PUC</router-link>
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -224,13 +227,41 @@
               <q-card-section>
                 <router-link to="/generales/impresoras" class="menuItem">Impresoras</router-link>
                 <router-link to="/generales/basculas" class="menuItem">Basculas</router-link>
-                <router-link to="/register" class="menuItem">Usuarios</router-link>
-                <router-link to="/changepass" class="menuItem">Cambiar Contraseña</router-link>
                 <router-link to="/generales/empresa" class="menuItem">Empresa</router-link>
                 <router-link v-if="this.$store.state.jhsoft.lotes" to="/generales/generalidades" class="menuItem">Generalidades</router-link>
               </q-card-section>
             </q-card>
           </q-expansion-item>
+
+          <q-expansion-item class="sub-expansion-block" expand-icon-class="text-white" :header-inset-level="0.5" :content-inset-level="1" label="Usuarios">
+            <q-card>
+              <q-card-section>
+                <router-link to="/usuarios/categorias-permisos" class="menuItem">Categorias Permisos</router-link>
+                <router-link to="/usuarios/permisos" class="menuItem">Permisos</router-link>
+                <router-link to="/usuarios/roles" class="menuItem">Roles</router-link>
+                <router-link to="/usuarios/asociar-permisos-rol" class="menuItem">Asociar Permisos a Rol</router-link>
+                <router-link to="/register" class="menuItem">Usuarios</router-link>
+                <router-link to="/changepass" class="menuItem">Cambiar Contraseña</router-link>
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
+        </q-expansion-item>
+        <q-expansion-item
+          class="expansion-block"
+          expand-separator
+          icon="assessment"
+          label="Inventario"
+          expand-icon-class="text-white"
+          :content-inset-level="0.5"
+        >
+          <q-card>
+            <q-card-section>
+              <router-link v-if="this.$store.state.jhsoft.inventario" to="/inventario/inventario" class="menuItem">Inventario</router-link>
+              <router-link v-if="this.$store.state.jhsoft.lotes" to="/inventario/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
+              <router-link to="/inventario/cierre-inventario" class="menuItem">Cierre Inventario</router-link>
+              <router-link to="/inventario/inv-informe-cierre" class="menuItem">Informes Cierre Inventario</router-link>
+            </q-card-section>
+          </q-card>
         </q-expansion-item>
         <q-expansion-item
           class="expansion-block"
@@ -242,19 +273,15 @@
         >
           <q-card>
             <q-card-section>
-              <router-link v-if="this.$store.state.jhsoft.inventario" to="/reportes/inventario" class="menuItem">Inventario</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
               <router-link to="/facturacion/movimientos" class="menuItem">Movimientos</router-link>
               <router-link v-if="this.$store.state.jhsoft.recibos" to="/facturacion/recibos" class="menuItem">Recibos</router-link>
               <router-link v-if="this.$store.state.jhsoft.compras" to="/compras/items" class="menuItem">Compras</router-link>
               <router-link v-if="this.$store.state.jhsoft.compras" to="/compras/compro-egresos" class="menuItem">Comprobantes de Egreso</router-link>
-              <router-link to="/egresos/resumen" class="menuItem">Egresos</router-link>
+              <router-link to="/gestion-efectivo/resumen" class="menuItem">Egresos</router-link>
               <router-link v-if="this.$store.state.jhsoft.ordenes" to="/ordenes/resumen" class="menuItem">Ordenes</router-link>
               <router-link to="/generales/cuadrecaja" class="menuItem">Cuadre Z</router-link>
               <router-link to="/generales/tiquetesnofacturados" class="menuItem">Tiquete no facturado</router-link>
               <router-link to="/reportes/reportes-pdf" class="menuItem">Reportes Generados</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/peso-planta" class="menuItem">Informe Peso planta</router-link>
-              <router-link v-if="this.$store.state.jhsoft.lotes" to="/reportes/productos-lote" class="menuItem">Informe Productos por Lote</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>
@@ -264,7 +291,7 @@
           </div>
         </div>
         <div class="row q-col-gutter-md" style="padding:10px">
-          <div class="text-center col-6" v-if="$auth.user().role === 'cajero'">
+          <div class="text-center col-6" v-if="globalValidarPermiso('71')">
             <q-btn v-if="cuadreAbierto === 0"  class="btn-coral" @click="openAbrirCaja = true">Abrir Caja</q-btn>
             <q-btn v-if="cuadreAbierto === 1"  class="btn-coral" @click="openCerrarCaja = true">Cerrar Caja</q-btn>
           </div>
@@ -359,7 +386,7 @@ export default {
     }
   },
   created: function () {
-    this.globalGetForSelect('api/facturacion/tipos', 'docFacturacion')
+    this.globalGetForSelect('api/facturacion/tipos/estado/1', 'docFacturacion')
     this.globalGetForSelect('api/compras/tipos', 'docCompras')
     this.globalGetForSelect('api/compras/tiposcomproegreso', 'docComproEgresos')
     this.globalGetForSelect('api/facturacion/tiposrecibocaja', 'docRecibos')

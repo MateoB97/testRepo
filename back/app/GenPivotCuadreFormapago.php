@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Tools;
 
 class GenPivotCuadreFormapago extends Model
 {
@@ -13,7 +14,7 @@ class GenPivotCuadreFormapago extends Model
 
     public function getDateFormat()
     {
-        return dateTimeSql();
+        return Tools::dateTimeSql();
     }
 
     public static function sumCuadrePorForma($gen_cuadre_caja_id, $forma){

@@ -29,7 +29,21 @@ class LotesController extends Controller
     {
         if ( (count($request->programaciones) > 0) ){
 
+            $lastSeed = intval(Lote::max('consecutivo'));
             $nuevoItem = new Lote($request->all());
+            if($lastSeed > 0){
+                $nuevoItem->consecutivo = $lastSeed +1;
+            } else {
+                $nuevoItem->consecutivo = 1 ;
+            }
+            // if (($request->producto_empacado  == 0 || $request->producto_empacado == '0')) {
+            //     $nuevoItem->fecha_empaque_lote_tercero = null;
+            // }
+            foreach ($nuevoItem->toArray() as $clave => $value) {
+                if($value  == '1900/01/01') {
+                    $nuevoItem[$clave] = null;
+                }
+            }
             $nuevoItem->estado = 1;
             $nuevoItem->save();
 
@@ -106,7 +120,7 @@ class LotesController extends Controller
 
                 if (strrpos($products->almacenamiento, "vacio")) {
                     $vacioTotal = $vacioTotal + $products->peso;
-                }   
+                }
             }
 
             $vacioTotal = number_format($vacioTotal, 2, '.', '');
@@ -119,7 +133,7 @@ class LotesController extends Controller
                      'procedencia' => $procedencia
                     ];
 
-            return $data;   
+            return $data;
 
         } else {
             if (count($productos) < 1) {
@@ -149,6 +163,17 @@ class LotesController extends Controller
         $model->marinado = ($model->marinado == 1) ? true : false;
         $model->producto_empacado = ($model->producto_empacado == 1) ? true : false;
         $model->genero = ($model->genero == 1) ? true : false;
+        $model->producto_aprobado = ($model->producto_aprobado == 1) ? true : false;
+
+        if($model->producto_empacado && !$model->tercero_reprocesado) {
+            $model->producto_empacado = true;
+            $model->tercero_reprocesado = false;
+        }
+
+        if($model->tercero_reprocesado) {
+            $model->producto_empacado = true;
+            $model->tercero_reprocesado = true;
+        }
 
         $model->consec_compra = ComCompra::find($model->com_compras_id)->consecutivo;
 
