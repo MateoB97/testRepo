@@ -380,8 +380,17 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/movimientoFormaPagoPorFecha', 'ReportesGeneradosController@movimientoFormaPagoPorFecha');
     Route::get('/reportes/pesoporfechaventasdevsnotas', 'ReportesGeneradosController@pesosTotalesDevolProductos');
     Route::get('/reportes/exportreportefiscal', 'ReportesGeneradosController@exportReporteFiscalExcel');
+
     Route::get('/reportes/comprasPorFecha', 'ReportesGeneradosController@comprasPorFecha');
     Route::get('/reportes/comprasDetails', 'ReportesGeneradosController@comprasDetails');
+    Route::get('/reportes/comprasFormaPago', 'ReportesGeneradosController@comprasFormaPago');
+    Route::get('/reportes/comprasPorFechaPesos', 'ReportesGeneradosController@comprasPorFechaPesos');
+    Route::get('/reportes/comprasPorFechaPesosDEVS', 'ReportesGeneradosController@comprasPorFechaPesosDEVS');
+    Route::get('/reportes/comprasPorFechaXSucursal', 'ReportesGeneradosController@comprasPorFechaXSucursal');
+    Route::get('/reportes/comprasXProducto', 'ReportesGeneradosController@comprasXProducto');
+
+    Route::get('/reportes/IntenvarioPesosDespacho', 'ReportesGeneradosController@IntenvarioPesosDespacho');
+    
     Route::get('/reportes/movimientosPorFechaPorSucursal', 'ReportesGeneradosController@movimientosPorFechaPorSucursal');
     Route::get('/reportes/exportreportefiscal', 'ReportesGeneradosController@exportReporteFiscalExcel');
 

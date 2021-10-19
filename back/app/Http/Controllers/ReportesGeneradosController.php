@@ -138,7 +138,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgc\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorFechaSucursales.jrxml';
+        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\ComprasXProducto.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
@@ -174,6 +174,36 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
+    public function comprasFormaPago(){
+        $params = $_GET;
+        $input = 'comprasFormaPago';
+        self::executeJasper($input, $params);
+    }
+    public function comprasPorFechaPesos(){
+        $params = $_GET;
+        $input = 'comprasPorFechaPesos';
+        self::executeJasper($input, $params);
+    }
+    public function comprasPorFechaPesosDEVS(){
+        $params = $_GET;
+        $input = 'comprasPorFechaPesosDEVS';
+        self::executeJasper($input, $params);
+    }
+    public function comprasPorFechaXSucursal(){
+        $params = $_GET;
+        $input = 'comprasPorFechaXSucursal';
+        self::executeJasper($input, $params);
+    }
+    public function comprasXProducto(){
+        $params = $_GET;
+        $input = 'comprasXProducto';
+        self::executeJasper($input, $params);
+    }
+    public function InventarioPesosDespacho(){
+        $params = $_GET;
+        $input = 'InventarioPesosDespacho';
+        self::executeJasper($input, $params);
+    }
     public function movimientosPorFecha(){
         $params = $_GET;
         $input = 'MovimientosPorFecha';

@@ -266,8 +266,80 @@
                 </div>
                 <div class="col-4">
                   <GlobalFiltersComponent
-                      titleBtn="Compras x Fecha Detalles"
+                      titleBtn="Compras x Fecha - Detalles"
                       url="api/reportesgenerados/reportes/comprasDetails"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras - forma de pago"
+                      url="api/reportesgenerados/reportes/comprasFormaPago"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha - Pesos"
+                      url="api/reportesgenerados/reportes/comprasPorFechaPesos"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha - Pesos DEVS"
+                      url="api/reportesgenerados/reportes/comprasPorFechaPesosDEVS"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Fecha - Sucursal"
+                      url="api/reportesgenerados/reportes/comprasPorFechaXSucursal"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Compras x Producto"
+                      url="api/reportesgenerados/reportes/comprasXProducto"
+                      :tercerosFilter="true"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :gruposFilter="false"
+                      :dateUnique="0"
+                    />
+                    <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Inventario - Pesos - Despachos"
+                      url="api/reportesgenerados/reportes/IntenvarioPesosDespacho"
                       :tercerosFilter="true"
                       :tipoDocFilter="false"
                       :datesFilter="true"
