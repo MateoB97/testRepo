@@ -389,8 +389,8 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/comprasPorFechaXSucursal', 'ReportesGeneradosController@comprasPorFechaXSucursal');
     Route::get('/reportes/comprasXProducto', 'ReportesGeneradosController@comprasXProducto');
 
-    Route::get('/reportes/IntenvarioPesosDespacho', 'ReportesGeneradosController@IntenvarioPesosDespacho');
-    
+    Route::get('/reportes/IntenvarioPesosDespacho', 'ReportesGeneradosController@InventarioPesosDespacho');
+
     Route::get('/reportes/movimientosPorFechaPorSucursal', 'ReportesGeneradosController@movimientosPorFechaPorSucursal');
     Route::get('/reportes/exportreportefiscal', 'ReportesGeneradosController@exportReporteFiscalExcel');
 

@@ -701,375 +701,560 @@ class FacMovimientosController extends Controller
         return $pdf->stream();
     }
 
+    // public function printPOS($id, $copia){
+
+    //     $nuevoItem = FacMovimiento::find($id);
+    //     $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
+    //     $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
+    //     $empresa = GenEmpresa::find(1);
+    //     $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
+    //     $tercero = $sucursal->Tercero;
+    //     $municipio = GenMunicipio::find($empresa->gen_municipios_id);
+    //     $departamento = GenDepartamento::find($municipio->departamento_id);
+    //     $caractPorlinea = caracteres_linea_pos();
+    //     $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
+    //     $connector = new WindowsPrintConnector($nombre_impresora);
+    //     $printer = new Printer($connector);
+
+    //     $totales_por_unidad = array();
+    //     $totales_por_unidad['Kgs'] = 0;
+    //     $totales_por_unidad['Und'] = 0;
+
+    //     // $printer->setJustification(Printer::JUSTIFY_CENTER);
+
+    //     if ($tipoDoc->naturaleza == 4) {
+
+    //         $caractPorlinea = caracteres_linea_pos();
+
+    //         $pagos = FacPivotMovFormapago::where('fac_mov_id', $id)->get();
+
+    //         // ENCABEZADO
+    //         if ($empresa->print_logo_pos) {
+    //             $img = EscposImage::load("../public/images/logo1.png");
+    //             $printer->graphics($img);
+    //         }
+    //         $etiqueta = str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+
+    //         // DATOS DE FACTURACION
+    //         if ($tipoDoc->prefijo) {
+    //             $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         } else {
+    //             $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         }
+    //         $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("VIGENCIA 18 MESES", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         // DATOS DE LA VENTA
+    //         $etiqueta .= str_pad("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
+    //         if ($copia == 1) {
+    //             $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+    //         }
+
+    //         if ($tipoDoc->prefijo) {
+    //             $etiqueta .= str_pad("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         } else {
+    //             $etiqueta .= str_pad("FACTURA DE VENTA # ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+    //         }
+    //         if ($copia == 1) {
+    //             $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+    //         }
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         // DATOS DEL CLIENTE
+    //         $etiqueta .= str_pad(eliminar_acentos(substr($tercero->nombre, 0, 41)), $caractPorlinea, " ", STR_PAD_RIGHT);
+    //         if ($tercero->digito_verificacion) {
+    //             $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+    //         } else {
+    //             $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+    //         }
+    //         $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, $caractPorlinea, " ", STR_PAD_RIGHT);
+
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         // PRODUCTOS
+    //         $etiqueta .= str_pad("CODIGO   PRODUCTO   TOTAL | IVA", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $totalGeneral = 0;
+
+    //         foreach ($lineas as $linea) {
+
+    //             // linea 1
+    //             $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
+    //             $etiqueta .= ' ';
+    //             $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
+    //             $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= ' ';
+    //             $total = intval($linea['precio']) * floatval($linea['cantidad']);
+    //             $total =  number_format($total, 0, ',', '.');
+    //             $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
+    //             $etiqueta .= ' |';
+    //             $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
+    //             // linea 2
+    //             $etiqueta .= '    ';
+    //             $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
+    //             $etiqueta .= ' ';
+    //             $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
+    //             $etiqueta .= ' X $';
+    //             $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
+    //             $etiqueta .= ' ';    //22
+    //             if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
+    //                 $etiqueta .= 'Desc ';
+    //                 $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
+    //                 $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
+    //             } else {
+    //                 $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
+    //             }
+
+    //             $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
+    //         }
+
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad('Total Kilos: '.$totales_por_unidad['Kgs'], $caractPorlinea, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= str_pad('Total Unidades: '.$totales_por_unidad['Und'], $caractPorlinea, " ", STR_PAD_RIGHT);
+    //         // TOTAL
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         $etiqueta .= str_pad('SUBTOTAL', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($nuevoItem->subtotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //         $etiqueta .= str_pad('DESCUENTO', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($nuevoItem->descuento, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //         $etiqueta .= str_pad('IVA', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($nuevoItem->ivatotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //         $etiqueta .= str_pad('TOTAL', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //         //PAGOS
+    //         $totalPagos = 0;
+
+    //         $etiqueta .= str_pad("PAGOS", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         foreach ($pagos as $pago) {
+    //             if ($pago['valor_recibido'] > 0) {
+    //                 $etiqueta .= str_pad(eliminar_acentos(strtoupper(FacFormaPago::find($pago['fac_formas_pago_id'])->nombre)), $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //                 $etiqueta .= '$';
+    //                 $etiqueta .= ' ';
+    //                 $etiqueta .= str_pad(number_format($pago['valor_recibido'], 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+    //                 $totalPagos = intval($totalPagos) + intval($pago['valor_recibido']);
+    //             }
+    //         }
+
+    //         $etiqueta .= str_pad("----------", $caractPorlinea, " ", STR_PAD_LEFT);
+    //         $etiqueta .= str_pad('TOTAL PAGOS', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($totalPagos, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         $etiqueta .= str_pad('DEVOLUCION', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
+    //         $etiqueta .= '$';
+    //         $etiqueta .= ' ';
+    //         $etiqueta .= str_pad(number_format($totalPagos - $nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+
+    //         // DESCRIPCION IMPUESTOS
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("IMPUESTOS", $caractPorlinea, "-", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad('IMP.        BASE       IVA', $caractPorlinea, " ", STR_PAD_BOTH);
+
+    //         $arrayIvas = [];
+    //         $arrayImpuestos = [];
+
+    //         foreach ($lineas as $linea) {
+
+    //             if (array_search($linea['iva'], $arrayIvas) === false) {
+    //                 array_push($arrayIvas, $linea['iva']);
+    //             }
+    //         }
+
+    //         foreach ($arrayIvas as $item) {
+    //             $subtotal = 0;
+    //             foreach ($lineas as $linea) {
+    //                 if ($linea['iva'] == $item){
+    //                     $subtotal = $subtotal + intval(((intval($linea['precio']) - ( intval($linea['precio']) * ( intval($linea['descporcentaje'])/100) ))) * floatval($linea['cantidad']));
+    //                 }
+    //             }
+    //             $etiqueta .= str_pad(number_format($item, 0, ',', '.').'%', 3, " ", STR_PAD_LEFT);
+    //             $etiqueta .= str_pad("", 12, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= str_pad(number_format(intval($subtotal), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+    //             $etiqueta .= str_pad("", 13, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= str_pad(number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+    //         }
+
+    //         if($nuevoItem->nota) {
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+    //         }
+
+    //         $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
+
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+
+    //         $etiqueta .= str_pad("Impreso desde SGC de Byteco S.A.S.", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("Nit: 901389565-8", $caractPorlinea, " ", STR_PAD_BOTH);
+
+    //         $etiqueta .= str_pad("GRACIAS POR SU COMPRA !!", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+    //         $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
+
+    //         $printer->text($etiqueta);
+    //         $printer->feed(2);
+    //         $printer->cut();
+    //         $printer->pulse();
+    //         $printer->close();
+
+    //     } else if ($tipoDoc->naturaleza == 1) {
+
+    //         for ($i = 0; $i < 1 ; $i++) {
+
+    //             // $etiqueta = str_pad("Fecha Impresion " . date('d-m-Y H:i:s'), 48, " ", STR_PAD_RIGHT);
+    //             $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
+    //             // ENCABEZADO
+    //             if ($tipoDoc->formato_impresion == 1) {
+    //                 if($empresa->print_logo_pos > 0){
+    //                     $img = EscposImage::load("../public/images/logo1.png");
+    //                     $printer -> graphics($img);
+    //                 }
+    //                 $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
+    //             }
+
+    //             $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+
+    //             if ($tipoDoc->formato_impresion == 1) {
+    //                 // DATOS DE FACTURACION
+    //                 if ($tipoDoc->prefijo) {
+    //                     $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, 48, " ", STR_PAD_BOTH);
+    //                 } else {
+    //                     $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, 48, " ", STR_PAD_BOTH);
+    //                 }
+    //                 $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, 48, " ", STR_PAD_BOTH);
+    //                 $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+    //             }
+
+    //             $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)).' # '.$nuevoItem->consecutivo, 48, " ", STR_PAD_BOTH);
+
+    //             $etiqueta .= str_pad("FECHA FACTURACION: ".$nuevoItem->fecha_facturacion, 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("FECHA VENCIMIENTO: ".$nuevoItem->fecha_vencimiento, 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+
+    //             // DATOS DEL CLIENTE
+    //             $etiqueta .= tercero_pos($tercero->nombre,48);
+    //             if ($tercero->digito_verificacion) {
+    //                 $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, 48, " ", STR_PAD_RIGHT);
+    //             } else {
+    //                 $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, 48, " ", STR_PAD_RIGHT);
+    //             }
+    //             $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, 48, " ", STR_PAD_RIGHT);
+
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+
+    //             // PRODUCTOS
+    //             $etiqueta .= "CODIGO              PRODUCTO         TOTAL | IVA";
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $totalGeneral = 0;
+
+    //             foreach ($lineas as $linea) {
+
+    //                 // linea 1
+    //                 $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
+    //                 $etiqueta .= ' ';
+    //                 $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
+    //                 $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
+    //                 $etiqueta .= ' ';
+    //                 $total = intval($linea['precio']) * floatval($linea['cantidad']);
+    //                 $total =  number_format($total, 0, ',', '.');
+    //                 $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
+    //                 $etiqueta .= ' |';
+    //                 $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
+    //                 // linea 2
+    //                 $etiqueta .= '    ';
+    //                 $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
+    //                 $etiqueta .= ' ';
+    //                 $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
+    //                 $etiqueta .= ' X $';
+    //                 $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
+    //                 $etiqueta .= ' ';    //22
+    //                 if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
+    //                     $etiqueta .= 'Desc ';
+    //                     $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
+    //                     $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
+    //                 } else {
+    //                     $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
+    //                 }
+
+    //                 $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
+    //             }
+
+    //             // TOTAL
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+
+    //             $etiqueta .= str_pad('SUBTOTAL', 36, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= '$';
+    //             $etiqueta .= ' ';
+    //             $etiqueta .= str_pad(number_format($nuevoItem->subtotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //             $etiqueta .= str_pad('DESCUENTO', 36, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= '$';
+    //             $etiqueta .= ' ';
+    //             $etiqueta .= str_pad(number_format($nuevoItem->descuento, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //             $etiqueta .= str_pad('IVA', 36, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= '$';
+    //             $etiqueta .= ' ';
+    //             $etiqueta .= str_pad(number_format($nuevoItem->ivatotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //             $etiqueta .= str_pad('TOTAL', 36, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= '$';
+    //             $etiqueta .= ' ';
+    //             $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+    //             //NOTAS
+    //             $etiqueta .= str_pad("Notas: ", $caractPorlinea, " ", STR_PAD_RIGHT);
+    //             $etiqueta .= str_pad(eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
+    //             if($nuevoItem->nota) {
+    //                 $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
+    //                 $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
+    //             }
+    //             $etiqueta .= str_pad("Nombre y Sello del cliente", 48, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+    //             $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
+
+    //             $printer->text($etiqueta);
+    //             $printer->feed(2);
+    //             $printer->cut();
+    //             $printer->close();
+    //         }
+
+    //     }
+    // }
+
     public function printPOS($id, $copia){
 
         $nuevoItem = FacMovimiento::find($id);
-        $lineas = FacPivotMovProducto::where('fac_mov_id', $id)->get();
+        $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);
+        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
-        $empresa = GenEmpresa::find(1);
         $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
         $tercero = $sucursal->Tercero;
-        $municipio = GenMunicipio::find($empresa->gen_municipios_id);
-        $departamento = GenDepartamento::find($municipio->departamento_id);
         $caractPorlinea = caracteres_linea_pos();
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
-        $connector = new WindowsPrintConnector($nombre_impresora);
-        $printer = new Printer($connector);
 
         $totales_por_unidad = array();
         $totales_por_unidad['Kgs'] = 0;
         $totales_por_unidad['Und'] = 0;
 
-        // $printer->setJustification(Printer::JUSTIFY_CENTER);
+        $user = User::find(2);
 
-        if ($tipoDoc->naturaleza == 4) {
+        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        // $connector = new WindowsPrintConnector($nombre_impresora);
+        // $printer = new Printer($connector);
 
-            $caractPorlinea = caracteres_linea_pos();
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
+        $connector = new WindowsPrintConnector($nombre_impresora);
+        $printer = new Printer($connector);
+
+        $t80 = new ReportesT80();
+        $str = '';
+
+        // if ($tipoDoc->naturaleza == 4) {
 
             $pagos = FacPivotMovFormapago::where('fac_mov_id', $id)->get();
 
-            // ENCABEZADO
-            if ($empresa->print_logo_pos) {
-                $img = EscposImage::load("../public/images/logo1.png");
-                $printer->graphics($img);
-            }
-            $etiqueta = str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->razon_social), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("NIT: ".$empresa->nit, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->direccion), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("TEL: ".$empresa->telefono, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $str .= $t80->posLineaBlanco(' ');
+            $str .=$t80->printLogoT80($printer);
+            $str .= $t80->posLineaCentro($tipoDoc->nombre);
+            $str .= $t80->posLineaBlanco('-');
+            $str .= $t80->posHeaderEmpresa();
+            $str .= $t80->posLineaBlanco(' ');
 
             // DATOS DE FACTURACION
             if ($tipoDoc->prefijo) {
-                $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $str .= $t80->posLineaCentro("DE: ".$tipoDoc->prefijo. "  ".$tipoDoc->ini_num_fac. ' A '.$tipoDoc->prefijo. "  ". $tipoDoc->fin_num_fac);
             } else {
-                $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, $caractPorlinea, " ", STR_PAD_BOTH);
+                $str .= $t80->posLineaCentro("DE: ".$tipoDoc->ini_num_fac. ' A '. $tipoDoc->fin_num_fac);
             }
-            $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VIGENCIA 18 MESES", $caractPorlinea, "-", STR_PAD_BOTH);
+            $str .= $t80->posLineaCentro("n resolucion: ". $tipoDoc->resolucion);
+            $str .= $t80->posLineaCentro("fecha: ". $tipoDoc->fec_resolucion);
+            $str .= $t80->posLineaGuion();
+            $str .= $t80->posLineaCentro("vigencia 18 meses", '-');
 
             // DATOS DE LA VENTA
-            $etiqueta .= str_pad("CAJERO: ".Auth::user()->name." - FECHA: ".$nuevoItem->fecha_facturacion, $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("VENDEDOR: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre), $caractPorlinea, " ", STR_PAD_BOTH);
-            if ($copia == 1) {
-                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+            $str .= $t80->posLineaCentro("cajero: ".$user->name?:'caja'.'fecha: '.$nuevoItem->fecha_facturacion);
+            $str .= $t80->posLineaCentro("vendedor: ".eliminar_acentos(GenVendedor::find(FacPivotMovVendedor::where('fac_mov_id', $id)->get()->first()->gen_vendedor_id)->nombre));
+            if ($copia == 1 && $tipoDoc->naturaleza == 4) {
+                $str.=  $t80->posLineaCentro('copia', '*');
             }
-
             if ($tipoDoc->prefijo) {
-                $etiqueta .= str_pad("FACTURA DE VENTA # ".strtoupper($tipoDoc->prefijo)." ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+                $str .= $t80->posLineaCentro("factura de venta # ".$tipoDoc->prefijo. '  '.$nuevoItem->consecutivo);
             } else {
-                $etiqueta .= str_pad("FACTURA DE VENTA # ".$nuevoItem->consecutivo, $caractPorlinea, " ", STR_PAD_BOTH);
+                $str .= $t80->posLineaCentro("factura de venta # ".$nuevoItem->consecutivo);
             }
-            if ($copia == 1) {
-                $etiqueta .= str_pad("   COPIA   ", $caractPorlinea, "*", STR_PAD_BOTH);
+            if ($copia == 1 && $tipoDoc->naturaleza == 4) {
+                $str.=  $t80->posLineaCentro('copia', '*');
             }
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
 
             // DATOS DEL CLIENTE
-            $etiqueta .= str_pad(eliminar_acentos(substr($tercero->nombre, 0, 41)), $caractPorlinea, " ", STR_PAD_RIGHT);
+            $str .= $t80->posLineaDerecha($tercero->nombre);
+
             if ($tercero->digito_verificacion) {
-                $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+                $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre.' - '.$tercero->digito_verificacion. ' - TEL: '.$sucursal->telefono);
             } else {
-                $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, $caractPorlinea, " ", STR_PAD_RIGHT);
+                $str .= $t80->posLineaDerecha("doc: ".$tercero->nombre. ' - TEL: '.$sucursal->telefono);
             }
-            $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, $caractPorlinea, " ", STR_PAD_RIGHT);
+            $str .= $t80->posLineaDerecha("direccion: ".$sucursal->direccion);
+            $str .= $t80->posLineaGuion();
 
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-
-            // PRODUCTOS
-            $etiqueta .= str_pad("CODIGO   PRODUCTO   TOTAL | IVA", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $str .= $t80->posLineaCentro("codigo   producto   total | iva");
+            $str .= $t80->posLineaGuion();
+            $str .= $t80->posLineaBlanco();
             $totalGeneral = 0;
-
             foreach ($lineas as $linea) {
-
-                // linea 1
-                $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
-                $etiqueta .= ' ';
-                $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
-                $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
-                $etiqueta .= ' ';
-                $total = intval($linea['precio']) * floatval($linea['cantidad']);
-                $total =  number_format($total, 0, ',', '.');
-                $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                $etiqueta .= ' |';
-                $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
-                // linea 2
-                $etiqueta .= '    ';
-                $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
-                $etiqueta .= ' ';
-                $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
-                $etiqueta .= ' X $';
-                $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
-                $etiqueta .= ' ';    //22
-                if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
-                    $etiqueta .= 'Desc ';
-                    $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
-                    $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
-                } else {
-                    $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
+                $str .= $t80->posDosItemsExtremos($linea->producto_codigo. ' '. $linea->producto_nombre,  $t80->toNumber($linea->detail_precio) * $linea->detail_cantidad.  ' | '. $linea->detail_iva);
+                if(($linea->detail_desc > 0 && $caractPorlinea > 40)){
+                    $str .= $t80->posLineaDerecha('   '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio). '  Desc  '. $t80->toNumber($linea->detail_desc).' %');
+                }else{
+                    $str .= $t80->posLineaDerecha('     '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio));
                 }
 
-                $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
+                $totales_por_unidad[$linea->uni_medida_abrev_pos] += $linea->detail_cantidad;
             }
+            $str .= $t80->posLineaBlanco();
+            $str .= $t80->posLineaDerecha("Total Kilos: ".$totales_por_unidad['Kgs']);
+            $str .= $t80->posLineaDerecha("Total Unidadeas: ".$totales_por_unidad['Und']);
+            $str .= $t80->posLineaGuion();
+            $str .= $t80->posDosItemsExtremos("SUBTOTAL", "$".$t80->toNumber($nuevoItem->subtotal));
+            $str .= $t80->posDosItemsExtremos("DESCUENTO", "$".$t80->toNumber($nuevoItem->descuento));
+            $str .= $t80->posDosItemsExtremos("IVA", "$".$t80->toNumber($nuevoItem->iva));
+            $str .= $t80->posDosItemsExtremos("TOTAL", "$".$t80->toNumber($nuevoItem->total));
 
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad('Total Kilos: '.$totales_por_unidad['Kgs'], $caractPorlinea, " ", STR_PAD_RIGHT);
-            $etiqueta .= str_pad('Total Unidades: '.$totales_por_unidad['Und'], $caractPorlinea, " ", STR_PAD_RIGHT);
-            // TOTAL
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-
-            $etiqueta .= str_pad('SUBTOTAL', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($nuevoItem->subtotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-            $etiqueta .= str_pad('DESCUENTO', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($nuevoItem->descuento, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-            $etiqueta .= str_pad('IVA', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($nuevoItem->ivatotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-            $etiqueta .= str_pad('TOTAL', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-            //PAGOS
             $totalPagos = 0;
+            if($tipoDoc->naturaleza == 4){
 
-            $etiqueta .= str_pad("PAGOS", $caractPorlinea, "-", STR_PAD_BOTH);
+            $str .= $t80->posLineaCentro("pagos", "-");
 
             foreach ($pagos as $pago) {
                 if ($pago['valor_recibido'] > 0) {
-                    $etiqueta .= str_pad(eliminar_acentos(strtoupper(FacFormaPago::find($pago['fac_formas_pago_id'])->nombre)), $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-                    $etiqueta .= '$';
-                    $etiqueta .= ' ';
-                    $etiqueta .= str_pad(number_format($pago['valor_recibido'], 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+                    $str .= $t80->posDosItemsExtremos(eliminar_acentos(strtoupper(FacFormaPago::find($pago['fac_formas_pago_id'])->nombre)), "$".$t80->toNumber($pago['valor_recibido']));
                     $totalPagos = intval($totalPagos) + intval($pago['valor_recibido']);
                 }
             }
+            $str .= $t80->posDosItemsExtremos("TOTAL PAGOS", "$".$t80->toNumber($totalPagos));
+            $str .= $t80->posLineaGuion();
 
-            $etiqueta .= str_pad("----------", $caractPorlinea, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('TOTAL PAGOS', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($totalPagos, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-
-            $etiqueta .= str_pad('DEVOLUCION', $caractPorlinea - 12, " ", STR_PAD_RIGHT);
-            $etiqueta .= '$';
-            $etiqueta .= ' ';
-            $etiqueta .= str_pad(number_format($totalPagos - $nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
+            $str .= $t80->posDosItemsExtremos("DEVOLUCION", "$".$t80->toNumber($totalPagos - $nuevoItem->total));
 
             // DESCRIPCION IMPUESTOS
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad("IMPUESTOS", $caractPorlinea, "-", STR_PAD_BOTH);
-            $etiqueta .= str_pad('IMP.        BASE       IVA', $caractPorlinea, " ", STR_PAD_BOTH);
+            $str .= $t80->posLineaCentro("impuestos", "-");
+
+            $str .= $t80->multiItemsFromArray([
+                ['IMP', 0, ' ', 1],
+                ['BASE', 12, ' ', 1],
+                ['IVA', 12, ' ', 1],
+            ]);
 
             $arrayIvas = [];
             $arrayImpuestos = [];
 
-            foreach ($lineas as $linea) {
+            foreach ($lineas2 as $linea2) {
 
-                if (array_search($linea['iva'], $arrayIvas) === false) {
-                    array_push($arrayIvas, $linea['iva']);
+                if (array_search($linea2->iva, $arrayIvas) === false) {
+                    array_push($arrayIvas, $linea2->iva);
                 }
             }
-
             foreach ($arrayIvas as $item) {
                 $subtotal = 0;
-                foreach ($lineas as $linea) {
-                    if ($linea['iva'] == $item){
-                        $subtotal = $subtotal + intval(((intval($linea['precio']) - ( intval($linea['precio']) * ( intval($linea['descporcentaje'])/100) ))) * floatval($linea['cantidad']));
+                foreach ($lineas2 as $linea2) {
+                    if ($linea2->iva == $item){
+                        $subtotal = $subtotal + intval(((intval($linea2->precio) - ( intval($linea2->precio) * ( intval($linea2->descporcentaje)/100) ))) * floatval($linea2->cantidad));
                     }
                 }
-                $etiqueta .= str_pad(number_format($item, 0, ',', '.').'%', 3, " ", STR_PAD_LEFT);
-                $etiqueta .= str_pad("", 12, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad(number_format(intval($subtotal), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-                $etiqueta .= str_pad("", 13, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad(number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 10, " ", STR_PAD_LEFT);
+                $str .= $t80->multiItemsFromArray([
+                    [$item, 0, ' ', 1],
+                    [$subtotal, 12, ' ', 1],
+                    [number_format(intval(intval($subtotal) * (intval($item)/100)), 0, ',', '.'), 12, ' ', 1],
+                ]);
             }
-
-            if($nuevoItem->nota) {
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-                $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
-            }
-
-            $etiqueta .= str_pad("", $caractPorlinea, "-", STR_PAD_BOTH);
-
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-
-            $etiqueta .= str_pad("Impreso desde SGC de Byteco S.A.S.", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("Nit: 901389565-8", $caractPorlinea, " ", STR_PAD_BOTH);
-
-            $etiqueta .= str_pad("GRACIAS POR SU COMPRA !!", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
-
-            $printer->text($etiqueta);
-            $printer->feed(2);
-            $printer->cut();
-            $printer->pulse();
-            $printer->close();
-
-        } else if ($tipoDoc->naturaleza == 1) {
-
-            for ($i = 0; $i < 1 ; $i++) {
-
-                // $etiqueta = str_pad("Fecha Impresion " . date('d-m-Y H:i:s'), 48, " ", STR_PAD_RIGHT);
-                $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)), 48, ".", STR_PAD_BOTH);
-                // ENCABEZADO
-                if ($tipoDoc->formato_impresion == 1) {
-                    if($empresa->print_logo_pos > 0){
-                        $img = EscposImage::load("../public/images/logo1.png");
-                        $printer -> graphics($img);
-                    }
-                    $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
-                }
-
-                $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad(strtoupper($municipio->nombre)." - ".strtoupper($departamento->nombre), 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-
-                if ($tipoDoc->formato_impresion == 1) {
-                    // DATOS DE FACTURACION
-                    if ($tipoDoc->prefijo) {
-                        $etiqueta .= str_pad("DE: ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->ini_num_fac. " A ".strtoupper($tipoDoc->prefijo).' '.$tipoDoc->fin_num_fac, 48, " ", STR_PAD_BOTH);
-                    } else {
-                        $etiqueta .= str_pad("DE: ".$tipoDoc->ini_num_fac. " A ".$tipoDoc->fin_num_fac, 48, " ", STR_PAD_BOTH);
-                    }
-                    $etiqueta .= str_pad("N RESOLUCION: ".$tipoDoc->resolucion, 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad("FECHA: ".$tipoDoc->fec_resolucion, 48, " ", STR_PAD_BOTH);
-                    $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-                }
-
-                $etiqueta .= str_pad(eliminar_acentos(strtoupper($tipoDoc->nombre_alt)).' # '.$nuevoItem->consecutivo, 48, " ", STR_PAD_BOTH);
-
-                $etiqueta .= str_pad("FECHA FACTURACION: ".$nuevoItem->fecha_facturacion, 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("FECHA VENCIMIENTO: ".$nuevoItem->fecha_vencimiento, 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-
-                // DATOS DEL CLIENTE
-                $etiqueta .= tercero_pos($tercero->nombre,48);
-                if ($tercero->digito_verificacion) {
-                    $etiqueta .= str_pad("DOC: ".$tercero->documento.'-'.$tercero->digito_verificacion.' - TEL: '.$sucursal->telefono, 48, " ", STR_PAD_RIGHT);
-                } else {
-                    $etiqueta .= str_pad("DOC: ".$tercero->documento.' - TEL: '.$sucursal->telefono, 48, " ", STR_PAD_RIGHT);
-                }
-                $etiqueta .= str_pad("DIRECCION: ".$sucursal->direccion, 48, " ", STR_PAD_RIGHT);
-
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-
-                // PRODUCTOS
-                $etiqueta .= "CODIGO              PRODUCTO         TOTAL | IVA";
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                $totalGeneral = 0;
-
-                foreach ($lineas as $linea) {
-
-                    // linea 1
-                    $etiqueta .= str_pad( substr(Producto::find($linea->producto_id)->codigo, 0 , 3) , 3, "0", STR_PAD_LEFT);
-                    $etiqueta .= ' ';
-                    $nombre = strtoupper(Producto::find($linea->producto_id)->nombre);
-                    $etiqueta .= str_pad(eliminar_acentos(substr($nombre, 0, $caractPorlinea - 19)), $caractPorlinea - 19, " ", STR_PAD_RIGHT);
-                    $etiqueta .= ' ';
-                    $total = intval($linea['precio']) * floatval($linea['cantidad']);
-                    $total =  number_format($total, 0, ',', '.');
-                    $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                    $etiqueta .= ' |';
-                    $etiqueta .= str_pad($linea['iva'], 2, " ", STR_PAD_LEFT);
-                    // linea 2
-                    $etiqueta .= '    ';
-                    $etiqueta .= str_pad(number_format($linea['cantidad'], 3, ',', '.'), 7, " ", STR_PAD_LEFT);
-                    $etiqueta .= ' ';
-                    $etiqueta .= GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos;
-                    $etiqueta .= ' X $';
-                    $etiqueta.= str_pad(number_format($linea['precio'], 0, ',', '.'), 7, " ", STR_PAD_LEFT);
-                    $etiqueta .= ' ';    //22
-                    if ((intval($linea['descporcentaje']) != 0) && ($caractPorlinea > 40)) {
-                        $etiqueta .= 'Desc ';
-                        $etiqueta .= str_pad($linea['descporcentaje'], 2, " ", STR_PAD_LEFT);
-                        $etiqueta .= str_pad('%', $caractPorlinea - 35, " ", STR_PAD_RIGHT);
-                    } else {
-                        $etiqueta .= str_pad('', $caractPorlinea - 27, " ", STR_PAD_LEFT);
-                    }
-
-                    $totales_por_unidad[GenUnidades::find(Producto::find($linea['producto_id'])->gen_unidades_id)->abrev_pos] += $linea['cantidad'];
-                }
-
-                // TOTAL
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-
-                $etiqueta .= str_pad('SUBTOTAL', 36, " ", STR_PAD_RIGHT);
-                $etiqueta .= '$';
-                $etiqueta .= ' ';
-                $etiqueta .= str_pad(number_format($nuevoItem->subtotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-                $etiqueta .= str_pad('DESCUENTO', 36, " ", STR_PAD_RIGHT);
-                $etiqueta .= '$';
-                $etiqueta .= ' ';
-                $etiqueta .= str_pad(number_format($nuevoItem->descuento, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-                $etiqueta .= str_pad('IVA', 36, " ", STR_PAD_RIGHT);
-                $etiqueta .= '$';
-                $etiqueta .= ' ';
-                $etiqueta .= str_pad(number_format($nuevoItem->ivatotal, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-                $etiqueta .= str_pad('TOTAL', 36, " ", STR_PAD_RIGHT);
-                $etiqueta .= '$';
-                $etiqueta .= ' ';
-                $etiqueta .= str_pad(number_format($nuevoItem->total, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
-
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-                //NOTAS
-                $etiqueta .= str_pad("Notas: ", $caractPorlinea, " ", STR_PAD_RIGHT);
-                $etiqueta .= str_pad(eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
-
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", 48, "-", STR_PAD_BOTH);
-                if($nuevoItem->nota) {
-                    $etiqueta .= str_pad("Nota:", $caractPorlinea, " ", STR_PAD_RIGHT);
-                    $etiqueta .= str_pad('- '.eliminar_acentos($nuevoItem->nota), $caractPorlinea * 2, " ", STR_PAD_RIGHT);
-                }
-                $etiqueta .= str_pad("Nombre y Sello del cliente", 48, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("", $caractPorlinea, " ", STR_PAD_BOTH);
-                $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
-
-                $printer->text($etiqueta);
-                $printer->feed(2);
-                $printer->cut();
-                $printer->close();
-            }
-
         }
+        // $str .= $t80->posLineaBlanco();
+
+
+        if($nuevoItem->nota ) {
+            $str .= $t80->posLineaGuion();
+            $empresa = GenEmpresa::find(1);
+            $str .= $t80->posLineaCentro("nota");
+            if(strlen($nuevoItem->nota) > $empresa->cantidad_caracteres){
+                $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
+                $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
+                    if($dataNotas) {
+                        foreach($dataNotas as $nota) {
+                            $str.= $t80->posLineaDerecha($nota);
+                        }
+                    }
+            } else {
+                $str.= $t80->posLineaDerecha($nuevoItem->nota);
+            }
+        //     if((strlen($nuevoItem->nota) <= $empresa->cantidad_caracteres)){
+        //         $str .= $t80->posLineaDerecha($nuevoItem->nota, false);
+        //         $str .= $t80->posLineaGuion();
+        //     }else {
+        //         $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
+        //         $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
+        //             if($dataNotas) {
+        //                 foreach($dataNotas as $nota) {
+        //                     $str.= $t80->posLineaDerecha($nota);
+        //                 }
+        //             }
+        //      }
+            $str .= $t80->posLineaGuion();
+        }
+
+        $str.= $t80->posFooterSgc();
+
+        $printer->text($str);
+        $printer->feed(1);
+        $printer->cut();
+        $printer->close();
     }
-
-
 
     public function dataFacturaElectronica($id)
     {

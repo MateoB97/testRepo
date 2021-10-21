@@ -138,7 +138,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\ComprasXProducto.jrxml';
+        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\ComprasPorFechaXSucursal.jrxml';
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
