@@ -253,7 +253,83 @@
                 <!-- <div class="col-4">
                     <q-btn class="w-100" color="primary"  v-on:click="activarRutaFecha(2), datos.fecha_inicial = null, datos.fecha_final = null" label="Compras Netas x Fecha" />
                 </div> -->
-                <div class="q-pa-md">
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Fecha"
+                        url="api/reportesgenerados/reportes/comprasPorFecha"
+                        :tercerosFilter="true"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Fecha - Detalles"
+                        url="api/reportesgenerados/reportes/comprasDetails"
+                        :tercerosFilter="true"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras - forma de pago"
+                        url="api/reportesgenerados/reportes/comprasFormaPago"
+                        :tercerosFilter="true"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Fecha - Pesos"
+                        url="api/reportesgenerados/reportes/comprasPorFechaPesos"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Fecha - Pesos DEVS"
+                        url="api/reportesgenerados/reportes/comprasPorFechaPesosDEVS"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Fecha - Sucursal"
+                        url="api/reportesgenerados/reportes/comprasPorFechaXSucursal"
+                        :tercerosFilter="true"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :dateUnique="0"
+                      />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                        titleBtn="Compras x Producto"
+                        url="api/reportesgenerados/reportes/comprasXProducto"
+                        :tercerosFilter="true"
+                        :tipoDocFilter="false"
+                        :datesFilter="true"
+                        :gruposFilter="false"
+                        :productosFilter="true"
+                        :dateUnique="0"
+                      />
+                </div>
+                <!-- <div class="q-pa-md">
                   <q-btn-dropdown
                   color="primary"
                   label="Compras"
@@ -324,7 +400,7 @@
                       />
                     </q-list>
                   </q-btn-dropdown>
-                </div>
+                </div> -->
               </div>
             <div class="row q-col-gutter-md">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Movimientos</h4></div>

@@ -34,7 +34,7 @@ export default ({ Vue }) => {
   // Vue.axios.defaults.baseURL = 'http://192.168.100.6/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.82/sgctesting/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://192.168.1.184/sgc/back/public/api'
-  // Vue.axios.defaults.baseURL = 'http://192.168.1.146/sgc/back/public/api'
+  // Vue.axios.defaults.baseURL = 'http://192.168.1.169/sgc/back/public/api'
   // Vue.axios.defaults.baseURL = 'http://localhost/sgc/back/public/api'
   Vue.axios.defaults.baseURL = 'http://localhost/sgcdev/back/public/api'
 

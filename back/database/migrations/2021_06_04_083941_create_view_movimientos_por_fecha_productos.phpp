@@ -60,3 +60,4 @@ class CreateViewMovimientosPorFechaProductos extends Migration
         Schema::dropIfExists('view_movimientos_por_fecha_productos');
     }
 }
+
