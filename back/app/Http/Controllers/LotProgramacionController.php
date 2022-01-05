@@ -38,6 +38,12 @@ class LotProgramacionController extends Controller
         return $list;
     }
 
+    public function programacionPreliquidacion($id, $producto_empacado){
+        $producto_empacado = ($producto_empacado == 'null') ? false : $producto_empacado;
+        $list = LotProgramacion::conLoteAbiertoPorIdPreLiquidacion($id, $producto_empacado);
+        return $list;
+    }
+
     public function pesosPorProgramacion($id)
     {
         $list = LotPesosProgramacion::where('lotProgramacion_id',$id)->get();

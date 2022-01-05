@@ -14,7 +14,7 @@ class ChangeOrdOrdenesAutorizacion extends Migration
     public function up()
     {
         Schema::table('ord_ordenes', function (Blueprint $table) {
-            $table->boolean('autorizacion')->nullable();
+            $table->integer('autorizacion')->nullable();
         });
     }
 

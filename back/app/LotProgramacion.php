@@ -138,6 +138,35 @@ class LotProgramacion extends Model
             ->get();
     }
 
+    public static function conLoteAbiertoPorIdPreLiquidacion($loteId, $producto_empacado){
+        return DB::table('lot_programaciones')
+                ->select(
+                    'lot_programaciones.fecha_desposte As fecha_desposte',
+                    'lot_programaciones.id As programacion_id',
+                    'lot_programaciones.num_animales as num_animales_programacion',
+                    'lotes.id as lote_id',
+                    'lotes.marca as marca',
+                    'lotes.prodGrupo_id as grupo_id',
+                    'lotes.consecutivo as consecutivo',
+                    'prod_grupos.nombre as grupo',
+                    'terceros.nombre as tercero',
+                    'tercero_sucursales.id as tercero_sucursal_id',
+                    'tercero_sucursales.nombre as sucursal',
+                    'lot_programaciones.estado as estado',
+                    'lotes.lote_tercero as lote_tercero'
+                )
+                ->join('lotes', 'lotes.id', '=', 'lot_programaciones.lote_id')
+                ->join('prod_grupos', 'lotes.prodGrupo_id', '=', 'prod_grupos.id')
+                ->leftJoin('tercero_sucursales', 'tercero_sucursales.id', '=', 'lot_programaciones.terceroSucursal_id')
+                ->leftJoin('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+                ->where('lotes.estado','=', 1)
+                ->where('lotes.id', $loteId)
+                // ->where('lotes.consecutivo', $loteId)
+                ->where('lotes.producto_empacado', $producto_empacado)
+                ->orderBy('programacion_id','desc')
+                ->get();
+        }
+
     public function getDateFormat()
     {
         return Tools::dateTimeSql();

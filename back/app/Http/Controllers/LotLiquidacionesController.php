@@ -33,9 +33,9 @@ class LotLiquidacionesController extends Controller
         	$nuevoProducto->lot_liquidaciones_id = $nuevoItem->id;
         	$nuevoProducto->tipo_producto = 1;
         	if ( strrpos($producto['almacenamiento'], "vacio")) {
-        		$nuevoProducto->vacio = 1;	
+        		$nuevoProducto->vacio = 1;
         	} else {
-               $nuevoProducto->vacio = 0;    
+               $nuevoProducto->vacio = 0;
             }
 
         	$nuevoProducto->save();
@@ -66,7 +66,7 @@ class LotLiquidacionesController extends Controller
         $empresa = GenEmpresa::find(1);
         $empresa->municipio = GenMunicipio::find($empresa->gen_municipios_id)->nombre;
         $empresa->departamento = GenDepartamento::find(GenMunicipio::find($empresa->gen_municipios_id)->departamento_id)->nombre;
-    	
+
     	$programacion = LotProgramacion::find($id);
 
         $lote = Lote::find($programacion->lote_id);
@@ -75,9 +75,9 @@ class LotLiquidacionesController extends Controller
 
     	$liquidacion = LotLiquidacion::where('prog_lotes_id', $programacion->id)->get()->first();
 
-    	$pesosCompra = LotPesosProgramacion::where('lotProgramacion_id', $programacion->id)->get();
+    	// $pesosCompra = LotPesosProgramacion::where('lotProgramacion_id', $programacion->id)->get();
 
-        $pesosCompraTotal = ['ppe' => $liquidacion->ppe, 'pcc' => $liquidacion->pcc, 'pcr' => $liquidacion->pcr];
+        // $pesosCompraTotal = ['ppe' => $liquidacion->ppe, 'pcc' => $liquidacion->pcc, 'pcr' => $liquidacion->pcr];
 
     	$productos = LotPivotLiquiProducto::where('lot_liquidaciones_id', $liquidacion->id)->where('tipo_producto', 1)->get();
     	$recuperaciones = LotPivotLiquiProducto::where('lot_liquidaciones_id', $liquidacion->id)->where('tipo_producto', 2)->get();
@@ -107,7 +107,7 @@ class LotLiquidacionesController extends Controller
         $data = [
         	'programacion' => $programacion,
         	'liquidacion' => $liquidacion,
-        	'costoTotal' => $costoTotal, 
+        	'costoTotal' => $costoTotal,
         	'ventaTotal' => $ventaTotal,
         	'productos' => $productos,
         	'recuperaciones' => $recuperaciones,
@@ -120,7 +120,7 @@ class LotLiquidacionesController extends Controller
             'lote' => $lote,
             'empresa' => $empresa
         ];
-        
+
         $pdf = PDF::loadView('informes.liquidacion', $data);
         return $pdf->stream();
     }

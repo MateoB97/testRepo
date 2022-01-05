@@ -29,4 +29,19 @@ class ComTipoComproEgreso extends Model
             ->join('com_tipo_compras', 'com_tipo_compras.id', '=', 'com_tipo_compro_egresos.com_tipo_compras_id')
             ->get();
     }
+
+    public static function conDocRelacionadoPorId($id){
+        return DB::table('com_tipo_compro_egresos')
+                ->select(
+                    'com_tipo_compro_egresos.com_tipo_compras_id as com_tipo_compras_id',
+                    'com_tipo_compro_egresos.id as id',
+                    'com_tipo_compro_egresos.consec_inicio as consec_inicio',
+                    'com_tipo_compro_egresos.nombre as nombre',
+                    'com_tipo_compras.nombre as tipo_compra_nombre'
+                )
+                ->join('com_tipo_compras', 'com_tipo_compras.id', '=', 'com_tipo_compro_egresos.com_tipo_compras_id')
+                ->where('com_tipo_compras.id', $id)
+                ->take(1)
+                ->get();
+        }
 }

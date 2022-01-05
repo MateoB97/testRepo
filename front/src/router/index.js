@@ -34,6 +34,7 @@ export default function (/* { store, ssrContext } */) {
       } else {
         user = JSON.parse(user)
         const permisos = user.permisos.permisos.split(',')
+        console.log(permisos)
         if (to.matched.some(v => v.meta.permisoRequerido)) {
           if (permisos.indexOf(to.matched[1].meta.permisoRequerido) > -1) {
             next()

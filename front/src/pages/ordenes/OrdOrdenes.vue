@@ -1,5 +1,6 @@
 <template>
-  <div class="div-focus" tabindex="0" @keyup.35="openedAddPago = true" @keyup.36="() => $refs.scan.focus()" @keyup.45="openedAddProductoMethod">
+  <!-- <div class="div-focus" tabindex="0" @keyup.35="openedAddPago = true" @keyup.36="() => $refs.scan.focus()" @keyup.45="openedAddProductoMethod"> -->
+    <div class="div-focus" tabindex="0" @keyup.35="openedAddPago = true" @keyup.45="openedAddProductoMethod">
     <q-page padding>
 
         <!-- inicio popup impresion al guardar -->
@@ -36,6 +37,38 @@
             </q-layout>
           </q-dialog>
         <!-- fin popup impresion al guardar -->
+
+        <!-- inicio popup ingresar pago -->
+          <q-dialog tabindex="0" v-model="openedAddPago" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 50vh; max-width: 800px" class="bg-white">
+
+              <q-page-container>
+                  <q-page padding>
+                  <h4>Total: $ {{ total | toMoney }} - <span class="text-succes">Cambio: $ {{ totalAbono - total | toMoney }}</span></h4>
+                  <div class="overflow-hidden">
+                      <div class="row col-12 q-col-gutter-sm">
+                        <div class="row col-12" v-for="pago in pagos" :key="pago.id">
+                          <div class="col-2">
+                            <p class="q-mt-md">{{ pago.nombre }}</p>
+                          </div>
+                          <div class="col-10" style="position:relative">
+                            <p class="v-money-label"> Valor: </p>
+                            <money v-model="pago.valor" v-bind="money" class="v-money"></money>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                  <q-btn class="q-mt-sm"
+                      color="primary"
+                      v-close-popup
+                      v-on:click="validacion()"
+                      label="Guardar"
+                  />
+                  </q-page>
+              </q-page-container>
+              </q-layout>
+          </q-dialog>
+        <!-- fin popup ingresar pago -->
 
         <!-- inicio popup ingreso de productos manualmente -->
           <q-dialog v-model="openedAddProducto"  persistent :content-css="{minWidth: '80vw', minHeight: '10vh'}">
@@ -84,7 +117,7 @@
                         </q-select>
                       </div>
                       <div class="col">
-                        <q-input color="primary" type="number" v-model="temp.cantidad" label="Cantidad" ref="cantidad" v-on:keyup.enter="() => $refs.precio.focus()">
+                        <q-input color="primary" type="number" v-model="temp.cantidad" label="Cantidad" ref="cantidad">
                         </q-input>
                       </div>
                       <div class="col" style="position:relative">
@@ -128,6 +161,32 @@
                 </q-input>
               </div>
               <!-- // -->
+            </div>
+            <!-- /BTN PAGOS/ -->
+            <div class="row col-12 q-col-gutter-sm q-mt-sm">
+                <div class="col-6 box-resumen-pagos">
+                  <p>Resumen de pagos</p>
+                    <div v-for="pago in pagos" :key="pago.id" class="row">
+                      <div v-if="pago.valor != 0" class="col-6">
+                        <span> {{ pago.nombre }} :</span>
+                      </div>
+                      <div v-if="pago.valor != 0" class="col-6 text-right">
+                        <span> ${{ parseInt(pago.valor).toLocaleString('de-DE') }} || <span>
+                          <q-btn class="q-mt-sm boton-delete"
+                            round
+                            color="negative"
+                            size="xs"
+                            icon="clear"
+                            @click="deletePago(pago.id)"
+                          />
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-6 text-center">
+                  <q-btn class="btn-limon w-100" icon-right="attach_money" v-on:click="openedAddPago = true" label="ABONO" />
+                </div>
             </div>
             <div class="row col-12 q-col-gutter-sm box-resumen-movimiento q-mt-md">
               <div class="col-6">
@@ -275,7 +334,8 @@ export default {
       vendedores: [],
       formasPago: [],
       options: {
-        productos: this.productos
+        productos: this.productos,
+        formasPago: this.formasPago
       },
       temp: {
         cantidad: null,
@@ -321,6 +381,7 @@ export default {
         this.callback = callback
         this.openedPrintFactura = true
       }
+      this.prepareFormaspago()
       this.storeItems = {}
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
@@ -330,6 +391,7 @@ export default {
       this.storeItems.fecha_orden = today
     },
     preSave () {
+      var app = this
       this.storeItems.lineas = this.dataResumen
       this.storeItems.tercero_sucursal_id = this.sucursal
       this.storeItems.total = parseInt(this.total)
@@ -337,8 +399,39 @@ export default {
       this.storeItems.descuento = parseInt(this.descuento)
       this.storeItems.ivatotal = parseInt(this.ivatotal)
       this.storeItems.ord_tipo_orden_id = this.tipoOrden.id
+      if (this.pagos) {
+        this.storeItems.pagos = this.pagos
+        this.pagos = []
+      } else {
+        app.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a 0.' })
+      }
     },
     postEdit () {
+    },
+    validacion () {
+      var abonado = 0
+      this.pagos.forEach(function (value, indice, array) {
+        abonado += value.valor
+      })
+      if (abonado > 0 && this.total > 0) {
+        if (this.total >= abonado) {
+          console.log('Agregado correctamente')
+        } else {
+          this.pagos.forEach(function (value, indice, array) {
+            value.valor = 0
+          })
+          abonado = 0
+          this.totalAbono = 0
+          this.$q.notify({ color: 'negative', message: 'El valor abonado debe ser inferior o igual al seleccionado.' })
+        }
+      } else {
+        this.pagos.forEach(function (value, indice, array) {
+          value.valor = 0
+        })
+        this.totalAbono = 0
+        abonado = 0
+        this.$q.notify({ color: 'negative', message: 'El valor abonado y seleccionado deben ser diferentes de 0.' })
+      }
     },
     filterProductoManual (val, update, abort) {
       update(() => {
@@ -365,7 +458,6 @@ export default {
       var app = this
       if (app.temp.cantidad === null) {
         app.$q.notify({ color: 'negative', message: 'La cantidad debe ser diferente de 0.' })
-        app.$refs.cantidad.focus()
       } else {
         if (app.listadoPrecios.length === 0) {
           app.$q.notify({ color: 'negative', message: 'Se debe seleccionar un cliente o un despacho para cargar el listado de precios.' })
@@ -388,7 +480,7 @@ export default {
           app.producto_selected = null
           app.precio_producto = parseInt(0)
           app.temp.cantidad = null
-          app.$refs.selectProductoManual.focus()
+          // app.$refs.selectProductoManual.focus()
         }
       }
     },
@@ -436,13 +528,34 @@ export default {
       this.$q.loading.show()
       this.sucursal = null
       var app = this
+      app.prepareFormaspago()
       axios.get(this.$store.state.jhsoft.url + 'api/ordenes/tipos/' + this.$route.params.id).then(
         function (response) {
           app.tipoOrden = response.data
           app.dataResumen = []
-          app.pagos = []
+          // app.pagos = []
           app.viewTerceros = true
           app.$q.loading.hide()
+        }
+      )
+    },
+    deletePago (id) {
+      var index
+      this.pagos.forEach(function (element, i) {
+        if (id === element.id) {
+          index = i
+        }
+      })
+      this.pagos[index].valor = 0
+    },
+    prepareFormaspago () {
+      var app = this
+      axios.get(app.$store.state.jhsoft.url + 'api/facturacion/formaspago').then(
+        function (responsePago) {
+          responsePago.data.forEach(function (element, i) {
+            element.valor = 0
+            app.pagos.push(element)
+          })
         }
       )
     },
@@ -461,6 +574,7 @@ export default {
     this.globalGetForSelect('api/productos/todosconimpuestos', 'productosImpuestos')
     this.globalGetForSelect('api/productos/grupos/estado/activos', 'grupos')
     this.globalGetForSelect('api/productos/todosconimpuestos', 'productos')
+    this.globalGetForSelect('api/facturacion/formaspago', 'formasPago')
     var today = new Date()
     var dd = String(today.getDate()).padStart(2, '0')
     var mm = String(today.getMonth() + 1).padStart(2, '0')
@@ -498,6 +612,13 @@ export default {
     },
     total: function () {
       return this.subtotal - this.descuento + this.ivatotal
+    },
+    totalAbono: function () {
+      var response = 0
+      this.pagos.forEach(function (element, i) {
+        response = parseInt(element.valor) + response
+      })
+      return parseInt(response)
     },
     diaHoy: function () {
       var today = new Date()

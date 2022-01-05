@@ -237,7 +237,7 @@
                   <q-btn class="btn-naranja w-100" v-on:click="openedAddProductoMethod" label="Agregar Producto" />
                 </div>
                 <div class="col-12 w-100 q-mt-sm">
-                  <q-btn class="btn-azul w-100" v-on:click="globalValidate('guardar')" label="Guardar" />
+                  <q-btn class="btn-azul w-100" v-on:click="localValidate()" label="Guardar" />
                 </div>
               </div>
             </div>
@@ -362,6 +362,7 @@ export default {
       vendedores: [],
       formasPago: [],
       orden: null,
+      sendOrden: null,
       options: {
         despachos: this.despachos,
         tiposCompra: this.tiposCompra,
@@ -395,7 +396,8 @@ export default {
       dataResumen: [],
       pagination: {
         rowsPerPage: 0
-      }
+      },
+      validatorOrdenes: null
     }
   },
   mixins: [globalFunctions],
@@ -414,6 +416,8 @@ export default {
         this.openedPrintFactura = true
       }
       this.storeItems = {}
+      this.sendOrden = null
+      this.validatorOrdenes = null
       var today = new Date()
       var dd = String(today.getDate()).padStart(2, '0')
       var mm = String(today.getMonth() + 1).padStart(2, '0')
@@ -431,6 +435,7 @@ export default {
         this.storeItems.descuento = parseInt(this.descuento)
         this.storeItems.ivatotal = parseInt(this.ivatotal)
         this.storeItems.com_tipo_compras_id = this.tipoCompra.id
+        this.storeItems.orden = this.sendOrden ? this.sendOrden : ''
       } else {
         this.storeItems.lineas = this.dataResumen
         this.storeItems.total = parseInt(this.total)
@@ -450,6 +455,30 @@ export default {
           this.options.productos = this.productos.filter(v => v.nombre.toLowerCase().indexOf(needle) > -1)
         }
       })
+    },
+    validarUsuarioPermiso () {
+      var permisos = this.$auth.user().permisos.permisos.split(',')
+      var validate = null
+      permisos.forEach(permiso => {
+        if (parseInt(permiso) === 74) { // Consecutivo del permiso -> SeederPermisos
+          validate = 1
+          return validate
+        } else {
+          validate = 0
+        }
+      })
+      return validate
+    },
+    localValidate () {
+      var permisos = this.$auth.user().permisos.permisos.split(',')
+      var permiso = permisos.find(function (element) {
+        return parseInt(element) === 76 // Consecutivo del permiso -> SeederPermisos
+      })
+      if (permiso !== undefined || this.validatorOrdenes === 1) {
+        this.globalValidate('guardar')
+      } else {
+        this.$q.notify({ color: 'negative', message: 'Usuario no autorizado para generar compra de mercancia' })
+      }
     },
     filterCompras (val, update, abort) {
       update(() => {
@@ -564,38 +593,44 @@ export default {
             element.cantidad = parseFloat(element.cantidad)
             element.iva = parseInt(element.iva)
           })
-          console.log(app.dataResumen)
         }
       )
     },
     buscarLineasOrden () {
       var app = this
+      this.sendOrden = this.orden ? this.orden : ''
       axios.get(app.$store.state.jhsoft.url + 'api/ordenes/readordencompra/' + app.orden + '/' + app.tipoCompra.id).then(
         function (response) {
-          if (response.data.length > 0) {
-            response.data.forEach(function (element, j) {
-              const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.id) === parseInt(element.producto_id))
-              if (productoImpuesto !== undefined) {
-                var newProduct = {
-                  id: app.itemsCounter,
-                  producto: productoImpuesto.nombre,
-                  producto_id: productoImpuesto.id,
-                  producto_codigo: productoImpuesto.codigo,
-                  cantidad: element.cantidad,
-                  precio: element.precio,
-                  iva: element.iva,
-                  gen_iva_id: productoImpuesto.gen_iva_id,
-                  desc: 0.00,
-                  descporcentaje: 0.00
+          if ((response.data !== 'noauth')) {
+            if (response.data.length > 0) {
+              app.validatorOrdenes = 1
+              response.data.forEach(function (element, j) {
+                const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.id) === parseInt(element.producto_id))
+                if (productoImpuesto !== undefined) {
+                  var newProduct = {
+                    id: app.itemsCounter,
+                    producto: productoImpuesto.nombre,
+                    producto_id: productoImpuesto.id,
+                    producto_codigo: productoImpuesto.codigo,
+                    cantidad: element.cantidad,
+                    precio: element.precio,
+                    iva: element.iva,
+                    gen_iva_id: productoImpuesto.gen_iva_id,
+                    desc: 0.00,
+                    descporcentaje: 0.00
+                  }
+                  app.dataResumen.push(newProduct)
+                  app.itemsCounter = app.itemsCounter + 1
+                } else {
+                  app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
                 }
-                app.dataResumen.push(newProduct)
-                app.itemsCounter = app.itemsCounter + 1
-              } else {
-                app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element.codigo) + ' no esta creado.' })
-              }
-            })
+              })
+            } else {
+              app.$q.notify({ color: 'negative', message: 'Error al leer la orden.' })
+            }
           } else {
-            app.$q.notify({ color: 'negative', message: 'Error al leer la orden.' })
+            app.$q.notify({ color: 'negative', message: 'Orden No Autorizada' })
+            app.validatorOrdenes = 0
           }
           app.num_tiquete = null
           app.$q.loading.hide()
@@ -726,7 +761,6 @@ export default {
     producto_selected: {
       deep: true,
       handler () {
-        console.log('asda')
         var app = this
         if (this.producto_selected) {
           const objectPrecio = this.listadoPrecios.find(v => v.producto_id === this.producto_selected.id)

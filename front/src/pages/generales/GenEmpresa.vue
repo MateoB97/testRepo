@@ -187,6 +187,7 @@
                       :error="!isValid"
                     ></q-input>
                 </div>
+                <!-- Bascula DIBAL -->
                 <div class="col-12">
                   <h5 class="no-margin">Configuración Bascula Dibal</h5>
                 </div>
@@ -215,6 +216,7 @@
                 <div class="col-3">
                   <q-btn color="positive" v-on:click="subirDatosBasculaDibal()" label="Generar Archivo TX" />
                 </div>
+                <!-- BASCULA EPELSA -->
                 <div class="col-12">
                   <h5 class="no-margin">Configuración Bascula epelsa</h5>
                 </div>
@@ -243,6 +245,36 @@
                 <div class="col-3">
                   <q-btn color="positive" v-on:click="subirDatosBasculaEpelsa()" label="Generar Archivo Precios" />
                 </div>
+                <!-- BASCULA ISHIDA -->
+                 <div class="col-12">
+                  <h5 class="no-margin">Configuración Bascula Ishida</h5>
+                </div>
+                <div class="col-12">
+                    <q-input
+                      ref="input"
+                      v-model="storeItems.ruta_archivo_tiquetes_ishida"
+                      label="Ruta Archivo Bascula"
+                      bottom-slots
+                      hint="use / en vez de \"
+                      error-message="Ha usado \ y no es valido"
+                      :error="!isValid"
+                    ></q-input>
+                </div>
+                <div class="col-9">
+                    <q-input
+                      ref="input"
+                      v-model="storeItems.ruta_archivo_tiquetes_ishida"
+                      label="Ruta archivo PRODUCTOS subir datos a bascula ishida"
+                      bottom-slots
+                      hint="use / en vez de \"
+                      error-message="Ha usado \ y no es valido"
+                      :error="!isValid"
+                    ></q-input>
+                </div>
+                <div class="col-3">
+                  <q-btn color="positive" v-on:click="subirDatosBasculaIshida()" label="Generar Archivo PRODUCTOS" />
+                </div>
+                <!-- BASCULA MARQUES -->
                 <div class="col-12">
                   <h5 class="no-margin">Configuración Bascula Marques</h5>
                 </div>
@@ -267,6 +299,7 @@
                   <q-btn color="positive" v-on:click="subirDatosBasculaMarques()" label="Enviar datos a bascula" />
                 </div>
                 <div class="row q-col-gutter-md col-12" v-if="this.$store.state.jhsoft.tipo_licencia === 3 || this.$store.state.jhsoft.tipo_licencia === 4">
+                  <!-- Fac electronica -->
                   <div class="col-12">
                     <h5 class="no-margin">Configuración Factura Electronica</h5>
                   </div>
@@ -395,6 +428,7 @@ export default {
         prod_lista_precios_id: null,
         gen_municipios_id: null,
         ruta_archivo_tx_dival: null,
+        ruta_archivo_tiquetes_ishida: null,
         ruta_ip_marques: null,
         tipoEscaner: null,
         producto_bolsa_id: null,
@@ -505,6 +539,21 @@ export default {
       var app = this
       app.$q.loading.show()
       axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa').then(
+        function (response) {
+          if (response.data === 'done') {
+            app.$q.notify({ color: 'positive', message: 'Archivo Generado.' })
+          }
+        }
+      ).catch(function (error) {
+        console.log(error)
+      }).finally(function () {
+        app.$q.loading.hide()
+      })
+    },
+    subirDatosBasculaIshida () {
+      var app = this
+      app.$q.loading.show()
+      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosishida').then(
         function (response) {
           if (response.data === 'done') {
             app.$q.notify({ color: 'positive', message: 'Archivo Generado.' })

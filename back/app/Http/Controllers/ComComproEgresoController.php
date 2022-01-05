@@ -39,7 +39,7 @@ class ComComproEgresoController extends Controller
         if ( count(ComComproEgreso::where('com_tipo_compro_egresos_id', $nuevoItem->com_tipo_compro_egresos_id)->get()) > 0 ){
             $consecutivo = ComComproEgreso::where('com_tipo_compro_egresos_id', $nuevoItem->com_tipo_compro_egresos_id)->get()->last();
             $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
-        }else{
+        }else {
             $nuevoItem->consecutivo = $tipoComproEgreso->consec_inicio;
         }
 

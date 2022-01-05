@@ -91,6 +91,7 @@ Route::group(['prefix' => 'lotes'/*, 'middleware' => 'auth'*/], function(){
 	Route::get('programaciones/abiertas/{producto_empacado}', 'LotProgramacionController@programacionLotesAbiertos');
 	Route::get('programaciones/abiertasporgrupo/{id}/{producto_empacado}', 'LotProgramacionController@programacionLotesAbiertosPorGrupo');
 	Route::get('programaciones/abiertasporlote/{id}/{producto_empacado}', 'LotProgramacionController@programacionPorId');
+    Route::get('programaciones/abiertasporlotepreliquidacion/{id}/{producto_empacado}', 'LotProgramacionController@programacionPreliquidacion');
 	Route::get('/programaciones/pesosporprogramacion/{id}', 'LotProgramacionController@pesosPorProgramacion');
 	Route::post('/programaciones/pesoprogramacion', 'LotProgramacionController@storePesoProgramacion');
 	Route::delete('/programaciones/pesoprogramacion/{id}', 'LotProgramacionController@deletePesoProgramacion');
@@ -155,7 +156,8 @@ Route::group(['prefix' => 'productos'/*, 'middleware' => 'auth'*/], function(){
 
 	Route::get('/configuracion/cargarabascula', 'ProductosController@generarArchivoProductosBasculaDival');
 	Route::get('/configuracion/subirpreciosepelsa', 'ProductosController@generarArchivoProductosBasculaEpelsa');
-	Route::get('/configuracion/subirdatosbasculamarques', 'ProductosController@subirDatosBasculaMarques');
+    Route::get('/configuracion/subirpreciosishida', 'ProductosController@generarArchivoProductosBasculaIshida');
+    Route::get('/configuracion/subirdatosbasculamarques', 'ProductosController@subirDatosBasculaMarques');
 });
 
 Route::group(['prefix' => 'generales'/*, 'middleware' => 'auth'*/], function(){
@@ -259,6 +261,10 @@ Route::group(['prefix' => 'inventario'], function(){
 
 });
 
+Route::group(['prefix' => 'transformacion'], function(){
+    Route::apiResource('items', 'transformacionProductoController');
+});
+
 Route::group(['prefix' => 'facturacion'/*, 'middleware' => 'auth'*/], function(){
 
 	// // Route::get('importar/cargarcartera', 'FacMovimientosController@importarDatos');
@@ -316,8 +322,12 @@ Route::group(['prefix' => 'compras'], function(){
 	Route::apiResource('items', 'ComComprasController');
 	Route::apiResource('comproegreso', 'ComComproEgresoController');
 	Route::get('tipos/filtro/compras', 'ComTipoComprasController@compras');
+    Route::get('tipos/filtro/compras/{tipo_id}', 'ComComprasController@comprasPorTipo');
+    Route::get('/porautorizacion/{tipo_id}/{auth_id}', 'ComComprasController@comprasPorAutorizacion');
+    Route::put('/cambiarauth/{com_id}/{auth_id}', 'ComComprasController@cambiarAutorizacion');
 
 	Route::get('filtro/comprasporsucursalytipodoc/{idsucursal}/{idtipodoc}', 'ComComprasController@comprasPendientesPorSucursalYTipo');
+    Route::get('filtro/comprasporsucursalytipodocauth/{idsucursal}/{idtipodoc}', 'ComComprasController@comprasPendientesPorSucursalYTipoAuth');
 	Route::get('comprasitems/filtro/porcompra/{id}', 'ComPivotCompraProductosController@porCompra');
 
 	Route::get('/imprimir/{id}', 'ComComprasController@generatePDF');
@@ -335,9 +345,12 @@ Route::group(['prefix' => 'compras'], function(){
 Route::group(['prefix' => 'ordenes'], function(){
 	Route::apiResource('tipos', 'OrdTipoOrdenesController');
 	Route::apiResource('items', 'OrdOrdenesController');
+    Route::get('/porautorizacion/{id}', 'OrdOrdenesController@ordenesPorAutorizacion');
 	Route::get('/imprimir/{id}', 'OrdOrdenesController@generatePDF');
 	Route::get('/readordenfactura/{cosec_orde}/{tipodoc_id}', 'OrdOrdenesController@ordenParaFactura');
 	Route::get('/readordencompra/{cosec_orde}/{tipodoc_id}', 'OrdOrdenesController@ordenParaCompra');
+    Route::put('/cambiarauth/{ord_id}/{auth_id}', 'OrdOrdenesController@cambiarAutorizacion');
+    Route::get('/portipoorden/{ord_ipo_id}', 'OrdOrdenesController@ordenesPorTipoOrden');
 });
 
 Route::group(['prefix' => 'egresos', 'middleware' => 'auth'], function(){
@@ -352,6 +365,7 @@ Route::group(['prefix' => 'ingresos', 'middleware' => 'auth'], function(){
 	Route::get('/imprimir/{id}', 'GenCuadreIngresoEfectivoController@generatePDF');
 	// Route::get('/reporteporcuadre/{id}', 'GenCuadreIngresoEfectivoController@generateReporteIngrPorCuadre');
 });
+
 
 
 Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], function(){
@@ -397,6 +411,7 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');
     Route::get('/pesoplantalote', 'ReportesGeneradosController@pesoPlantaLote');
+    Route::get('/transformaciones', 'ReportesGeneradosController@transformaciones');
 });
 
 

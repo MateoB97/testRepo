@@ -1099,7 +1099,6 @@ export default {
   mixins: [globalFunctions],
   methods: {
     preSave () {
-      console.log('GRUPO!: ' + this.storeItems.ProdGrupo_id)
       if (this.storeItems.producto_empacado) {
         this.storeItems.fecha_empaque_lote_tercero = this.storeItems.fecha_empaque_lote_tercero
         this.storeItems.producto_empacado = this.storeItems.producto_empacado ? 1 : 0
@@ -1155,7 +1154,7 @@ export default {
       }
     },
     getProgramacionesLiquidar (id) {
-      this.globalGetForSelect('api/lotes/programaciones/abiertasporlote/' + id + '/null', 'programacionesPorLote')
+      this.globalGetForSelect('api/lotes/programaciones/abiertasporlotepreliquidacion/' + id + '/null', 'programacionesPorLote')
       this.OpenedLiquidarProgramaciones = true
     },
     preliquidacion (id) {

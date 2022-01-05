@@ -77,6 +77,13 @@ use App\ComPivotFormaEgreso;
 use App\ComCompra;
 use App\SoenacPivotCorrectionFacMovConcepts;
 use App\Exports\ReporteFiscal;
+use App\OrdOrden;
+use App\OrdPivotFormasPago;
+use App\LotLiquidacion;
+use App\ComTipoCompra;
+use App\OrdTipoOrden;
+use App\OrdPivotOrdenProducto;
+use App\OrdTipoOrdenes;
 
 class ReportesGeneradosController extends Controller
 {
@@ -105,7 +112,7 @@ class ReportesGeneradosController extends Controller
                 'port' => '1433',
                 'database' => env('DB_DATABASE','sgc'),
                 'username' => env('DB_USERNAME','sa'),
-                'password' => env('DB_PASSWORD','sa'),
+                'password' => env('DB_PASSWORD','123'),
                 'jdbc_driver' => "net.sourceforge.jtds.jdbc.Driver",
                 'jdbc_url' => $jdbc_url,
                 'jdbc_dir' => $jdbc_dir
@@ -139,8 +146,15 @@ class ReportesGeneradosController extends Controller
 
     public function compileJrXml(){
         $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\ComprasXProducto.jrxml';
+
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
+    }
+
+    public function transformaciones(){
+        $params = $_GET;
+        $input = 'transformaciones';
+        self::executeJasper($input, $params);
     }
 
     public function reporteTiqueteFactura(){
@@ -1012,7 +1026,6 @@ class ReportesGeneradosController extends Controller
         }
         dd($headers);
         return $headers;
-
     }
 
     public static function exportReporteFiscalExcel() {
@@ -1024,24 +1037,10 @@ class ReportesGeneradosController extends Controller
 
     //TESTING
     public static function testing() {
-        //Naturaleza 1: Venta Credito, 4: POS, 2: NC, 3: ND 20431,5
-        $fecha_ini = '2021-08-01';
-        $fecha_fin = '2021-08-02';
-        $bolsas = ReportesGenerados::impuestoBolsaFiscal($fecha_ini, $fecha_fin);
-        dd($bolsas);
-        $sumatoria = 0;
-        // $data = ReportesGenerados::reporteFiscal($fecha_ini, $fecha_fin);
-        // $details = ReportesGenerados::DetailsFiscal($fecha_ini, $fecha_fin);
-        // $headers = ReportesGenerados::HeadersFiscal($fecha_ini, $fecha_fin);
-        // $example = [];
-        foreach($bolsas as $bolsa){
-                $sumatoria += $bolsa->valor;
-        }
-        dd($sumatoria);
-        // dd($example);
-        // foreach ($total as $k => $v) {
-        //     echo "\$a[$k] => $v.\n";
-        // }
-
+        $tipodoc_id = 4;
+        $consec_orden = 3;
+        $tipoOrden = OrdTipoOrdenes::where('com_tipo_compra_id', $tipodoc_id)->get()->first();
+        $orden = OrdOrden::where('ord_tipo_orden_id', $tipoOrden->id)->where('consecutivo', $consec_orden)->get()->first();
+        dd($orden);
     }
 }

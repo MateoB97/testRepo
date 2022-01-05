@@ -316,6 +316,22 @@ export default {
           }
         }
       )
+    },
+    validacionPermiso () {
+      var permisos = this.$auth.user().permisos.permisos.split(',')
+      var validate = null
+      permisos.forEach(permiso => {
+        if (parseInt(permiso) === 77) {
+          if (validate === null || validate === 0) {
+            validate = 1
+          }
+        } else {
+          if (validate !== 1) {
+            validate = 0
+          }
+        }
+      })
+      return validate
     }
   },
   created: function () {
@@ -347,9 +363,23 @@ export default {
     sucursal_id: {
       deep: true,
       handler () {
-        if (this.sucursal_id !== null) {
-          var app = this
-          axios.get(this.$store.state.jhsoft.url + 'api/compras/filtro/comprasporsucursalytipodoc/' + this.sucursal_id + '/' + this.tipoComproEgreso.com_tipo_compras_id).then(
+        var validador = this.validacionPermiso()
+        console.log('Validador : ' + validador)
+        var app = this
+        if (validador === 1) {
+          if (this.sucursal_id !== null) {
+            axios.get(this.$store.state.jhsoft.url + 'api/compras/filtro/comprasporsucursalytipodoc/' + this.sucursal_id + '/' + this.tipoComproEgreso.com_tipo_compras_id).then(
+              function (response) {
+                app.facturas = response.data
+                if (response.data.length < 1) {
+                  app.$q.notify({ color: 'positive', message: 'El tercero no tiene deudas pendientes.' })
+                }
+                app.$q.loading.hide()
+              }
+            )
+          }
+        } else {
+          axios.get(this.$store.state.jhsoft.url + 'api/compras/filtro/comprasporsucursalytipodocauth/' + this.sucursal_id + '/' + this.tipoComproEgreso.com_tipo_compras_id).then(
             function (response) {
               app.facturas = response.data
               if (response.data.length < 1) {

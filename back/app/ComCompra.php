@@ -32,30 +32,144 @@ class ComCompra extends Model
     }
 
     public static function todosConTipoSucursalGrupoTipo(){
-    return DB::table('com_compras')
-            ->select(
-                'com_compras.id As id',
-                'com_compras.consecutivo As consecutivo',
-                'com_compras.subtotal as subtotal',
-                'com_compras.descuento as descuento',
-                'com_compras.ivatotal as ivatotal',
-                'com_compras.total as total',
-                'com_compras.saldo as saldo',
-                'com_compras.estado as estado',
-                'com_compras.fecha_compra as fecha_compra',
-                'com_compras.fecha_vencimiento as fecha_vencimiento',
-                'com_compras.doc_referencia',
-                'tercero_sucursales.nombre as sucursal',
-                'terceros.nombre as tercero',
-                'users.name as usuario',
-                'com_tipo_compras.naturaleza'
-            )
-            ->join('tercero_sucursales','tercero_sucursales.id', '=', 'com_compras.proveedor_id')
-            ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
-            ->join('com_tipo_compras','com_tipo_compras.id', '=', 'com_compras.com_tipo_compras_id')
-            ->join('users','users.id', '=', 'com_compras.usuario_id')
-            ->orderBy('id','desc')
-            ->get();
+        return DB::select("
+            select
+                com_compras.id As id,
+                com_compras.consecutivo As consecutivo,
+                com_compras.subtotal as subtotal,
+                com_compras.descuento as descuento,
+                com_compras.ivatotal as ivatotal,
+                com_compras.total as total,
+                com_compras.saldo as saldo,
+                com_compras.estado as estado,
+                com_compras.fecha_compra as fecha_compra,
+                com_compras.fecha_vencimiento as fecha_vencimiento,
+                com_compras.doc_referencia,
+                com_compras.autorizacion as autorizacion_id,
+                CASE WHEN com_compras.autorizacion = 1 THEN 'Autorizado' when com_compras.autorizacion = 2 THEN 'Pendiente' ELSE 'Rechazado' END as autorizacion,
+                tercero_sucursales.nombre as sucursal,
+                terceros.nombre as tercero,
+                users.name as usuario,
+                com_tipo_compras.naturaleza,
+                com_tipo_compras.nombre as tipo
+            from com_compras
+            inner join tercero_sucursales on com_compras.proveedor_id = tercero_sucursales.id
+            inner join terceros on terceros.id = tercero_sucursales.tercero_id
+            inner join com_tipo_compras on com_compras.com_tipo_compras_id = com_tipo_compras.id
+            inner join users on users.id = com_compras.usuario_id
+            order by com_compras.id desc");
+    // return DB::table('com_compras')
+    //         ->select(
+    //             'com_compras.id As id',
+    //             'com_compras.consecutivo As consecutivo',
+    //             'com_compras.subtotal as subtotal',
+    //             'com_compras.descuento as descuento',
+    //             'com_compras.ivatotal as ivatotal',
+    //             'com_compras.total as total',
+    //             'com_compras.saldo as saldo',
+    //             'com_compras.estado as estado',
+    //             'com_compras.fecha_compra as fecha_compra',
+    //             'com_compras.fecha_vencimiento as fecha_vencimiento',
+    //             'com_compras.doc_referencia',
+    //             'com_compras.autorizacion',
+    //             'tercero_sucursales.nombre as sucursal',
+    //             'terceros.nombre as tercero',
+    //             'users.name as usuario',
+    //             'com_tipo_compras.naturaleza'
+    //         )
+    //         ->join('tercero_sucursales','tercero_sucursales.id', '=', 'com_compras.proveedor_id')
+    //         ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+    //         ->join('com_tipo_compras','com_tipo_compras.id', '=', 'com_compras.com_tipo_compras_id')
+    //         ->join('users','users.id', '=', 'com_compras.usuario_id')
+    //         ->orderBy('id','desc')
+    //         ->get();
+    }
+
+    public static function comprasPorAutorizacion($auth_id){
+        return DB::select("select
+            com_compras.id As id,
+            com_compras.consecutivo As consecutivo,
+            com_compras.subtotal as subtotal,
+            com_compras.descuento as descuento,
+            com_compras.ivatotal as ivatotal,
+            com_compras.total as total,
+            com_compras.saldo as saldo,
+            com_compras.estado as estado,
+            com_compras.fecha_compra as fecha_compra,
+            com_compras.fecha_vencimiento as fecha_vencimiento,
+            com_compras.doc_referencia,
+            com_compras.autorizacion as autorizacion_id,
+            CASE WHEN com_compras.autorizacion = 1 THEN 'Autorizado' when com_compras.autorizacion = 2 THEN 'Pendiente' ELSE 'Rechazado' END as autorizacion,
+            tercero_sucursales.nombre as sucursal,
+            terceros.nombre as tercero,
+            users.name as usuario,
+            com_tipo_compras.naturaleza,
+            com_tipo_compras.nombre as tipo
+        from com_compras
+        inner join tercero_sucursales on com_compras.proveedor_id = tercero_sucursales.id
+        inner join terceros on terceros.id = tercero_sucursales.tercero_id
+        inner join com_tipo_compras on com_compras.com_tipo_compras_id = com_tipo_compras.id
+        inner join users on users.id = com_compras.usuario_id
+        where com_compras.autorizacion = '$auth_id'
+        order by com_compras.id desc");
+    }
+
+    public static function comprasPorTipoCompra($tipo_id){
+        return DB::select("select
+            com_compras.id As id,
+            com_compras.consecutivo As consecutivo,
+            com_compras.subtotal as subtotal,
+            com_compras.descuento as descuento,
+            com_compras.ivatotal as ivatotal,
+            com_compras.total as total,
+            com_compras.saldo as saldo,
+            com_compras.estado as estado,
+            com_compras.fecha_compra as fecha_compra,
+            com_compras.fecha_vencimiento as fecha_vencimiento,
+            com_compras.doc_referencia,
+            com_compras.autorizacion as autorizacion_id,
+            CASE WHEN com_compras.autorizacion = 1 THEN 'Autorizado' when com_compras.autorizacion = 2 THEN 'Pendiente' ELSE 'Rechazado' END as autorizacion,
+            tercero_sucursales.nombre as sucursal,
+            terceros.nombre as tercero,
+            users.name as usuario,
+            com_tipo_compras.naturaleza,
+            com_tipo_compras.nombre as tipo
+        from com_compras
+        inner join tercero_sucursales on com_compras.proveedor_id = tercero_sucursales.id
+        inner join terceros on terceros.id = tercero_sucursales.tercero_id
+        inner join com_tipo_compras on com_compras.com_tipo_compras_id = com_tipo_compras.id
+        inner join users on users.id = com_compras.usuario_id
+        where com_compras.com_tipo_compras_id = '$tipo_id'
+        order by com_compras.id desc");
+    }
+
+    public static function comprasPorTipoAuth($tipo_id, $auth_id){
+        return DB::select("select
+            com_compras.id As id,
+            com_compras.consecutivo As consecutivo,
+            com_compras.subtotal as subtotal,
+            com_compras.descuento as descuento,
+            com_compras.ivatotal as ivatotal,
+            com_compras.total as total,
+            com_compras.saldo as saldo,
+            com_compras.estado as estado,
+            com_compras.fecha_compra as fecha_compra,
+            com_compras.fecha_vencimiento as fecha_vencimiento,
+            com_compras.doc_referencia,
+            com_compras.autorizacion as autorizacion_id,
+            CASE WHEN com_compras.autorizacion = 1 THEN 'Autorizado' when com_compras.autorizacion = 2 THEN 'Pendiente' ELSE 'Rechazado' END as autorizacion,
+            tercero_sucursales.nombre as sucursal,
+            terceros.nombre as tercero,
+            users.name as usuario,
+            com_tipo_compras.naturaleza,
+            com_tipo_compras.nombre as tipo
+        from com_compras
+        inner join tercero_sucursales on com_compras.proveedor_id = tercero_sucursales.id
+        inner join terceros on terceros.id = tercero_sucursales.tercero_id
+        inner join com_tipo_compras on com_compras.com_tipo_compras_id = com_tipo_compras.id
+        inner join users on users.id = com_compras.usuario_id
+        where com_compras.com_tipo_compras_id = '$tipo_id' and com_compras.autorizacion = '$auth_id'
+        order by com_compras.id desc");
     }
 
     public static function comprasPendientesPorSucursalYTipo($sucursal_id, $tipodoc_id){
@@ -85,6 +199,35 @@ class ComCompra extends Model
             ->orderBy('id','asc')
             ->get();
     }
+
+    public static function comprasPendientesPorSucursalYTipoAuth($sucursal_id, $tipodoc_id){
+        return DB::table('com_compras')
+                ->select(
+                    'com_compras.id As id',
+                    'com_compras.consecutivo As consecutivo',
+                    'com_compras.subtotal as subtotal',
+                    'com_compras.descuento as descuento',
+                    'com_compras.ivatotal as ivatotal',
+                    'com_compras.total as total',
+                    'com_compras.saldo as saldo',
+                    'com_compras.estado as estado',
+                    'com_compras.fecha_compra as fecha_compra',
+                    'com_compras.fecha_vencimiento as fecha_vencimiento',
+                    'tercero_sucursales.nombre as sucursal',
+                    'terceros.nombre as tercero',
+                    'com_tipo_compras.nombre as tipo'
+                )
+                ->join('tercero_sucursales','tercero_sucursales.id', '=', 'com_compras.proveedor_id')
+                ->join('terceros','terceros.id', '=', 'tercero_sucursales.tercero_id')
+                ->join('com_tipo_compras','com_tipo_compras.id', '=', 'com_compras.com_tipo_compras_id')
+                ->where('com_tipo_compras.naturaleza', 1)
+                ->where('tercero_sucursales.id', $sucursal_id)
+                ->where('com_tipo_compras.id', $tipodoc_id)
+                ->where('com_compras.estado', 1)
+                ->where('com_compras.autorizacion', 1)
+                ->orderBy('id','asc')
+                ->get();
+        }
 
     public static function cuentasPorPagar(){
     return DB::table('com_compras')

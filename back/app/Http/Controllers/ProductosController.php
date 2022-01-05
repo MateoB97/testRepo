@@ -281,7 +281,7 @@ class ProductosController extends Controller
         $list = Producto::where('prod_subgrupo_id', $id)->get();
         return $list;
     }
-
+    /** BASCULAS */
     public function generarArchivoProductosBasculaDival(){
 
         $empresa = GenEmpresa::find(1);
@@ -431,6 +431,58 @@ class ProductosController extends Controller
 
 
             fwrite($fp, $linea1.PHP_EOL);
+        }
+
+        fclose($fp);
+
+        return 'done';
+    }
+
+    public function generarArchivoProductosBasculaIshida(){
+
+        $empresa = GenEmpresa::find(1);
+        $productos = Producto::ProductosxListaprecio(1);
+
+        $fp = fopen($empresa->ruta_archivo_txt_ishida.'/productos.txt', 'w+');
+
+        $linea1 = 'Plu_No,PosCode,Posflag,SalesMode,UnitPrice,BarCodeNum,Line1,Line2,Line3,Line4,Line5,Line6,Line7,Line8,Line9,Line10,Line11,Line12,Line13,Line14,Line15,Line16,Line17,Line18,Line19,Line20';
+        fwrite($fp, $linea1.PHP_EOL);
+        foreach ($productos as $prod) {
+            $llenado = strval($prod->codigo).',';
+            $llenado .= strval($prod->codigo).',';
+            /** TIPO DE MEDIDA CONDICIONAL */
+            // switch ($prod->unidad_id) {
+            //     case 1:
+            //         $llenado .= '24,0,';
+            //         break;
+            //     case 2:
+            //         $llenado .= '21,1,';
+            //         break;
+            //     default:
+            //         $llenado .= '20,';
+            //         break;
+            // }
+            $llenado .= '20,1,';
+            $llenado .= $prod->precio.',';
+            /** TIPO DE MEDIDA CONDICIONAL */
+            // switch ($prod->unidad_id) {
+            //     case 1:
+            //         $llenado .= '16,';
+            //         break;
+            //     case 2:
+            //         $llenado .= '31,';
+            //         break;
+            //     default:
+            //         $llenado .= '20,';
+            //         break;
+            // }
+            $llenado .= '16,';
+            $nombre = strtoupper($prod->nombre);
+            $nombre = substr($nombre, 0,24);
+            $nombre = str_replace('ñ', 'N', $nombre);
+            $llenado .= $nombre.',,,,,,,,,,,,,,,,,,';
+
+            fwrite($fp, $llenado.PHP_EOL);
         }
 
         fclose($fp);

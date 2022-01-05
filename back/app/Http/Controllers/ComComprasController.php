@@ -16,6 +16,12 @@ use Mike42\Escpos\EscposImage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use PDF;
+use App\OrdOrden;
+use App\OrdPivotFormasPago;
+use App\ComComproEgreso;
+use App\ComTipoComproEgreso;
+use App\ComPivotCompraEgreso;
+use App\OrdTipoOrdenes;
 
 class ComComprasController extends Controller
 {
@@ -25,6 +31,16 @@ class ComComprasController extends Controller
         return $index;
     }
 
+    public function comprasPorAutorizacion($tipo_id, $auth_id){
+        $index = ComCompra::comprasPorTipoAuth($tipo_id, $auth_id);
+        return $index;
+    }
+
+    public function comprasPorTipo($tipo_id)
+    {
+        $index = ComCompra::comprasPorTipoCompra($tipo_id);
+        return $index;
+    }
 
     public function comprasPendientesPorSucursalYTipo($sucursal_id, $tipodoc_id)
     {
@@ -32,14 +48,22 @@ class ComComprasController extends Controller
         return $index;
     }
 
+    public function comprasPendientesPorSucursalYTipoAuth($sucursal_id, $tipodoc_id)
+    {
+        $index = ComCompra::comprasPendientesPorSucursalYTipoAuth($sucursal_id, $tipodoc_id);
+        return $index;
+    }
+
     public function store(Request $request)
     {
 
         $nuevoItem = new ComCompra($request->all());
-
+        $nuevoItem->autorizacion = 2;
         $nuevoItem->usuario_id = Auth::user()->id;
 
         $tipoCompra = ComTipoCompra::find($nuevoItem->com_tipo_compras_id);
+
+        // self::abonoAComprobanteEgre($request->orden, $nuevoItem->id, $request->com_tipo_compras_id, $request->proveedor_id, $request->fecha_compra);
 
         if ( count(ComCompra::where('com_tipo_compras_id', $nuevoItem->com_tipo_compras_id)->get()) > 0 ){
             $consecutivo = ComCompra::where('com_tipo_compras_id', $nuevoItem->com_tipo_compras_id)->get()->last();
@@ -101,11 +125,66 @@ class ComComprasController extends Controller
                 $nuevoInventario->tipo_invent = 1;
                 $nuevoInventario->save();
             }
-
         }
 
-        return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
+        if ($request->orden != '') {
+            $tipoOrden = OrdTipoOrdenes::where('com_tipo_compra_id', $request->com_tipo_compras_id)->get()->first();
+            // $orden = OrdOrden::where('consecutivo', $request->orden)->first(); // Orden de compra
+            $orden = OrdOrden::where('ord_tipo_orden_id', $tipoOrden->id)->where('consecutivo', $request->orden)->get()->first();
+            $detalles =  OrdPivotFormasPago::where('ord_orden_id', $orden->id)->get(); // Detalles Abonos de la orden
+            $total = 0;
+            // if ($detalles) {
+                $total = $detalles->sum('valor_abonado');
+                $comEgre = ComTipoComproEgreso::conDocRelacionadoPorId($request->com_tipo_compras_id)->first(); // ID Comprobante Egreso + Nombre
+                $comComproEgreso = new ComComproEgreso();
+                if ( count(ComComproEgreso::where('com_tipo_compro_egresos_id', $comEgre->id)->get()) > 0 ){
+                    $consecutivo = ComComproEgreso::where('com_tipo_compro_egresos_id', $comEgre->id)->get()->last();
+                    $comComproEgreso->consecutivo = $consecutivo->consecutivo + 1;
+                }else{
+                    $comComproEgreso->consecutivo = $comEgre->consec_inicio;
+                }
+                $comComproEgreso->usuario_id = Auth::user()->id;
+                $comComproEgreso->com_tipo_compro_egresos_id = $comEgre->id;
+                $comComproEgreso->proveedor_id = $request->proveedor_id;
+                $comComproEgreso->abono = $total;
+                $comComproEgreso->total = $total;
+                $comComproEgreso->ajuste_observacion = 'Sin observaciones';
+                $comComproEgreso->fecha_comprobante = str_replace('/', '-', $request->fecha_compra);
+                $comComproEgreso->ajuste = 0;
+                $comComproEgreso->save();
 
+                if ($total > 0) {
+                    if($total >= $nuevoItem->saldo) {
+                        $cruce = new ComPivotCompraEgreso();
+                        $cruce->com_compras_id = $nuevoItem->id;
+                        $cruce->com_compro_egresos_id = $comComproEgreso->id;
+                        $cruce->valor = $nuevoItem->saldo;
+                        $cruce->save();
+
+                        $total = $total - $nuevoItem->saldo;
+
+                        $compraActual = ComCompra::find($nuevoItem->id);
+                        $compraActual->saldo = 0;
+                        $compraActual->estado = 0;
+                        $compraActual->save();
+                    } else {
+                        $cruce = new ComPivotCompraEgreso();
+                        $cruce->com_compras_id = $nuevoItem->id;
+                        $cruce->com_compro_egresos_id = $comComproEgreso->id;
+                        $cruce->valor = $total;
+                        $cruce->save();
+
+                        $compraActual = ComCompra::find($nuevoItem->id);
+                        $compraActual->saldo = intval($compraActual->saldo) - intval($total);
+                        $compraActual->estado = 1;
+                        $compraActual->save();
+
+                        $total = 0;
+                    }
+                    return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
+                }
+        }
+        return ['callback', [$nuevoItem->consecutivo, $nuevoItem->id]];
     }
 
     public function generatePDF($id)
@@ -262,6 +341,13 @@ class ComComprasController extends Controller
             $nuevoInventario->tipo_invent = 1;
             $nuevoInventario->save();
         }
+    }
+
+    public static function cambiarAutorizacion ($com_id, $auth_id) {
+        $com_compra = ComCompra::where('id', $com_id)->get()->first();
+        $com_compra->autorizacion = $auth_id;
+        $com_compra->save();
+        return 'done';
     }
 
 }

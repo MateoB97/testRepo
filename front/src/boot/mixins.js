@@ -252,7 +252,6 @@ export const globalFunctions = {
     globalEnviarFacturaElectronica (id) {
       // event.target.disabled
       var app = this
-      console.log(id)
       this.$q.loading.show()
       axios.get(app.$store.state.jhsoft.url + 'api/facturacion/datafacturacionelectronica/' + id).then(
         function (response) {
@@ -387,10 +386,8 @@ export const globalFunctions = {
             FactElect.sync = true
             urlCompleta = url + token
           }
-          console.log(FactElect)
           axios.post(app.$store.state.jhsoft.url + 'api/facturacion/enviarfacturasoenac', { url: urlCompleta, body: FactElect }).then(
             function (response1) {
-              console.log(response1.data)
               app.erroresFE = []
               app.$q.loading.hide()
               var dataFac = {

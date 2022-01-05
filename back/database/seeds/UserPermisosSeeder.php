@@ -44,11 +44,15 @@ class UserPermisosSeeder extends Seeder
 
         $cat['compras'] = [
             [ 'consecutivo' => 9, 'nombre' => 'crear compra de mercancia'  ],
-            [ 'consecutivo' => 10, 'nombre' => 'crear comprobante de egreso'  ]
+            [ 'consecutivo' => 10, 'nombre' => 'crear comprobante de egreso'  ],
+            [ 'consecutivo' => 74, 'nombre' => 'autorizar compra mercancia'  ],
+            [ 'consecutivo' => 76, 'nombre' => 'crear compra de mercancia sin autorizacion'  ], // Los puntos de venta
+            [ 'consecutivo' => 77, 'nombre' => 'autorizacion comprabante de egreso'  ] // Puntos de venta
         ];
 
         $cat['ordenes'] = [
-            [ 'consecutivo' => 11, 'nombre' => 'ordenes de compra'  ]
+            [ 'consecutivo' => 11, 'nombre' => 'ordenes de compra'  ],
+            [ 'consecutivo' => 75, 'nombre' => 'autorizar ordenes de compra'  ]
         ];
 
         $cat['productos'] = [
@@ -141,7 +145,7 @@ class UserPermisosSeeder extends Seeder
 
         $cat['inventarios'] = [
             [ 'consecutivo' => 72, 'nombre' => 'cerrar inventario'  ],
-            [ 'consecutivo' => 73, 'nombre' => 'Eliminar item inventario produccion'  ],
+            [ 'consecutivo' => 73, 'nombre' => 'Eliminar item inventario produccion'  ]
         ];
 
         foreach($cat as $categoria => $permisos){

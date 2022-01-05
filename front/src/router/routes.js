@@ -171,7 +171,16 @@ const routes = [
       { path: 'inv-informe-cierre', meta: { permisoRequerido: '72' }, component: () => import('pages/inventario/InvInformeCierre.vue') },
       { path: 'cierre-inventario', meta: { permisoRequerido: '72' }, component: () => import('pages/inventario/CierreInventario.vue') },
       { path: 'inventario-produccion', meta: { permisoRequerido: '42' }, component: () => import('pages/inventario/InventarioProduccion.vue') },
-      { path: 'inventario', meta: { permisoRequerido: '41' }, component: () => import('pages/inventario/Inventario.vue') }
+      { path: 'inventario', meta: { permisoRequerido: '41' }, component: () => import('pages/inventario/Inventario.vue') },
+      { path: 'transformacion', meta: { permisoRequerido: '41' }, component: () => import('pages/inventario/transformacionInventario.vue') }
+    ]
+  },
+  {
+    path: '/administracion',
+    component: () => import('layouts/MyLayout.vue'),
+    children: [
+      { path: 'ordautorizacion', meta: { permisoRequerido: '74' }, component: () => import('pages/ordenes/OrdOrdenesAuth.vue') },
+      { path: 'comautorizacion', meta: { permisoRequerido: '75' }, component: () => import('pages/compras/ComCompraAuth.vue') }
     ]
   },
   {

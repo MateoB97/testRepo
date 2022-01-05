@@ -580,6 +580,14 @@ export default {
       console.log(this.doc)
       console.log(app.tipoDoc)
       console.log(app.docReferencia)
+      if (this.tipoDoc.naturaleza === '2' || this.tipoDoc.naturaleza === '3') {
+        var today = new Date()
+        var dd = String(today.getDate()).padStart(2, '0')
+        var mm = String(today.getMonth() + 1).padStart(2, '0')
+        var yyyy = today.getFullYear()
+        today = yyyy + '/' + mm + '/' + dd
+        this.storeItems.fecha_vencimiento = today
+      }
       if (this.tipoDoc.naturaleza === '4') {
         this.setPlazo(30)
       }

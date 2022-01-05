@@ -29,17 +29,15 @@
     25 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
     26 => 'Laravel\\Tinker\\TinkerServiceProvider',
     27 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
-    28 => 'Mews\\Purifier\\PurifierServiceProvider',
-    29 => 'Carbon\\Laravel\\ServiceProvider',
-    30 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    31 => 'Stolz\\HtmlTidy\\ServiceProvider',
-    32 => 'Tymon\\JWTAuth\\Providers\\LaravelServiceProvider',
-    33 => 'App\\Providers\\AppServiceProvider',
-    34 => 'App\\Providers\\AuthServiceProvider',
-    35 => 'App\\Providers\\EventServiceProvider',
-    36 => 'App\\Providers\\RouteServiceProvider',
-    37 => 'Milon\\Barcode\\BarcodeServiceProvider',
-    38 => 'Barryvdh\\DomPDF\\ServiceProvider',
+    28 => 'Carbon\\Laravel\\ServiceProvider',
+    29 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    30 => 'Tymon\\JWTAuth\\Providers\\LaravelServiceProvider',
+    31 => 'App\\Providers\\AppServiceProvider',
+    32 => 'App\\Providers\\AuthServiceProvider',
+    33 => 'App\\Providers\\EventServiceProvider',
+    34 => 'App\\Providers\\RouteServiceProvider',
+    35 => 'Milon\\Barcode\\BarcodeServiceProvider',
+    36 => 'Barryvdh\\DomPDF\\ServiceProvider',
   ),
   'eager' => 
   array (
@@ -174,9 +172,7 @@
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'command.tinker' => 'Laravel\\Tinker\\TinkerServiceProvider',
-    'purifier' => 'Mews\\Purifier\\PurifierServiceProvider',
     'NunoMaduro\\Collision\\Contracts\\Provider' => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    'stolz.tidy' => 'Stolz\\HtmlTidy\\ServiceProvider',
   ),
   'when' => 
   array (
@@ -219,13 +215,7 @@
     'Laravel\\Tinker\\TinkerServiceProvider' => 
     array (
     ),
-    'Mews\\Purifier\\PurifierServiceProvider' => 
-    array (
-    ),
     'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider' => 
-    array (
-    ),
-    'Stolz\\HtmlTidy\\ServiceProvider' => 
     array (
     ),
   ),

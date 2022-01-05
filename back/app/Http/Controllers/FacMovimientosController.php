@@ -356,7 +356,7 @@ class FacMovimientosController extends Controller
             return 'done';
 
          // se valida si es un documento factura
-        } elseif ($tipoDoc->naturaleza == 1) {
+        } else if ($tipoDoc->naturaleza == 1) {
 
            $nuevoItem->estado = 1;
            $nuevoItem->saldo = $nuevoItem->total;
@@ -1092,7 +1092,7 @@ class FacMovimientosController extends Controller
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
-
+        $printer->pulse();
         $t80 = new ReportesT80();
         $str = '';
 
@@ -1149,7 +1149,7 @@ class FacMovimientosController extends Controller
             $str .= $t80->posLineaBlanco();
             $totalGeneral = 0;
             foreach ($lineas as $linea) {
-                $str .= $t80->posDosItemsExtremos($linea->producto_codigo. ' '. $linea->producto_nombre,  $t80->toNumber($linea->detail_precio) * $linea->detail_cantidad.  ' | '. $linea->detail_iva);
+                $str .= $t80->posDosItemsExtremos($linea->producto_codigo. ' '. $linea->producto_nombre,  $t80->toNumber($linea->detail_precio * $linea->detail_cantidad).  ' | '. $linea->detail_iva);
                 if(($linea->detail_desc > 0 && $caractPorlinea > 40)){
                     $str .= $t80->posLineaDerecha('   '.number_format($linea->detail_cantidad, 3, ',', '.'). ' '.$linea->uni_medida_abrev_pos. ' X  $'. $t80->toNumber($linea->detail_precio). '  Desc  '. $t80->toNumber($linea->detail_desc).' %');
                 }else{

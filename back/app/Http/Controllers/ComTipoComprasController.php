@@ -21,6 +21,11 @@ class ComTipoComprasController extends Controller
         return $list;
     }
 
+    public function comprasPorTipo($tipo_id)
+    {
+        $list = ComTipoCompra::where('naturaleza', 1)->where('id', $tipo_id)->get();
+        return $list;
+    }
 
     public function store(Request $request)
     {
@@ -61,7 +66,7 @@ class ComTipoComprasController extends Controller
         if ($v) {
             return 'done';
         } else {
-           return 'Imposible eliminar'; 
+           return 'Imposible eliminar';
         }
     }
 }

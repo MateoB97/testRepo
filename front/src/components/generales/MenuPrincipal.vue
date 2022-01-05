@@ -25,6 +25,7 @@
         </q-layout>
       </q-dialog>
       <!-- fin popup abrir caja -->
+      <!-- !!!!!!!!!!!!!!!!!!!! -->
       <!-- inicio popup cerrar caja -->
       <q-dialog v-model="openCerrarCaja" :content-css="{minWidth: '80vw', minHeight: '10vh'}">
         <q-layout view="Lhh lpR fff" container style="height: 400px; max-width: 800px" class="bg-white">
@@ -49,7 +50,8 @@
         </q-layout>
       </q-dialog>
       <!-- fin popup cerrar caja -->
-
+      <!-- !!!!!!!!!!!!!!!!!!! -->
+      <!-- menu amburguesa -->
       <q-list>
         <q-expansion-item
           v-if="globalValidarPermiso('71') && cuadreAbierto === 1"
@@ -260,6 +262,22 @@
               <router-link v-if="this.$store.state.jhsoft.lotes" to="/inventario/inventario-produccion" class="menuItem">Inventario Produccion</router-link>
               <router-link to="/inventario/cierre-inventario" class="menuItem">Cierre Inventario</router-link>
               <router-link to="/inventario/inv-informe-cierre" class="menuItem">Informes Cierre Inventario</router-link>
+              <router-link to="/inventario/transformacion" class="menuItem">Transformacion Producto - Inventario</router-link>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+        <q-expansion-item
+          class="expansion-block"
+          expand-separator
+          icon="assessment"
+          label="Administracion Documentos"
+          expand-icon-class="text-white"
+          :content-inset-level="0.5"
+        >
+          <q-card>
+            <q-card-section>
+              <router-link to="/administracion/ordautorizacion" class="menuItem">Autorizacion Ordenes de compra</router-link>
+              <router-link to="/administracion/comautorizacion" class="menuItem">Autorizacion Compra de Mercancia</router-link>
             </q-card-section>
           </q-card>
         </q-expansion-item>

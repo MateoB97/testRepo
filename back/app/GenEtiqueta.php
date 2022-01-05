@@ -233,9 +233,14 @@ class GenEtiqueta extends Model
      public static function marinadoEtiquetas ($porcMarinado) {
 
         return "^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
-                    ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyecci\A2n, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
-                    ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
-                    ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28";
+        ^FT25,340^A0N,23,23^FH\^CI28^FDCarne inyectada al " .$porcMarinado." con solucón de agua, sal, mezcla de fosfatos: pirofosfato^FS^CI28
+        ^FT25,360^A0N,23,23^FH\^CI28^FD tetrasódico 450iii triplofosfato de sodio 451i (estabilizante y emulsificante), acetato^FS^CI28
+        ^FT25,380^A0N,23,23^FH\^CI28^FDde sodio y sorbato de sodio (conservantes) eritorbato de sodio (antioxidante).^FS^CI28";
+
+        // return "^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
+        //             ^FT25,340^A0N,23,23^FH\^CI28^FDCarne marinada al " .$porcMarinado." por inyecci\A2n, agua, salmuera (Sal), tripolifosfato de sodio E451^FS^CI28
+        //             ^FT25,360^A0N,23,23^FH\^CI28^FD(Emulsificador), fosfato de sodio 450 (Estabilizante), fosfato tricalcico E341 ^FS^CI28
+        //             ^FT25,380^A0N,23,23^FH\^CI28^FD(Estabilizante) menor al 1%.^FS^CI28";
 
     }
 

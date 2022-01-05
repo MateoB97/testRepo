@@ -41,6 +41,13 @@
                   v-if="loteFilter"
                   v-model="datos.lote_id"
                 />
+                <AloneProductsFilter
+                  v-if="productsAloneFilter"
+                  :value="tipo_transform == 'entrada' ? tipo_transform='entrada' : tipo_transform='salida' "
+                  @input="tipo_transform = $event.target.value"
+                  @producto_in_id="setProductoIn"
+                  @producto_out_id="setProductoOut"
+                />
               </div>
               <div class="row q-col-gutter-sm">
               </div>
@@ -66,6 +73,7 @@ import MultiSelectGrupoProducto from 'components/filters/MultiSelectGrupoProduct
 import GrupoSubgrupoProductoFilter from 'components/filters/GrupoSubgrupoProductoFilter.vue'
 import LoteFilter from 'components/filters/LoteFilter.vue'
 import SelectTipoDoc from 'components/filters/SelectTipoDoc.vue'
+import AloneProductsFilter from 'components/filters/aloneProducts.vue'
 
 export default {
   name: 'globalFilterComponent',
@@ -75,7 +83,8 @@ export default {
     MultiSelectGrupoProducto,
     SelectTipoDoc,
     GrupoSubgrupoProductoFilter,
-    LoteFilter
+    LoteFilter,
+    AloneProductsFilter
   },
   props: [
     'datesFilter',
@@ -83,6 +92,7 @@ export default {
     'gruposFilter',
     'loteFilter',
     'productosFilter',
+    'productsAloneFilter',
     'tipoDocFilter',
     'dateUnique',
     'titleBtn',
@@ -91,6 +101,7 @@ export default {
   data () {
     return {
       tipoDoc: null,
+      tipo_transform: null,
       datos: {
         fecha_inicial: null,
         fecha_final: null,
@@ -102,6 +113,8 @@ export default {
         grupo_id: null,
         subgrupo_id: null,
         producto_id: null,
+        entrada: null,
+        salida: null,
         lote_id: null
       },
       isVisible: false,
@@ -128,6 +141,17 @@ export default {
     },
     setProducto (value) {
       this.datos.producto_id = value
+      console.log(this.datos.producto_id)
+    },
+    setProductoIn (value) {
+      this.datos.entrada = value.id
+      this.tipo_transform = value.tip
+      console.log(value.tip)
+    },
+    setProductoOut (value) {
+      this.datos.salida = value.id
+      this.tipo_transform = value.tip
+      console.log(value.tip)
     }
   },
   computed: {

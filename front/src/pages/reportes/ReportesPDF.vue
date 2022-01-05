@@ -541,6 +541,16 @@
                     />
                     <!-- <q-btn class="w-100" color="primary"  v-on:click="activarRutaMovsCustom(7), datos.fecha_inicial = null, datos.fecha_final = null" label="Movimientos x Fecha" /> -->
                 </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Transformaciones"
+                      url="api/reportesgenerados/transformaciones"
+                      :tipoDocFilter="false"
+                      :datesFilter="true"
+                      :productsAloneFilter="true"
+                      :dateUnique="0"
+                    />
+                </div>
             </div>
         </div>
     </q-page>
@@ -551,6 +561,7 @@
 import { globalFunctions } from 'boot/mixins.js'
 import SelectTerceroSucursal from 'components/terceros/SelectTerceroSucursal.vue'
 import GlobalFiltersComponent from 'components/filters/globalFiltersComponent.vue'
+
 const axios = require('axios')
 
 export default {
