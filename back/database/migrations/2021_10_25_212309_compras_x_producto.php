@@ -13,7 +13,7 @@ class ComprasXProducto extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewComprasXProducto]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasXProducto]
         as
         select
         	com_compras.consecutivo as consec_compra
@@ -57,6 +57,6 @@ class ComprasXProducto extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ViewComprasXProducto');
+        DB::statement('DROP VIEW if exists ViewComprasXProducto');
     }
 }

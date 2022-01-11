@@ -13,7 +13,7 @@ class ComprasPorFechaPesos extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewComprasPorFechaPesos]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasPorFechaPesos]
         as
         select
         	prod_grupos.nombre as grupo
@@ -31,7 +31,7 @@ class ComprasPorFechaPesos extends Migration
         where com_compras.estado != 3
         group by prod_grupos.nombre, prod_subgrupos.nombre, productos.nombre, gen_unidades.nombre");
 
-        DB::statement("CREATE view [dbo].[ViewComprasDevPorFechaPesos]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasDevPorFechaPesos]
         as
         select
         	productos.nombre as producto_dev
@@ -58,7 +58,7 @@ class ComprasPorFechaPesos extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ViewComprasPorFechaPesos');
-        Schema::dropIfExists('ViewComprasDevPorFechaPesos');
+        DB::statement('DROP VIEW if exists ViewComprasPorFechaPesos');
+        DB::statement('DROP VIEW if exists ViewComprasDevPorFechaPesos');
     }
 }

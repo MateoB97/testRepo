@@ -13,7 +13,7 @@ class ComprasPorFechaDevs extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewDevolucionesCompraPorFecha]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewDevolucionesCompraPorFecha]
             as select
                 com_compras.id As id_devol,
                 com_compras.consecutivo As consecutivo_devol,
@@ -43,6 +43,6 @@ class ComprasPorFechaDevs extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ViewDevolucionesCompraPorFecha');
+        DB::statement('DROP VIEW if exists ViewDevolucionesCompraPorFecha');
     }
 }

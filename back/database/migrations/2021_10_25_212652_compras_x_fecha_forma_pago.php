@@ -13,7 +13,7 @@ class ComprasXFechaFormaPago extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewComprasvFechaFormasPago]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasvFechaFormasPago]
         as
 
         select
@@ -62,6 +62,6 @@ class ComprasXFechaFormaPago extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ViewComprasvFechaFormasPago');
+        DB::statement('DROP VIEW if exists ViewComprasvFechaFormasPago');
     }
 }

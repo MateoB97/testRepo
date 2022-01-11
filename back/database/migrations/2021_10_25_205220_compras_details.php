@@ -13,7 +13,7 @@ class ComprasDetails extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewComprasDetails]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasDetails]
         as
         select
         	--com_compras
@@ -61,7 +61,7 @@ class ComprasDetails extends Migration
         inner join com_tipo_compras on  com_tipo_compras.id  =  com_compras.com_tipo_compras_id
         where com_compras.estado != 3");
 
-        DB::statement("CREATE view [dbo].[ViewDevolucionesCompraDetails]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewDevolucionesCompraDetails]
         as
         select
         	--com_compras
@@ -117,7 +117,7 @@ class ComprasDetails extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ViewComprasDetails');
-        Schema::dropIfExists('ViewDevolucionesCompraDetails');
+        DB::statement('DROP VIEW if exists ViewComprasDetails');
+        DB::statement('DROP VIEW if exists ViewDevolucionesCompraDetails');
     }
 }

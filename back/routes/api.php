@@ -154,10 +154,10 @@ Route::group(['prefix' => 'productos'/*, 'middleware' => 'auth'*/], function(){
 	Route::get('/listadodeproductosporlista/{listaprecio_id}', 'ProductosController@listadoDeProductosPorLista');
 	Route::get('/modificarprecio/{listaprecio_id}/{codigo}/{precio_nuevo}', 'ProductosController@modificarPrecio');
 
-	Route::get('/configuracion/cargarabascula', 'ProductosController@generarArchivoProductosBasculaDival');
-	Route::get('/configuracion/subirpreciosepelsa', 'ProductosController@generarArchivoProductosBasculaEpelsa');
-    Route::get('/configuracion/subirpreciosishida', 'ProductosController@generarArchivoProductosBasculaIshida');
-    Route::get('/configuracion/subirdatosbasculamarques', 'ProductosController@subirDatosBasculaMarques');
+	Route::get('/configuracion/cargarabascula/{seccion}', 'ProductosController@generarArchivoProductosBasculaDival');
+	Route::get('/configuracion/subirpreciosepelsa/{seccion}', 'ProductosController@generarArchivoProductosBasculaEpelsa');
+    Route::get('/configuracion/subirpreciosishida/{seccion}', 'ProductosController@generarArchivoProductosBasculaIshida');
+    Route::get('/configuracion/subirdatosbasculamarques/{seccion}', 'ProductosController@subirDatosBasculaMarques');
 });
 
 Route::group(['prefix' => 'generales'/*, 'middleware' => 'auth'*/], function(){

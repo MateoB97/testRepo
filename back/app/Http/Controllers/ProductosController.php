@@ -282,72 +282,53 @@ class ProductosController extends Controller
         return $list;
     }
     /** BASCULAS */
-    public function generarArchivoProductosBasculaDival(){
+    public function generarArchivoProductosBasculaDival($seccion){
 
         $empresa = GenEmpresa::find(1);
+        $vendedores = GenVendedor::all();
 
         $lineas = Producto::ProductosxListaprecio(1);
 
-        $fp = fopen($empresa->ruta_archivo_tx_dival.'/TX.txt','w+');
+        $seccion = intval($seccion);
 
-        foreach ($lineas as $linea) {
-
-            $linea1 = '00L200M0';
-            $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            $linea1 .= '   ';
-            $nombre = strtoupper($linea->nombre);
-            $nombre = str_replace('ñ', 'N', $nombre);
-            $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
-            $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
-            $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
-
-            fwrite($fp, $linea1.PHP_EOL);
-
-            $linea2 = '00H3000';
-            $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            if ($linea->unidad_id == 1) {
-                $linea2 .= '0';
-            } else {
-                $linea2 .= '1';
-            }
-            $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
-            fwrite($fp, $linea2.PHP_EOL);
-
-            // solo para clientes con 2 secciones de basculas
-            // $linea1 = '02L200M0';
-            // $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            // $linea1 .= '   ';
-            // $nombre = strtoupper($linea->nombre);
-            // $nombre = str_replace('ñ', 'N', $nombre);
-            // $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
-            // $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
-            // $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
-
-            // fwrite($fp, $linea1.PHP_EOL);
-
-            // $linea2 = '02H3000';
-            // $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            // if ($linea->unidad_id == 1) {
-            //     $linea2 .= '0';
-            // } else {
-            //     $linea2 .= '1';
-            // }
-            // $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
-            // fwrite($fp, $linea2.PHP_EOL);
+        if (!is_dir($empresa->ruta_archivo_tx_dival) && !file_exists($empresa->ruta_archivo_tx_dival)) {
+            mkdir($empresa->ruta_archivo_tx_dival, 0777, true);
         }
+        $i= 0;
+        do {
+            $fp = fopen($empresa->ruta_archivo_tx_dival.'/TX_'.strval($i).'.txt','w+');
 
-        $vendedores = GenVendedor::all();
+            foreach ($lineas as $linea) {
 
-        $cantGrupos = ceil(count($vendedores)/3);
+                $linea1 = '0'.strval($i).'L200M0';
+                $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+                $linea1 .= '   ';
+                $nombre = strtoupper($linea->nombre);
+                $nombre = str_replace('ñ', 'N', $nombre);
+                $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
+                $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
+                $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
 
-        $groups = $vendedores->split($cantGrupos);
+                fwrite($fp, $linea1.PHP_EOL);
 
-        $groups->toArray();
+                $linea2 = '0'.strval($i).'H3000';
+                $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+                if ($linea->unidad_id == 1) {
+                    $linea2 .= '0';
+                } else {
+                    $linea2 .= '1';
+                }
+                $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
+                fwrite($fp, $linea2.PHP_EOL);
+            }
+            $cantGrupos = ceil(count($vendedores)/3);
 
+            $groups = $vendedores->split($cantGrupos);
+
+            $groups->toArray();
 
         foreach ($groups as $group) {
             if (count($group) == 3) {
-
                 $linea = '00X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
@@ -361,7 +342,6 @@ class ProductosController extends Controller
                 fwrite($fp, $linea.PHP_EOL);
 
             } elseif (count($group) == 2) {
-
                 $linea = '00X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
@@ -388,13 +368,48 @@ class ProductosController extends Controller
                 fwrite($fp, $linea.PHP_EOL);
             }
         }
-
         fclose($fp);
+        $i++;
+        } while (($i + 1) <= $seccion);
 
-        return 'done';
+        $done = 0;
+        for ($i=0; ($i + 1) <= $seccion ; $i++) {
+            $res = file_exists($empresa->ruta_archivo_tx_dival.'/TX_'.strval($i).'.txt');
+            if ($res) {
+                $done++;
+            }
+        }
+        // dd($done, $seccion);
+        if ($done === $seccion) {
+            return 'archivos existen';
+        } else if ($done < $seccion) {
+            return 'archivos no existen';
+        }
+            // solo para clientes con 2 secciones de basculas
+            // $linea1 = '02L200M0';
+            // $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+            // $linea1 .= '   ';
+            // $nombre = strtoupper($linea->nombre);
+            // $nombre = str_replace('ñ', 'N', $nombre);
+            // $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
+            // $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
+            // $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
+
+            // fwrite($fp, $linea1.PHP_EOL);
+
+            // $linea2 = '02H3000';
+            // $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
+            // if ($linea->unidad_id == 1) {
+            //     $linea2 .= '0';
+            // } else {
+            //     $linea2 .= '1';
+            // }
+            // $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
+            // fwrite($fp, $linea2.PHP_EOL);
+
     }
 
-    public function generarArchivoProductosBasculaEpelsa(){
+    public function generarArchivoProductosBasculaEpelsa($seccion) {
 
         $empresa = GenEmpresa::find(1);
 
@@ -438,7 +453,7 @@ class ProductosController extends Controller
         return 'done';
     }
 
-    public function generarArchivoProductosBasculaIshida(){
+    public function generarArchivoProductosBasculaIshida($seccion){
 
         $empresa = GenEmpresa::find(1);
         $productos = Producto::ProductosxListaprecio(1);

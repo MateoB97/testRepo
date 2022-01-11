@@ -13,7 +13,7 @@ class ComprasPorFecha extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE view [dbo].[ViewComprasPorFecha]
+        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasPorFecha]
             as select
             --com_compras
                 com_compras.id As id_compra,
@@ -48,6 +48,6 @@ class ComprasPorFecha extends Migration
      */
     public function down()
     {
-       Schema::dropIfExists('ViewComprasPorFecha');
+       DB::statement('DROP VIEW if exists ViewComprasPorFecha');
     }
 }

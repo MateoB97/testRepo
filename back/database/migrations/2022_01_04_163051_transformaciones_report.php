@@ -13,7 +13,7 @@ class TransformacionesReport extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE VIEW [dbo].[transformaciones] as
+        DB::statement("CREATE OR ALTER VIEW [dbo].[transformaciones] as
         select
         tp.id tfrm,
         (select pd.nombre
@@ -89,6 +89,6 @@ class TransformacionesReport extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('transformaciones');
+        DB::statement('DROP VIEW if exists transformaciones');
     }
 }

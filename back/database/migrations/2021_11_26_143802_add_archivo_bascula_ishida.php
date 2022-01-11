@@ -15,6 +15,7 @@ class AddArchivoBasculaIshida extends Migration
     {
         Schema::table('gen_empresa', function (Blueprint $table) {
             $table->string('ruta_archivo_txt_ishida', 250)->nullable();
+            $table->string('ruta_archivo_tiquetes_ishida', 250)->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ class AddArchivoBasculaIshida extends Migration
     {
         Schema::table('gen_empresa', function (Blueprint $table) {
             $table->dropColumn('ruta_archivo_txt_ishida');
+            $table->dropColumn('ruta_archivo_tiquetes_ishida');
         });
     }
 }
