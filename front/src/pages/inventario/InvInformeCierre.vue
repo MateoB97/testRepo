@@ -5,13 +5,13 @@
         <h3>Resumen Cierre de inventario</h3>
         <div class="row">
           <div>
-                    <GlobalFiltersComponent
-                        titleBtn="Exportar Variación"
-                        url="api/inventario/exportcierrevariacion"
-                        :datesFilter="true"
-                        :dateUnique="0"
-                      />
-                  </div>
+            <GlobalFiltersComponent
+              titleBtn="Exportar Variación"
+              url="api/inventario/exportcierrevariacion"
+              :datesFilter="true"
+              :dateUnique="0"
+            />
+            </div>
           <div>
             <GlobalFiltersComponent
                 titleBtn="Exportar Cierre - Pesadas"
