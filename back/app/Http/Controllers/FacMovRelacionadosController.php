@@ -25,7 +25,7 @@ class FacMovRelacionadosController extends Controller
     public function getItemsMovPrimarios($id)
     {
         $sec = FacMovRelacionado::where('fac_tipo_doc_sec_id', $id)->get()->first();
-        $item = FacMovimiento::where('fac_tipo_doc_id', $sec->fac_tipo_doc_prim_id)->where('estado','!=', 3)->get();
+        $item = FacMovimiento::where('fac_tipo_doc_id', $sec->fac_tipo_doc_prim_id)->where('estado','!=', 3)->orderBy('fac_movimientos.id','desc')->take(5000)->get();
         return $item;
     }
 
