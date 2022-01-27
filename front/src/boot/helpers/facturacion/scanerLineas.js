@@ -13,6 +13,7 @@ export const helperFacturacionScanerLineas = {
       } else {
         app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
       }
+      console.log(app.num_tiquete, 'num tiquete')
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
