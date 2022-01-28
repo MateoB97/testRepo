@@ -289,15 +289,15 @@ class ProductosController extends Controller
 
         $lineas = Producto::ProductosxListaprecio(1);
 
-        $seccion = intval($seccion);
+        $seccion = intval($seccion)*2;
 
         if (!is_dir($empresa->ruta_archivo_tx_dival) && !file_exists($empresa->ruta_archivo_tx_dival)) {
             mkdir($empresa->ruta_archivo_tx_dival, 0777, true);
         }
+        $fp = fopen($empresa->ruta_archivo_tx_dival.'/TX.txt','w+');
+
         $i= 0;
         do {
-            $fp = fopen($empresa->ruta_archivo_tx_dival.'/TX_'.strval($i).'.txt','w+');
-
             foreach ($lineas as $linea) {
 
                 $linea1 = '0'.strval($i).'L200M0';
@@ -321,6 +321,9 @@ class ProductosController extends Controller
                 $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
                 fwrite($fp, $linea2.PHP_EOL);
             }
+            $i= $i+2;
+        } while ($i <= $seccion);
+
             $cantGrupos = ceil(count($vendedores)/3);
 
             $groups = $vendedores->split($cantGrupos);
@@ -369,20 +372,13 @@ class ProductosController extends Controller
             }
         }
         fclose($fp);
-        $i++;
-        } while (($i + 1) <= $seccion);
 
-        $done = 0;
-        for ($i=0; ($i + 1) <= $seccion ; $i++) {
-            $res = file_exists($empresa->ruta_archivo_tx_dival.'/TX_'.strval($i).'.txt');
-            if ($res) {
-                $done++;
-            }
-        }
+        $res = file_exists($empresa->ruta_archivo_tx_dival.'/TX.txt');
+
         // dd($done, $seccion);
-        if ($done === $seccion) {
+        if ($res === true) {
             return 'archivos existen';
-        } else if ($done < $seccion) {
+        } else if ($res !== true) {
             return 'archivos no existen';
         }
             // solo para clientes con 2 secciones de basculas

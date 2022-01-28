@@ -89,6 +89,8 @@ class GenBasculasController extends Controller
 
         $mes = date('n');
 
+        $año = date('YY');
+
         if ($mes == 10 ) {
             $mes = 'A';
         } else if ($mes == 11) {
@@ -106,6 +108,7 @@ class GenBasculasController extends Controller
 
         $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete', $puestoTiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
+        // dd($list);
         $lineasFacturadas = array();
 
         foreach ($list as $item) {
@@ -119,7 +122,7 @@ class GenBasculasController extends Controller
             $seccion = '000';
         }
 
-        $val = $ruta.'/BL'.$seccion.$dia.$mes.'.TOT';
+        $val = $ruta.'/BL'.$seccion.$dia.$mes.$año.'.TOT';
 
         $handle = @fopen($val, "r");
 

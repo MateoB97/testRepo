@@ -557,6 +557,7 @@ export default {
       var app = this
       app.$q.loading.show()
       // console.log(seccion, '#seccion')
+      seccion = (seccion - seccion) + 1 * (seccion * 2)
       axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/cargarabascula/' + seccion).then(
         function (response) {
           if (response.data === 'done') {
