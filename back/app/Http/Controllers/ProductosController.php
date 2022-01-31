@@ -289,7 +289,7 @@ class ProductosController extends Controller
 
         $lineas = Producto::ProductosxListaprecio(1);
 
-        $seccion = intval($seccion)*2;
+        // $seccion = intval($seccion)*2;
 
         if (!is_dir($empresa->ruta_archivo_tx_dival) && !file_exists($empresa->ruta_archivo_tx_dival)) {
             mkdir($empresa->ruta_archivo_tx_dival, 0777, true);
@@ -322,17 +322,18 @@ class ProductosController extends Controller
                 fwrite($fp, $linea2.PHP_EOL);
             }
             $i= $i+2;
-        } while ($i <= $seccion);
+        } while (($i + 2) <= $seccion);
+        $i = 0;
+        do {
+        $cantGrupos = ceil(count($vendedores)/3);
 
-            $cantGrupos = ceil(count($vendedores)/3);
+        $groups = $vendedores->split($cantGrupos);
 
-            $groups = $vendedores->split($cantGrupos);
-
-            $groups->toArray();
+        $groups->toArray();
 
         foreach ($groups as $group) {
             if (count($group) == 3) {
-                $linea = '00X500000';
+                $linea = '0'.strval($i).'0X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -345,7 +346,7 @@ class ProductosController extends Controller
                 fwrite($fp, $linea.PHP_EOL);
 
             } elseif (count($group) == 2) {
-                $linea = '00X500000';
+                $linea = '0'.strval($i).'0X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -358,7 +359,7 @@ class ProductosController extends Controller
                 fwrite($fp, $linea.PHP_EOL);
 
             } elseif (count($group) == 1) {
-                $linea = '00X500000';
+                $linea = '0'.strval($i).'0X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -371,6 +372,9 @@ class ProductosController extends Controller
                 fwrite($fp, $linea.PHP_EOL);
             }
         }
+            $i = $i+2;
+        } while (($i + 2) <= $seccion);
+
         fclose($fp);
 
         $res = file_exists($empresa->ruta_archivo_tx_dival.'/TX.txt');
@@ -411,6 +415,9 @@ class ProductosController extends Controller
 
         $lineas = Producto::ProductosxListaprecio(1);
 
+        if (!is_dir($empresa->ruta_archivo_precios_epelsa) && !file_exists($empresa->ruta_archivo_precios_epelsa)) {
+            mkdir($empresa->ruta_archivo_precios_epelsa, 0777, true);
+        }
         $fp = fopen($empresa->ruta_archivo_precios_epelsa.'/global.dat','w+');
 
         // fwrite($fp, '0001000000master               0011'.PHP_EOL);

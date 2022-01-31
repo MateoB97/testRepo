@@ -24,9 +24,10 @@ export const helperFacturacionScanerLineas = {
       if (!tiqueteLeido) {
         axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiquetedibal/' + app.num_tiquete + '/' + puestoTiquete).then(
           function (response) {
-            if (response.data.length > 0) {
+            console.log(response, 'respuesta lectura basculas')
+            if (response.data.actual.length > 0) {
               var vendedor = null
-              response.data.forEach(function (element, j) {
+              response.data.actual.forEach(function (element, j) {
                 const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
                 if (productoImpuesto !== undefined) {
                   if (parseInt(element[1]) > 50) {
@@ -61,8 +62,53 @@ export const helperFacturacionScanerLineas = {
                 app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
                 app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
               }
-            } else {
+            } else if (response.data.actual.length <= 0) {
               app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete  o todos los elementos ya fueron facturados.' })
+            }
+            if (response.data.pasado.length > 0) {
+              app.$q.notify({
+                color: 'negative',
+                message: 'Tienes ventas del año pasado con este tiquete, ¿quieres verlas?',
+                actions: [
+                  { label: 'Si',
+                    color: 'blue',
+                    handler: () => {
+                      app.diagTiqPasados = true
+                      response.data.pasado.forEach((element) => {
+                        const productoImpuestoP = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
+                        if (productoImpuestoP !== undefined) {
+                          if (parseInt(element[1]) > 50) {
+                            element[1] = element[1] / 1000
+                          }
+                          var oldProduct = {
+                            id: app.itemsCounterP,
+                            producto: productoImpuestoP.nombre,
+                            producto_id: productoImpuestoP.id,
+                            producto_codigo: productoImpuestoP.codigo,
+                            cantidad: element[1],
+                            precio: (parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuestoP.impuesto) / 100))).toFixed(0),
+                            iva: productoImpuestoP.impuesto,
+                            gen_iva_id: productoImpuestoP.gen_iva_id,
+                            desc: 0.00,
+                            descporcentaje: 0.00,
+                            despacho: false,
+                            num_tiquete: element[3],
+                            num_linea_tiquete: element[4],
+                            puesto_tiquete: puestoTiquete
+                          }
+                          app.pasadosResumen.push(oldProduct)
+                          vendedor = element[5]
+                          app.itemsCounter = app.itemsCounterP + 1
+                          // app.numLineas = app.numLineas + 1
+                        } else {
+                          app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
+                        }
+                      })
+                    }
+                  },
+                  { label: 'No', color: 'yellow', handler: () => {} }
+                ]
+              })
             }
             app.num_tiquete = null
             app.$q.loading.hide()
@@ -248,7 +294,7 @@ export const helperFacturacionScanerLineas = {
       var app = this
       var tiqueteLeido = false
       app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-      console.log(app.num_tiquete)
+      console.log(app.num_tiquete, 'num_tiquete')
       var tiquetesLeidos = []
       if (app.dataResumen.length !== 0) {
         tiquetesLeidos = app.dataResumen.filter(v => parseInt(v.num_tiquete) === parseInt(app.num_tiquete))
@@ -259,9 +305,10 @@ export const helperFacturacionScanerLineas = {
       if (!tiqueteLeido) {
         axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiqueteepelsa/' + app.num_tiquete).then(
           function (response) {
-            if (response.data.length > 0) {
+            console.log(response, 'response')
+            if (response.data.actual.length > 0) {
               var vendedor = null
-              response.data.forEach(function (element, j) {
+              response.data.actual.forEach(function (element, j) {
                 const productoImpuesto = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
                 if (productoImpuesto !== undefined) {
                   if (parseInt(element[1]) > 50) {
@@ -295,8 +342,51 @@ export const helperFacturacionScanerLineas = {
                 app.$q.notify({ color: 'negative', message: 'Error vendedor con codigo ' + vendedor + ' no existe, se cargara el vendedor por defecto.' })
                 app.storeItems.gen_vendedor_id = app.vendedores.find(v => parseInt(v.codigo_unico) === parseInt(0))
               }
-            } else {
+            } else if (response.data.actual.length <= 0) {
               app.$q.notify({ color: 'negative', message: 'Error al leer el tiquete.' })
+            } if (response.data.pasado.length > 0) {
+              app.$q.notify({
+                color: 'negative',
+                message: 'Tienes ventas del año pasado con este tiquete, ¿quieres verlas?',
+                actions: [
+                  { label: 'Si',
+                    color: 'blue',
+                    handler: () => {
+                      app.diagTiqPasados = true
+                      response.data.pasado.forEach((element) => {
+                        const productoImpuestoP = app.productosImpuestos.find(v => parseInt(v.codigo) === parseInt(element[0]))
+                        if (productoImpuestoP !== undefined) {
+                          if (parseInt(element[1]) > 50) {
+                            element[1] = element[1] / 1000
+                          }
+                          var oldProduct = {
+                            id: app.itemsCounterP,
+                            producto: productoImpuestoP.nombre,
+                            producto_id: productoImpuestoP.id,
+                            producto_codigo: productoImpuestoP.codigo,
+                            cantidad: element[1],
+                            precio: (parseInt(element[2] / element[1]) / (1 + (parseInt(productoImpuestoP.impuesto) / 100))).toFixed(0),
+                            iva: productoImpuestoP.impuesto,
+                            gen_iva_id: productoImpuestoP.gen_iva_id,
+                            desc: 0.00,
+                            descporcentaje: 0.00,
+                            despacho: false,
+                            num_tiquete: element[3],
+                            num_linea_tiquete: element[4]
+                          }
+                          app.pasadosResumen.push(oldProduct)
+                          vendedor = element[5]
+                          app.itemsCounter = app.itemsCounterP + 1
+                          // app.numLineas = app.numLineas + 1
+                        } else {
+                          app.$q.notify({ color: 'negative', message: 'El codigo ' + parseInt(element[0]) + ' no esta creado.' })
+                        }
+                      })
+                    }
+                  },
+                  { label: 'No', color: 'yellow', handler: () => {} }
+                ]
+              })
             }
             app.num_tiquete = null
             app.$q.loading.hide()

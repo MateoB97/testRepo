@@ -106,6 +106,68 @@
           </q-dialog>
         <!-- fin popup ingresar pago -->
 
+        <!-- popUp tiquetes año pasado -->
+          <q-dialog tabindex="1" v-model="diagTiqPasados" :content-css="{minWidth: '80vw', minHeight: '50vh'}">
+            <q-layout view="Lhh lpR fff" container style="height: 50vh; max-width: 800px" class="bg-white">
+                  <q-table
+                    :data="pasadosResumen"
+                    :columns="columnsPasados"
+                    row-key="name"
+                    class="my-sticky-header-table"
+                    binary-state-sort
+                    hide-bottom
+                    table-style="max-height: 400px"
+                    virtual-scroll
+                    :pagination.sync="pagination"
+                    :rows-per-page-options="[0]"
+                  >
+                    <template v-slot:body="props">
+                      <q-tr :props="props">
+                        <q-td key="id" :props="props"><q-checkbox v-if="tipoDoc.naturaleza != 0" v-model="selected" :val="props.row.id" /></q-td>
+                        <q-td key="producto" :props="props">{{ props.row.producto }}</q-td>
+                        <q-td key="peso" :props="props">{{ parseFloat(props.row.cantidad).toFixed(3) }}</q-td>
+                        <q-td key="precio" :props="props">{{ Math.round(props.row.precio) | toMoney }}</q-td>
+                        <q-td key="descporcentaje" :props="props">
+                          {{ props.row.descporcentaje }}
+                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="props.row.descporcentaje" @hide="setDescuento(props.row.id)" title="Descuento (%)" buttons>
+                            <q-input type="number" v-model="props.row.descporcentaje" dense autofocus />
+                          </q-popup-edit>
+                        </q-td>
+                        <q-td key="precioDescuento" :props="props">{{ (props.row.precio - props.row.desc) | toMoney  }}</q-td>
+                        <q-td key="iva" :props="props">
+                          {{ props.row.iva }}
+                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="props.row.iva" @hide="setIva(props.row.id)" title="iva" buttons>
+                            <q-select
+                              label="Seleccione impuestos"
+                              v-model="temp.iva"
+                              :options="impuestos"
+                              option-value="id"
+                              option-label="nombre"
+                            />
+                          </q-popup-edit>
+                        </q-td>
+                        <q-td key="ivapesosunit" :props="props">{{ ivaUnitRow(props.row) | toMoney }}</q-td>
+                        <q-td key="preciototalunit" :props="props">
+                          {{ Math.round(props.row.precio - props.row.desc + ivaUnitRow(props.row)) | toMoney }}
+                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="temp.precioLinea" @hide="setPrecio(props.row.id)" title="Precio Total Unit." buttons>
+                            <money v-model="temp.precioLinea" v-bind="money" class="v-money"></money>
+                          </q-popup-edit>
+                        </q-td>
+                        <q-td key="subtotal" :props="props">{{ Math.round(( Math.round(props.row.precio)) * props.row.cantidad) | toMoney }}</q-td>
+                        <q-td key="desc" :props="props">
+                          {{ props.row.desc | toMoney }}
+                          <q-popup-edit v-if="tipoDoc.naturaleza != 0" v-model="props.row.desc" @hide="setPorcentaje(props.row.id)" title="Descuento ($)" buttons>
+                            <money v-model="props.row.desc" v-bind="money" class="v-money"></money>
+                          </q-popup-edit>
+                        </q-td>
+                        <q-td key="ivatotal" :props="props">{{ ivaUnitRow(props.row) * props.row.cantidad | toMoney }}</q-td>
+                        <q-td key="total" :props="props">{{ Math.round((( Math.round(props.row.precio) - props.row.desc + ivaUnitRow(props.row)) * props.row.cantidad)).toLocaleString('de-DE') }}</q-td>
+                      </q-tr>
+                    </template>
+                  </q-table>
+            </q-layout>
+          </q-dialog>
+        <!-- fin popUp tiquetes año pasado -->
         <div class="row q-col-gutter-md">
         <div class="row q-col-gutter-md col-12 col-md-4">
             <div class="col-12">
@@ -534,7 +596,26 @@ export default {
       dataResumen: [],
       pagination: {
         rowsPerPage: 0
-      }
+      },
+      // tiquetes pasados
+      diagTiqPasados: false,
+      columnsPasados: [
+        // { name: 'id', required: true, label: 'id', align: 'left', field: 'id', sortable: true, classes: 'my-class', style: 'width: 30px' },
+        { name: 'producto', required: true, label: 'Producto', align: 'left', field: 'producto', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'peso', required: true, label: 'Cantidad', align: 'right', field: 'peso', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'precio', required: true, label: 'Precio', align: 'right', field: 'precio', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'descporcentaje', required: true, label: 'Descuento (%)', align: 'right', field: 'descporcentaje', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        // { name: 'precioDescuento', required: true, label: 'Precio Con Descuento', align: 'right', field: 'precioDescuento', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'iva', required: true, label: 'IVA (%)', align: 'right', field: 'iva', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        // { name: 'ivapesosunit', required: true, label: 'IVA ($) unit', align: 'right', field: 'ivapesosunit', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'preciototalunit', required: true, label: 'Precio Tot Unit', align: 'right', field: 'preciototalunit', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'subtotal', required: true, label: 'Subtotal', align: 'right', field: 'subtotal', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'desc', required: true, label: 'Descuento', align: 'right', field: 'desc', sortable: true, classes: 'my-class', style: 'width: 200px' },
+        { name: 'ivatotal', required: true, label: 'IVA total', align: 'right', field: 'ivatotal', sortable: true, classes: 'my-class', style: 'width: 100px' },
+        { name: 'total', required: true, label: 'Total', align: 'right', field: 'total', sortable: true, classes: 'my-class', style: 'width: 100px' }
+      ],
+      pasadosResumen: [],
+      itemsConuterP: 0
     }
   },
   mixins: [globalFunctions, helperFacturacionScanerLineas],
