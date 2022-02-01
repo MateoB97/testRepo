@@ -409,7 +409,7 @@ class ProductosController extends Controller
 
     }
 
-    public function generarArchivoProductosBasculaEpelsa($seccion) {
+    public function generarArchivoProductosBasculaEpelsa() {
 
         $empresa = GenEmpresa::find(1);
 
@@ -456,7 +456,7 @@ class ProductosController extends Controller
         return 'done';
     }
 
-    public function generarArchivoProductosBasculaIshida($seccion){
+    public function generarArchivoProductosBasculaIshida(){
 
         $empresa = GenEmpresa::find(1);
         $productos = Producto::ProductosxListaprecio(1);

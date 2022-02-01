@@ -238,13 +238,13 @@
                       :error="!isValid"
                     ></q-input>
                 </div>
-                  <div class="col-2">
+                <!-- <div class="col-2">
                     <q-select outlined
                       v-model="storeItems.secciones_epelsa"
                       :options="numero_secciones"
                       label="Secciones"
                     ></q-select>
-                </div>
+                </div> -->
                 <div class="col-9">
                     <q-input
                       ref="input"
@@ -257,7 +257,7 @@
                     ></q-input>
                 </div>
                 <div class="col-3">
-                  <q-btn color="positive" v-on:click="subirDatosBasculaEpelsa(storeItems.secciones_epelsa)" label="Generar Archivo Precios" />
+                  <q-btn color="positive" v-on:click="subirDatosBasculaEpelsa()" label="Generar Archivo Precios" />
                 </div>
                 <!-- BASCULA ISHIDA -->
                  <div class="col-12">
@@ -274,13 +274,13 @@
                       :error="!isValid"
                     ></q-input>
                 </div>
-                <div class="col-2">
+                <!-- <div class="col-2">
                     <q-select outlined
                       v-model="storeItems.secciones_ishida"
                       :options="numero_secciones"
                       label="Secciones"
                     ></q-select>
-                </div>
+                </div> -->
                 <div class="col-9">
                     <q-input
                       ref="input"
@@ -293,7 +293,7 @@
                     ></q-input>
                 </div>
                 <div class="col-3">
-                  <q-btn color="positive" v-on:click="subirDatosBasculaIshida(storeItems.secciones_ishida)" label="Generar Archivo PRODUCTOS" />
+                  <q-btn color="positive" v-on:click="subirDatosBasculaIshida()" label="Generar Archivo PRODUCTOS" />
                 </div>
                 <!-- BASCULA MARQUES -->
                 <div class="col-12">
@@ -310,13 +310,13 @@
                       :error="!isValid"
                     ></q-input>
                 </div>
-                <div class="col-2">
+                <!-- <div class="col-2">
                     <q-select outlined
                       v-model="storeItems.secciones_marquez"
                       :options="numero_secciones"
                       label="Secciones"
                     ></q-select>
-                </div>
+                </div> -->
                 <div class="col-2">
                   <q-btn color="positive" v-on:click="eliminarFamiliasMarques()" label="Eliminar familias" />
                 </div>
@@ -324,7 +324,7 @@
                   <q-btn color="positive" v-on:click="eliminarProductosMarques()" label="Eliminar Productos" />
                 </div>
                 <div class="col-2">
-                  <q-btn color="positive" v-on:click="subirDatosBasculaMarques(storeItems.secciones_marquez)" label="Enviar datos a bascula" />
+                  <q-btn color="positive" v-on:click="subirDatosBasculaMarques()" label="Enviar datos a bascula" />
                 </div>
                 <div class="row q-col-gutter-md col-12" v-if="this.$store.state.jhsoft.tipo_licencia === 3 || this.$store.state.jhsoft.tipo_licencia === 4">
                   <!-- Fac electronica -->
@@ -456,7 +456,8 @@ export default {
         prod_lista_precios_id: null,
         gen_municipios_id: null,
         ruta_archivo_tx_dival: null,
-        ruta_archivo_precio_ishida: null,
+        ruta_archivo_tiquetes_ishida: null,
+        ruta_archivo_txt_ishida: null,
         ruta_ip_marques: null,
         tipoEscaner: null,
         producto_bolsa_id: null,
@@ -464,10 +465,7 @@ export default {
         test_id_fe: null,
         cantidad_caracteres: 0,
         precio_bascula_marques: null,
-        secciones_dibal: 0,
-        secciones_marquez: 0,
-        secciones_epelsa: 0,
-        secciones_ishida: 0
+        secciones_dibal: 0
       },
       numero_secciones: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       tipos_escaner: [
@@ -515,6 +513,7 @@ export default {
         this.storeItems.gen_municipios_id = this.storeItems.gen_municipios_id.id
       }
       // this.storeItems.precio_bascula_marques = activated
+      console.log(this.storeItems.prod_lista_precios_id)
     },
     postEdit () {
     },
@@ -570,10 +569,11 @@ export default {
         app.$q.loading.hide()
       })
     },
-    subirDatosBasculaEpelsa (seccion) {
+    subirDatosBasculaEpelsa () {
       var app = this
       app.$q.loading.show()
-      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa/' + seccion).then(
+      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa/').then(
+      // axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa/'+seccion).then(
         function (response) {
           if (response.data === 'done') {
             app.$q.notify({ color: 'positive', message: 'Archivo Generado.' })
@@ -585,10 +585,11 @@ export default {
         app.$q.loading.hide()
       })
     },
-    subirDatosBasculaIshida (seccion) {
+    subirDatosBasculaIshida () {
       var app = this
       app.$q.loading.show()
-      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosishida/' + seccion).then(
+      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosishida').then(
+      // axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosishida/'+seccion).then(
         function (response) {
           if (response.data === 'done') {
             app.$q.notify({ color: 'positive', message: 'Archivo Generado.' })
@@ -642,11 +643,12 @@ export default {
         this.$q.notify({ color: 'negative', message: 'Contraseña Incorrecta' })
       }
     },
-    subirDatosBasculaMarques (seccion) {
+    subirDatosBasculaMarques () {
       var app = this
       app.$q.loading.show()
       let ipMarquesMaster = app.storeItems.ruta_ip_marques.split('&')[0].split('-')
       axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirdatosbasculamarques').then(
+      // axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirdatosbasculamarques'+seccion).then(
         function (response) {
           axios.put('http://' + ipMarquesMaster[0] + '/year/familias', response.data[0]).then(
             function (response1) {
