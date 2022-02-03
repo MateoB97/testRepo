@@ -3,7 +3,7 @@ export default {
   url: 'http://localhost/sgcdev/back/public/',
   // url: 'http://192.168.1.168/sevillaErrLogs/back/public/',
   // url: 'http://sgc.estebangonzalez.xyz/back/',
-  // url: 'http://192.168.20.169/sgc/back/public/',
+  // url: 'http://192.168.1.169/sgc/back/public/',
   // url: 'http://192.168.0.100/sgc/back/public/',
   // url: 'http://192.168.1.82/sgc/back/public/',
   // url: 'http://desktop-caermcs/sgc/back/public/',
