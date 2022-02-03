@@ -233,8 +233,8 @@ class GenEtiqueta extends Model
      public static function marinadoEtiquetas ($porcMarinado) {
 
         return "^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
-        ^FT25,340^A0N,23,23^FH\^CI28^FDCarne inyectada al " .$porcMarinado." con soluci\A2n de agua, sal, mezcla de fosfatos: pirofosfato^FS^CI28
-        ^FT25,360^A0N,23,23^FH\^CI28^FD tetras\A2dico 450iii triplofosfato de sodio 451i (estabilizante y emulsificante), acetato^FS^CI28
+        ^FT25,340^A0N,23,23^FH\^CI28^FDCarne inyectada al " .$porcMarinado." con solucion de agua, sal, mezcla de fosfatos: pirofosfato^FS^CI28
+        ^FT25,360^A0N,23,23^FH\^CI28^FD tetrasodico 450iii triplofosfato de sodio 451i (estabilizante y emulsificante), acetato^FS^CI28
         ^FT25,380^A0N,23,23^FH\^CI28^FDde sodio y sorbato de sodio (conservantes) eritorbato de sodio (antioxidante).^FS^CI28";
 
         // return "^FT300,320^A0N,28,28^FH\^CI28^FDINGREDIENTES:^FS^CI28
