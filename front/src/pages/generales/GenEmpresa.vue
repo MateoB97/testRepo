@@ -572,7 +572,7 @@ export default {
     subirDatosBasculaEpelsa () {
       var app = this
       app.$q.loading.show()
-      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa/').then(
+      axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa').then(
       // axios.get(this.$store.state.jhsoft.url + 'api/productos/configuracion/subirpreciosepelsa/'+seccion).then(
         function (response) {
           if (response.data === 'done') {
