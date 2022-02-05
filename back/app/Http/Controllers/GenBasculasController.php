@@ -453,15 +453,19 @@ class GenBasculasController extends Controller
 
     public function tiquetesNoFacturados($fecha)
     {
+        dd(Auth::user());
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
-
         $empresa = GenEmpresa::find(1);
 
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
+        // $fechaIni = date('d/m/Y', strtotime($fecha));
+        // $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
+        $fechaIni = date('Y/m/d', strtotime($fecha));
+        $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
+
         $arrayTotal = array();
+        
         $arrayItem = array();
         $totalGnal = 0;
         $totalTiquete = 0;
@@ -733,14 +737,16 @@ class GenBasculasController extends Controller
     {
         $empresa = GenEmpresa::find(1);
         $total = 0;
-        $fechaIni = date('d/m/Y', strtotime($fecha));
-        $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
+        // $fechaIni = date('d/m/Y', strtotime($fecha));
+        // $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
+        $fechaIni = date('Y/m/d', strtotime($fecha));
+        $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
+        // dd($fechaFin);
         $arrayTotal = array();
         $arrayItem = array();
         $arrayLines = array();
         $totalGnal = 0;
         $totalTiquete = 0;
-
         $dia = substr($fecha, 0,2);
 
         $mes = intval(substr($fecha, 3,2));
@@ -768,14 +774,15 @@ class GenBasculasController extends Controller
             $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
 
             while (($buffer = fgets($handle)) !== false) {
-
+                // var_dump($buffer);
                 if ($empresa->tipo_escaner == 1) {
                     $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
+                    intval(substr($buffer, 16, 6)), // cantidad
+                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
+                    intval(substr($buffer, 3, 4)), // numero tiquete
+                    intval(substr($buffer, 7, 3)), // linea tiquete
+                    intval(substr($buffer, 31, 2)));// vendedor
+
                 } else if ($empresa->tipo_escaner == 4) {
                     $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
                                     intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
@@ -789,6 +796,7 @@ class GenBasculasController extends Controller
                                             ->where('num_linea_tiquete', $arrayItem[4])
                                             ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
+                // dd($list);
                 if ( count($list) < 1) {
 
                     if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
@@ -798,7 +806,6 @@ class GenBasculasController extends Controller
                     }
 
                     $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-
                     if ($arrayItem[1] < 1) {
                         $arrayItem[1] = 1;
                     }
@@ -847,6 +854,7 @@ class GenBasculasController extends Controller
                     }
                 }
             }
+            // dd($arrayLines);
 
             return $arrayLines;
 

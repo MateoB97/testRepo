@@ -73,6 +73,7 @@ class InvCierreInventario extends Model
     }
 
     public static function getDataCierreInventarioVariacion($fecha_final, $fecha_inicial_vcd, $cierre1, $cierre2){
+        // dd($cierre1);
         return DB::select("
                 select
                 sp.id as [SubGrupoID]

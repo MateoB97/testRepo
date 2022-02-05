@@ -27,6 +27,10 @@ class CierreInventarioVariacion implements FromView
         $cierre1 = InvCierreInventario::where('fecha_cierre','=', $fecha_inicial)->get()->first();
         $cierre2 = InvCierreInventario::where('fecha_cierre','=', $fecha_final)->get()->first();
         $hoy = Carbon::now();
+        // dd($cierre1);
+        if (gettype($cierre1) !== "object" || gettype($cierre2) !== "object" ) {
+            return 0;
+        }
         $dataCierre = InvCierreInventario::getDataCierreInventarioVariacion($fecha_final, $fecha_ini_entra_salid, $cierre1->id, $cierre2->id);
 
         foreach ($dataCierre as $key => $value) {
