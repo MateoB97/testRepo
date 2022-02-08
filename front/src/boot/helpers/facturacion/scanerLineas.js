@@ -68,7 +68,7 @@ export const helperFacturacionScanerLineas = {
             if (response.data.pasado.length > 0) {
               app.$q.notify({
                 color: 'negative',
-                message: 'Tienes ventas del año pasado con este tiquete, ¿quieres verlas?',
+                message: 'Tienes ventas de dias pasados con este tiquete, ¿quieres verlas?',
                 actions: [
                   { label: 'Si',
                     color: 'blue',
@@ -347,7 +347,7 @@ export const helperFacturacionScanerLineas = {
             } if (response.data.pasado.length > 0) {
               app.$q.notify({
                 color: 'negative',
-                message: 'Tienes ventas del año pasado con este tiquete, ¿quieres verlas?',
+                message: 'Tienes ventas de días pasados con este tiquete, ¿quieres verlas?',
                 actions: [
                   { label: 'Si',
                     color: 'blue',

@@ -1073,7 +1073,7 @@ class FacMovimientosController extends Controller
 
         $nuevoItem = FacMovimiento::find($id);
         $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);
-        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get();
+        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get(); // mirar numero de consultas, lentitud en impresion?
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
         $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
         $tercero = $sucursal->Tercero;
@@ -1088,8 +1088,8 @@ class FacMovimientosController extends Controller
         // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
         // $connector = new WindowsPrintConnector($nombre_impresora);
         // $printer = new Printer($connector);
-
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
+        // dd($nombre_impresora);
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         $printer->pulse();

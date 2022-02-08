@@ -12,6 +12,7 @@ use App\GenVendedor;
 use App\GenUnidades;
 use Carbon\Carbon;
 use PDF;
+use App\User;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
@@ -453,7 +454,7 @@ class GenBasculasController extends Controller
 
     public function tiquetesNoFacturados($fecha)
     {
-        dd(Auth::user());
+        // dd(Auth::user());
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
@@ -465,7 +466,7 @@ class GenBasculasController extends Controller
         $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
 
         $arrayTotal = array();
-        
+
         $arrayItem = array();
         $totalGnal = 0;
         $totalTiquete = 0;
@@ -530,7 +531,7 @@ class GenBasculasController extends Controller
                 $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
                                             ->where('num_linea_tiquete', $arrayItem[4])
                                             ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
+                // dd($list);
                 if ( count($list) < 1) {
 
                     if (intval($tiqueteAnterior) != intval($arrayItem[3])) {
