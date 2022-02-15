@@ -104,8 +104,8 @@ class GenBasculasController extends Controller
 
 
         $date = Carbon::now();
-        $fechaIni = $date->format('Y/m/d');
-        $fechaFin = $date->addDay()->format('Y/m/d');
+        $fechaIni = $date->format('Y/d/m');
+        $fechaFin = $date->addDay()->format('Y/d/m');
         // $fechaIni = $date->format('d/m/Y');
         // $fechaFin = $date->addDay()->format('d/m/Y');
 
@@ -237,13 +237,15 @@ class GenBasculasController extends Controller
         $val = $ruta.'/tqgen'.$dia.$mes;
 
         $date = Carbon::now();
-        $fechaIni = $date->format('Y/m/d');
-        $fechaFin = $date->addDay()->format('Y/m/d');
+        // $fechaIni = $date->format('Y/m/d');
+        // $fechaFin = $date->addDay()->format('Y/m/d');
+        $fechaIni = $date->format('Y/d/m');
+        $fechaFin = $date->addDay()->format('Y/d/m');
         // $fechaIni = $date->format('d/m/Y');
         // $fechaFin = $date->addDay()->format('d/m/Y');
 
         $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
+        // dd($list);
         foreach ($list as $item) {
             array_push($lineasFacturadas, $item->num_linea_tiquete);
         }
@@ -295,7 +297,6 @@ class GenBasculasController extends Controller
             fclose($handle);
         }
     }
-
 
     public function tiquetesNoFacturadosMarques($fecha)
     {
@@ -462,8 +463,9 @@ class GenBasculasController extends Controller
 
         // $fechaIni = date('d/m/Y', strtotime($fecha));
         // $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-        $fechaIni = date('Y/m/d', strtotime($fecha));
-        $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
+        $date = Carbon::now();
+        $fechaIni = $date->format('Y/d/m');
+        $fechaFin = $date->addDay()->format('Y/d/m');
 
         $arrayTotal = array();
 
@@ -740,8 +742,11 @@ class GenBasculasController extends Controller
         $total = 0;
         // $fechaIni = date('d/m/Y', strtotime($fecha));
         // $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-        $fechaIni = date('Y/m/d', strtotime($fecha));
-        $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
+        // $fechaIni = date('Y/m/d', strtotime($fecha));
+        // $fechaFin = date('Y/m/d', strtotime($fecha . ' + 1 day'));
+        $date = Carbon::now();
+        $fechaIni = $date->format('Y/d/m');
+        $fechaFin = $date->addDay()->format('Y/d/m');
         // dd($fechaFin);
         $arrayTotal = array();
         $arrayItem = array();

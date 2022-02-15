@@ -146,7 +146,8 @@ class FacRecibosCajaController extends Controller
 
         $user = User::find(2);
 
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
