@@ -48,8 +48,7 @@ class RastreoProductoDespachoReport extends Migration
         inner join tercero_sucursales ts on ts.id = sm.terceroSucursal_id
         inner join sal_pivot_sal_producto sp on sp.sal_mercancia_id = sm.id and sp.producto_id = p.id
         where
-        i.tipo_invent = 2
-        go");
+        i.tipo_invent = 2");
     }
 
     /**
