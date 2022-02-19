@@ -337,11 +337,21 @@ class FacMovimientosController extends Controller
 
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
 
-        if ( count(FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()) > 0 ){
-            $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()->last();
-            $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
+        // return $tipoDoc;
+        //mirar notas para resolver esto martes 15/02/2022
+        // if ( count(FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()) > 0 ){
+        //     $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()->last();
+        //     $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
+        // }else{
+        //     $nuevoItem->consecutivo = intval($tipoDoc->consec_inicio);
+        // }
+
+        if ( 1 == 1  && intval($tipoDoc->naturaleza) !== 0){
+            $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->orderBy('consecutivo','desc')->limit(1)->get();
+            $nuevoItem->consecutivo = $consecutivo[0]->consecutivo + 1;
         }else{
             $nuevoItem->consecutivo = intval($tipoDoc->consec_inicio);
+            // return 'hola';
         }
 
         // si es una devolucion cambia el estado del movimiento

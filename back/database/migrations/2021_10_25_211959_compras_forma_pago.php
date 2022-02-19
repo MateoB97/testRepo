@@ -13,7 +13,7 @@ class ComprasFormaPago extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasFormasPago]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasFormasPago]
         as
 
         select

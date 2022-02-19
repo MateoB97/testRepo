@@ -13,7 +13,7 @@ class ComprasPorFechaDevs extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewDevolucionesCompraPorFecha]
+        DB::statement("CREATE VIEW [dbo].[ViewDevolucionesCompraPorFecha]
             as select
                 com_compras.id As id_devol,
                 com_compras.consecutivo As consecutivo_devol,

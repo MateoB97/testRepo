@@ -13,7 +13,7 @@ class ComprasXProducto extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasXProducto]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasXProducto]
         as
         select
         	com_compras.consecutivo as consec_compra

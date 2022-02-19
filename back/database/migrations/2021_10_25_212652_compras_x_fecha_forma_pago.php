@@ -13,7 +13,7 @@ class ComprasXFechaFormaPago extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasvFechaFormasPago]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasvFechaFormasPago]
         as
 
         select

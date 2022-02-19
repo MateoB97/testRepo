@@ -13,7 +13,7 @@ class ComprasPorFecha extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasPorFecha]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasPorFecha]
             as select
             --com_compras
                 com_compras.id As id_compra,

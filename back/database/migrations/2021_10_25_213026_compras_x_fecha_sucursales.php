@@ -13,7 +13,7 @@ class ComprasXFechaSucursales extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasPorFechaSucursal]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasPorFechaSucursal]
             as select
 			--com_compras
                 com_compras.id As id_compra,
@@ -40,7 +40,7 @@ class ComprasXFechaSucursales extends Migration
 			inner join com_tipo_compras on com_tipo_compras.id = com_compras.com_tipo_compras_id
             where com_compras.estado != 3");
 
-            DB::statement("CREATE OR ALTER VIEW  [dbo].[ViewDevolucionesCompraPorFechaSucursal]
+            DB::statement("CREATE VIEW  [dbo].[ViewDevolucionesCompraPorFechaSucursal]
             as select
                 com_compras.id As id_devol,
                 com_compras.consecutivo As consecutivo_devol,
@@ -63,7 +63,7 @@ class ComprasXFechaSucursales extends Migration
 			inner join com_tipo_compras on com_tipo_compras.id = com_compras.com_tipo_compras_id
             where com_compras.estado = 3");
 
-            DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasxFechaFormasPagoSucursal]
+            DB::statement("CREATE VIEW [dbo].[ViewComprasxFechaFormasPagoSucursal]
             as
 
             select

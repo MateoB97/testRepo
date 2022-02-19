@@ -13,7 +13,7 @@ class ComprasPorFechaPesos extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE OR ALTER VIEW [dbo].[ViewComprasPorFechaPesos]
+        DB::statement("CREATE VIEW [dbo].[ViewComprasPorFechaPesos]
         as
         select
         	prod_grupos.nombre as grupo

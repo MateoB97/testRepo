@@ -414,4 +414,4 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/transformaciones', 'ReportesGeneradosController@transformaciones');
 });
 
-
+Route::get('/test', 'testController@testing1');

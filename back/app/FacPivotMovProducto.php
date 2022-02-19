@@ -18,7 +18,7 @@ class FacPivotMovProducto extends Model
     }
 
     public static function porMovimiento($id){
-    return DB::table('fac_pivot_mov_productos')
+    return DB::table('fac_pivot_mov_productos') /* mirar si se puede limitar la consulta para mas rapidez */
             ->select(
             	'fac_pivot_mov_productos.descporcentaje',
             	'fac_pivot_mov_productos.iva',
