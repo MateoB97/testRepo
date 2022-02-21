@@ -329,78 +329,6 @@
                         :dateUnique="0"
                       />
                 </div>
-                <!-- <div class="q-pa-md">
-                  <q-btn-dropdown
-                  color="primary"
-                  label="Compras"
-                  menu-self="bottom left"
-                  >
-                    <q-list>
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Fecha"
-                        url="api/reportesgenerados/reportes/comprasPorFecha"
-                        :tercerosFilter="true"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Fecha - Detalles"
-                        url="api/reportesgenerados/reportes/comprasDetails"
-                        :tercerosFilter="true"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras - forma de pago"
-                        url="api/reportesgenerados/reportes/comprasFormaPago"
-                        :tercerosFilter="true"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Fecha - Pesos"
-                        url="api/reportesgenerados/reportes/comprasPorFechaPesos"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Fecha - Pesos DEVS"
-                        url="api/reportesgenerados/reportes/comprasPorFechaPesosDEVS"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Fecha - Sucursal"
-                        url="api/reportesgenerados/reportes/comprasPorFechaXSucursal"
-                        :tercerosFilter="true"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :dateUnique="0"
-                      />
-                      <GlobalFiltersComponent
-                        titleBtn="Compras x Producto"
-                        url="api/reportesgenerados/reportes/comprasXProducto"
-                        :tercerosFilter="true"
-                        :tipoDocFilter="false"
-                        :datesFilter="true"
-                        :gruposFilter="false"
-                        :productosFilter="true"
-                        :dateUnique="0"
-                      />
-                    </q-list>
-                  </q-btn-dropdown>
-                </div> -->
               </div>
             <div class="row q-col-gutter-md">
               <div class="col-12 q-mt-md"><h4 style="margin:0px">Movimientos</h4></div>
@@ -544,12 +472,23 @@
                 <div class="col-4">
                   <GlobalFiltersComponent
                       titleBtn="Transformaciones"
-                      url="api/reportesgenerados/transformaciones"
+                      url="api/reportesgenerados/reportes/transformaciones"
                       :tipoDocFilter="false"
                       :datesFilter="true"
                       :productsAloneFilter="true"
                       :dateUnique="0"
                     />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                      titleBtn="Trazabilidad de producto"
+                      url="api/reportesgenerados/reportes/rastreoProdDesp"
+                      :datesFilter="true"
+                      :dateUnique="0"
+                      :productosFilter="true"
+                      :loteFilter="true"
+                      :guiaFilter="true"
+                  />
                 </div>
             </div>
         </div>

@@ -411,7 +411,8 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     // produccion
     Route::get('/productosporlote', 'InventariosController@GetProductosPorLotePDF');
     Route::get('/pesoplantalote', 'ReportesGeneradosController@pesoPlantaLote');
-    Route::get('/transformaciones', 'ReportesGeneradosController@transformaciones');
+    Route::get('/reportes/transformaciones', 'ReportesGeneradosController@transformaciones');
+    Route::get('/reportes/rastreoProdDesp', 'ReportesGeneradosController@rastreoProdDesp');
 });
 
 Route::get('/test', 'testController@testing1');

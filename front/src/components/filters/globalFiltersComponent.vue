@@ -41,6 +41,10 @@
                   v-if="loteFilter"
                   v-model="datos.lote_id"
                 />
+                <GuiaFilter
+                  v-if="guiaFilter"
+                  v-model="datos.guia_id"
+                />
                 <AloneProductsFilter
                   v-if="productsAloneFilter"
                   :value="tipo_transform == 'entrada' ? tipo_transform='entrada' : tipo_transform='salida' "
@@ -74,6 +78,7 @@ import GrupoSubgrupoProductoFilter from 'components/filters/GrupoSubgrupoProduct
 import LoteFilter from 'components/filters/LoteFilter.vue'
 import SelectTipoDoc from 'components/filters/SelectTipoDoc.vue'
 import AloneProductsFilter from 'components/filters/aloneProducts.vue'
+import GuiaFilter from 'components/filters/GuiaFilter.vue'
 
 export default {
   name: 'globalFilterComponent',
@@ -84,6 +89,7 @@ export default {
     SelectTipoDoc,
     GrupoSubgrupoProductoFilter,
     LoteFilter,
+    GuiaFilter,
     AloneProductsFilter
   },
   props: [
@@ -91,6 +97,7 @@ export default {
     'tercerosFilter',
     'gruposFilter',
     'loteFilter',
+    'guiaFilter',
     'productosFilter',
     'productsAloneFilter',
     'tipoDocFilter',
@@ -115,7 +122,8 @@ export default {
         producto_id: null,
         entrada: null,
         salida: null,
-        lote_id: null
+        lote_id: null,
+        guia_id: null
       },
       isVisible: false,
       params: ''
@@ -190,7 +198,8 @@ export default {
           grupo_id: null,
           subgrupo_id: null,
           producto_id: null,
-          lote_id: null
+          lote_id: null,
+          guia_id: null
         }
       }
     }
