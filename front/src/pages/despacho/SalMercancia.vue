@@ -71,7 +71,7 @@
           <div class="row q-col-gutter-sm">
             <SelectTerceroSucursal v-model="storeItems.terceroSucursal_id" columnas='col-12 col-md-6' labelTercero='Cliente'/>
             <div class="col-3 col-md-3">
-              <q-input color="primary" type="number" v-model="storeItems.temperatura" label="Temperatura en Refrigeración"></q-input>
+              <q-input color="primary" type="number" v-model="storeItems.temperatura_refrigerado" label="Temperatura en Refrigeración"></q-input>
             </div>
             <div class="col-3 col-md-3">
               <q-input color="primary" type="number" v-model="storeItems.temperatura_congelado" label="Temperatura en Congelación"></q-input>
@@ -150,7 +150,7 @@ export default {
       storeItems: {
         items: [],
         terceroSucursal_id: null,
-        temperatura: '',
+        temperatura_refrigerado: '',
         vehiculo: null,
         temperatura_congelado: ''
       },

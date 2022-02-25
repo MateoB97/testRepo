@@ -20,7 +20,7 @@ class SalMercancia extends Model
      *
      * @var array
      */
-    protected $fillable = ['terceroSucursal_id','temperatura','vehiculo', 'consecutivo', 'temperatura_congelado'];
+    protected $fillable = ['terceroSucursal_id','temperatura_refrigerado','vehiculo', 'consecutivo', 'temperatura_congelado'];
 
     /**
      * SalMercancia belongs to TerceroSucursal.

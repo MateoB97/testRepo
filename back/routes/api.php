@@ -415,4 +415,5 @@ Route::group(['prefix' => 'reportesgenerados'/*, 'middleware' => 'auth'*/], func
     Route::get('/reportes/rastreoProdDesp', 'ReportesGeneradosController@rastreoProdDesp');
 });
 
-Route::get('/test', 'testController@testing1');
+// Route::get('/test/salMer', 'testController@testing1');
+// Route::get('/test/facE', 'testController@facE');

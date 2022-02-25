@@ -125,6 +125,11 @@
                         <p><strong>Temperatura Congelación de despacho:</strong> {{ number_format($salMercancia->temperatura_congelado, 2, ',', '.') }} °C</p>
                     </td>
                 @endif
+                @if ($salMercancia->temperatura_refrigerado)
+                    <td>
+                        <p><strong>Temperatura Refrigeración de despacho:</strong> {{ number_format($salMercancia->temperatura_refrigerado, 2, ',', '.') }} °C</p>
+                    </td>
+                @endif
 				{{--  <td>
 					<p><strong>Vehículo de Transporte:</strong> {{ strtoupper($salMercancia->vehiculo) }}</p>
 				</td>  --}}

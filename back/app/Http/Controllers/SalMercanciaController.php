@@ -44,7 +44,8 @@ class SalMercanciaController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->temperatura_congelado <= -18) {
+        if ($request->temperatura_congelado <= -18 || $request->temperatura_refrigerado ) { // cuanto es la temperatura refrigerado?
+            // return $request->temperatura;
             $nuevoItem = new SalMercancia($request->all());
             $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
             $nuevoItem->consecutivo = $lastConsect;
