@@ -74,11 +74,12 @@ class InvCierreInventario extends Model
 
     public static function getDataCierreInventarioVariacion($fecha_final, $fecha_inicial_vcd, $cierre1, $cierre2){ // requerimiento daniela cierre inv, prod CodPadre
         // dd($cierre1);
-        return DB::select("
-                select
+        return DB::select(" SELECT
                 sp.id as [SubGrupoID]
                 ,sp.nombre as [SubGrupo]
                 ,p.nombre as [Producto]
+                ,p.cod_prod_padre as [coPad]
+                ,p.codigo as [codPro]
                 ,i.cantidad as [InvActual]
                 ,ISNULL(ci.cantidad_cierre, 0) as [InvInicial]
                 ,isnull(cc.cantidad_entreada_mercancia, 0 ) as [QtyEntradas]
