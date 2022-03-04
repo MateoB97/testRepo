@@ -104,8 +104,12 @@ class GenBasculasController extends Controller
 
 
         $date = Carbon::now();
+        // $fechaIni = $date->format('Y/m/d');
+        // $fechaFin = $date->addDay()->format('Y/m/d');
+
         $fechaIni = $date->format('Y/d/m');
         $fechaFin = $date->addDay()->format('Y/d/m');
+
         // $fechaIni = $date->format('d/m/Y');
         // $fechaFin = $date->addDay()->format('d/m/Y');
 

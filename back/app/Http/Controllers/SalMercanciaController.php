@@ -8,6 +8,7 @@ use App\SalPivotInventSalida;
 use App\SalPivotSalProducto;
 use App\ProdVencimiento;
 use App\Inventario;
+use App\Producto;
 use Carbon\Carbon;
 use PDF;
 use App\GenEmpresa;
@@ -42,35 +43,62 @@ class SalMercanciaController extends Controller
         return $list;
     }
 
-    public function store(Request $request)
+    public function salMercSave ($req)
     {
-        if ($request->temperatura_congelado <= -18 || $request->temperatura_refrigerado ) { // cuanto es la temperatura refrigerado?
-            // return $request->temperatura;
-            $nuevoItem = new SalMercancia($request->all());
-            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
-            $nuevoItem->consecutivo = $lastConsect;
-            $nuevoItem->save();
+        $nuevoItem = new SalMercancia($req->all());
+        $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+        $nuevoItem->consecutivo = $lastConsect;
+        $nuevoItem->save();
 
-            foreach ($request->items as $item) {
-                $prod = new SalPivotInventSalida;
-                $prod->inventario_id = $item;
-                $prod->salMercancia_id = $nuevoItem->id;
-                $prod->save();
+        foreach ($req->items as $item) {
+            $prod = new SalPivotInventSalida;
+            $prod->inventario_id = $item;
+            $prod->salMercancia_id = $nuevoItem->id;
+            $prod->save();
 
-                $inv = Inventario::find($item);
-                $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
-                $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
-                $inv->save();
+            $inv = Inventario::find($item);
+            $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
+            $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
+            $inv->save();
+        }
+
+        foreach ($req->datos as $item) {
+            $nuevoPeso = new SalPivotSalProducto($item);
+            $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
+            $nuevoPeso->cantidad = $item['peso_despacho'];
+            $nuevoPeso->save();
+        }
+        return 'done';
+    }
+
+    public function store(Request $request) // falta probar
+    {
+
+        if (gettype($request->temperatura_refrigerado) !== 'NULL') {
+            $visceras = array();
+            $cortes = array();
+            // return $request;
+            foreach ($request->datos as $prod) { // recordar unificación de codigo para estos condicionales
+                $producto = Producto::find($prod->codigo);
+                if ($producto->prod_subgrupo_id === 23 || $producto->prod_subgrupo_id === 24 || $producto->codigo === 35 || $producto->codigo === 035) {
+                    array_push($visceras, $prod);
+                } else {
+                    array_push($cortes, $prod);
+                }
             }
-
-            foreach ($request->datos as $item) {
-                $nuevoPeso = new SalPivotSalProducto($item);
-                $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
-                $nuevoPeso->cantidad = $item['peso_despacho'];
-                $nuevoPeso->save();
+            if (count($visceras) >= 1 && $request->temperatura_refrigerado >= 5) {
+                return 'La temperatura de refrigeración de visceras debe ser menor a 5°';
+            } else if (count($cortes) >= 1 && $request->temperatura_refrigerado >= 7) {
+                return 'La temperatura de refrigeración de cortes debe ser menor a 7°';
+            } else if (count($visceras) >= 1 || count($cortes) >= 1 ) {
+                $this->salMercSave($request);
             }
-            return 'done';
-        } else {
+        }
+
+        if ($request->temperatura_congelado <= -18 && gettype($request->temperatura_congelado) !== 'NULL') {
+            $this->salMercSave($request);
+
+        } else if ($request->temperatura_congelado >= -18) {
             return 'La temperatura de congelación debe ser menor a -18°';
         }
     }
