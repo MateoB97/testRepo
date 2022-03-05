@@ -206,6 +206,7 @@
                     <q-select outlined
                       v-model="storeItems.secciones_dibal"
                       :options="numero_secciones"
+                      option-value="storeItems.secciones_dibal"
                       label="Secciones"
                     ></q-select>
                 </div>
@@ -465,7 +466,9 @@ export default {
         test_id_fe: null,
         cantidad_caracteres: 0,
         precio_bascula_marques: null,
-        secciones_dibal: 0
+        secciones_dibal: 1,
+        secciones_epelsa: 1,
+        secciones_ishida: 1
       },
       numero_secciones: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       tipos_escaner: [
@@ -561,6 +564,8 @@ export default {
         function (response) {
           if (response.data === 'done') {
             app.$q.notify({ color: 'positive', message: 'Archivo Generado.' })
+          } else if (response.data === 'fail') {
+            app.$q.notify({ color: 'negative', message: 'Problemas creando el archivo' })
           }
         }
       ).catch(function (error) {
@@ -723,7 +728,7 @@ export default {
       axios.get(this.$store.state.jhsoft.url + 'api/productos/listadeprecios/estado/activos').then(
         function (response1) {
           app.listaprecios = response1.data
-          axios.get(app.$store.state.jhsoft.url + app.urlAPI).then(
+          axios.get(app.$store.state.jhsoft.url + app.urlAPI).then( // datos empresa
             function (response) {
               app.storeItems = response.data
               app.storeItems.prod_lista_precios_id = app.listaprecios.find(element => parseInt(element.id) === parseInt(response.data.prod_lista_precios_id))

@@ -277,7 +277,7 @@ class ProductosController extends Controller
     }
 
 
-    public function subGroupFilter($id){
+    public function subGroupFilter($id) {
         $list = Producto::where('prod_subgrupo_id', $id)->get();
         return $list;
     }
@@ -296,9 +296,9 @@ class ProductosController extends Controller
         }
         $fp = fopen($empresa->ruta_archivo_tx_dival.'/TX.txt','w+');
 
-        $i= 0;
-        do {
-            foreach ($lineas as $linea) {
+        foreach ($lineas as $linea) {
+            $i= 0;
+                do {
 
                 $linea1 = '0'.strval($i).'L200M0';
                 $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
@@ -320,9 +320,9 @@ class ProductosController extends Controller
                 }
                 $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
                 fwrite($fp, $linea2.PHP_EOL);
-            }
-            $i= $i+2;
-        } while (($i + 2) <= $seccion);
+                $i= $i+2;
+            } while (($i + 2) <= $seccion);
+        }
         $i = 0;
         do {
         $cantGrupos = ceil(count($vendedores)/3);
@@ -332,8 +332,9 @@ class ProductosController extends Controller
         $groups->toArray();
 
         foreach ($groups as $group) {
+            // dump($group);
             if (count($group) == 3) {
-                $linea = '0'.strval($i).'0X500000';
+                $linea = '0'.strval($i).'X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -345,8 +346,8 @@ class ProductosController extends Controller
                 $linea .= str_pad('', 22, "0", STR_PAD_RIGHT);
                 fwrite($fp, $linea.PHP_EOL);
 
-            } elseif (count($group) == 2) {
-                $linea = '0'.strval($i).'0X500000';
+            } else if (count($group) == 2) {
+                $linea = '0'.strval($i).'X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -358,8 +359,8 @@ class ProductosController extends Controller
                 $linea .= str_pad('', 55, "0", STR_PAD_RIGHT);
                 fwrite($fp, $linea.PHP_EOL);
 
-            } elseif (count($group) == 1) {
-                $linea = '0'.strval($i).'0X500000';
+            } else if (count($group) == 1) {
+                $linea = '0'.strval($i).'X500000';
                 foreach ($group as $vendedor) {
                     $linea .= str_pad($vendedor['codigo_unico'], 2, "0", STR_PAD_LEFT);
                     $nombre = strtoupper($vendedor['nombre']);
@@ -381,9 +382,9 @@ class ProductosController extends Controller
 
         // dd($done, $seccion);
         if ($res === true) {
-            return 'archivos existen';
+            return 'done';
         } else if ($res !== true) {
-            return 'archivos no existen';
+            return 'fail';
         }
             // solo para clientes con 2 secciones de basculas
             // $linea1 = '02L200M0';

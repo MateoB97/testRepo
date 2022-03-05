@@ -40,7 +40,10 @@ class GenEmpresa extends Model
         'email_backup_fact_elect',
         'cantidad_caracteres',
         'bloquear_tercero',
-        'precio_bascula_marques'
+        'precio_bascula_marques',
+        'secciones_dibal',
+        'secciones_epelsa',
+        'secciones_ishida'
     ];
 
     public function getDateFormat()
