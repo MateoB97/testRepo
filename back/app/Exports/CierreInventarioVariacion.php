@@ -42,31 +42,31 @@ class CierreInventarioVariacion implements FromView
                     $dataCierre[$key]->$key2 = rtrim(rtrim(sprintf('%.8F', $value2), '0'), ".");
                 }
             }
-            if (gettype($dataCierre[$key]->coPad) !== 'NULL') {
-                $emparejamiento[$key] = collect([
-                    'codPro' => $dataCierre[$key]->codPro,
-                    'coPad' => $dataCierre[$key]->coPad
-                ]);
-            }
+            // if (gettype($dataCierre[$key]->coPad) !== 'NULL') {
+            //     $emparejamiento[$key] = collect([
+            //         'codPro' => $dataCierre[$key]->codPro,
+            //         'coPad' => $dataCierre[$key]->coPad
+            //     ]);
+            // }
         }
 
         $data = self::toCollect($dataCierre);
         $subGroups = $data->unique('SubGrupo');
 
-        foreach ($emparejamiento as $key => $value) {
-            $hijo = $data->where('codPro', $emparejamiento[$key]['codPro']);
-            $padre = $data->where('codPro', $value['coPad']); // sumar a este
-            $concat = $padre->concat($hijo);
-            $suma = $concat->sum('QtyVentas');
-            $padre[$padre->keys()[0]]->QtyVentas = strval($suma);
-            // dd($padre);
-            // $padre = $padre->replace(['QtyVentas' => strval($suma)]);
-            // dump($data[$padre->keys()[0]]);
-            // dump($padre->keys()[0]);
-            // dump($suma);
-            // dump($data);
-            // $data[$padre->keys()[0]]->merge([$padre]);
-        }
+        // foreach ($emparejamiento as $key => $value) {
+        //     $hijo = $data->where('codPro', $emparejamiento[$key]['codPro']);
+        //     $padre = $data->where('codPro', $value['coPad']); // sumar a este
+        //     $concat = $padre->concat($hijo);
+        //     $suma = $concat->sum('QtyVentas');
+        //     $padre[$padre->keys()[0]]->QtyVentas = strval($suma);
+        //     // dd($padre);
+        //     // $padre = $padre->replace(['QtyVentas' => strval($suma)]);
+        //     // dump($data[$padre->keys()[0]]);
+        //     // dump($padre->keys()[0]);
+        //     // dump($suma);
+        //     // dump($data);
+        //     // $data[$padre->keys()[0]]->merge([$padre]);
+        // }
 
 
         $sendData = ['details' => $data,
