@@ -20,7 +20,7 @@ class Producto extends Model
      *
      * @var array
      */
-    protected $fillable = ['nombre','codigo', 'prod_subgrupo_id','gen_iva_id','gen_unidades_id','unid_por_animal','activo','cod_ean_13', 'cuenta_contable_venta_id','cod_prod_padre'];
+    protected $fillable = ['nombre','codigo', 'prod_subgrupo_id','gen_iva_id','gen_unidades_id','unid_por_animal','activo','cod_ean_13', 'cuenta_contable_venta_id','cod_prod_padre', 'conservaSM'];
 
 
     public function prodSubgrupo()

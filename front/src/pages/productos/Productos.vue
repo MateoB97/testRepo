@@ -219,6 +219,15 @@
                     </q-select>
                 </div>
             </div>
+        <div v-if="showProducto" class="row q-col-gutter-sm q-mt-sm">
+          <div v-if="showProducto" class="col-4">
+            <q-select
+              label="Conservese para salida de mercancía como:"
+              v-model="storeItems.conservaSM"
+              :options="conservacion"
+            />
+          </div>
+        </div>
             <div v-if="showProducto" class="row q-col-gutter-sm q-mt-sm">
                 <div class="col-6">
                   <div class="col-12 text-center">
@@ -343,6 +352,11 @@ export default {
       urlAPI: 'api/productos/items',
       impuestos: [],
       unidades: [],
+      conservacion: [
+        { label: 'Refirgerado Visceras', value: 0 },
+        { label: 'Refrigerado Corte', value: 1 },
+        { label: 'Congelado', value: 2 }
+      ],
       showSubgrupos: false,
       showProducto: false,
       optionsVisibleMarinacion: [
@@ -366,7 +380,8 @@ export default {
         gen_iva_id: null,
         gen_unidades_id: null,
         cod_prod_padre: '',
-        vencimientos: []
+        vencimientos: [],
+        conservaSM: null
       },
       showAnimales: true,
       showItemModal: false,

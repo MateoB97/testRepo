@@ -10,6 +10,8 @@ use App\GenImpresora;
 use App\Producto;
 use App\GenVendedor;
 use App\GenUnidades;
+use App\FacMovimiento;
+use App\FacTipoDoc;
 use Carbon\Carbon;
 use PDF;
 use App\User;
@@ -516,6 +518,8 @@ class GenBasculasController extends Controller
             $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
             $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
 
+            $ctrlDevsEpel = 0;
+
             while (($buffer = fgets($handle)) !== false) {
 
                 if ($empresa->tipo_escaner == 1) {
@@ -526,20 +530,31 @@ class GenBasculasController extends Controller
                                     intval(substr($buffer, 7, 3)), // linea tiquete
                                     intval(substr($buffer, 31, 2)));// vendedor
                 } else if ($empresa->tipo_escaner == 4) {
+
                     $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
+                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
+                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
+                    intval(substr($buffer, 0, 4)), // numero tiquete
+                    intval(substr($buffer, 4, 3)), // linea tiquete
+                    intval(substr($buffer, 11, 4)));// vendedor
+                    if ((strpos($buffer, '-') === false )) {
+                        $ctrlDevsEpel++;
+                    }
                 }
 
                 $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
                                             ->where('num_linea_tiquete', $arrayItem[4])
                                             ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-                // dd($list);
-                if ( count($list) < 1) {
 
+
+                // if (isset($list[0]['num_tiquete'])) {
+                //     $tipoDoc = FacTipoDoc::where('naturaleza', 4)->get();
+                //     $facMov = intval($list[0]->fac_mov_id);
+                //     $mov = FacMovimiento::where('id', $facMov)->where('fac_tipo_doc_id', $tipoDoc[0]['id'])->get();
+                // }
+                if ( !isset($list[0]['num_tiquete']) /* && $mov[0]['estado'] !== "3" */ ) {
+
+                    // break;
                     if (intval($tiqueteAnterior) != intval($arrayItem[3])) {
                         if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
                             $vendedor = $v->nombre;

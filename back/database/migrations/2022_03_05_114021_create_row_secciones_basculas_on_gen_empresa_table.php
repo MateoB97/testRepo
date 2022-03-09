@@ -28,9 +28,9 @@ class CreateRowSeccionesBasculasOnGenEmpresaTable extends Migration
     public function down()
     {
         Schema::table('gen_empresa', function (Blueprint $table) {
-            $table->dropColumn('secciones_dibal')->nullable();
-            $table->dropColumn('secciones_epelsa')->nullable();
-            $table->dropColumn('secciones_ishida')->nullable();
+            $table->dropColumn('secciones_dibal');
+            $table->dropColumn('secciones_epelsa');
+            $table->dropColumn('secciones_ishida');
         });
     }
 }
