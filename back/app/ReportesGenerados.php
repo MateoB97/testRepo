@@ -647,19 +647,35 @@ where
     }
 
     public static function impuestoBolsaFiscal($fecha_ini,$fecha_fin) {
-        return DB::select("
-            select
-                p.nombre,
-                dd.precio,
-                sum(dd.cantidad) as cantidad
-            from gen_empresa e
-            inner join productos p on e.producto_bolsa_id = p.id
-            inner join fac_pivot_mov_productos dd on p.id = dd.producto_id
-            inner join fac_movimientos d on dd.fac_mov_id = d.id
-            where d.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
-            and d.estado != 3
-            group by p.nombre, dd.precio
-        ");
+        return DB::select("SELECT
+        p.nombre,
+        dd.precio,
+        isnull(case when d.estado = 3 or ftd.naturaleza = 2 then sum(dd.cantidad) end, 0 ) as devoluciones,
+        ISNULL(case when d.estado != 3 and ftd.naturaleza != 2 then SUM(dd.cantidad) end, 0) as ventas,
+        ftd.nombre as tipo_doc
+    from gen_empresa e
+    inner join productos p on e.producto_bolsa_id = p.id
+    inner join fac_pivot_mov_productos dd on p.id = dd.producto_id
+    inner join fac_movimientos d on dd.fac_mov_id = d.id
+    inner join fac_tipo_doc ftd on ftd.id = d.fac_tipo_doc_id
+    where d.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+    --and d.estado != 3
+    and ftd.nombre not like '%hab%'
+    -- and ftd.legal = 1
+    group by p.nombre, dd.precio, ftd.nombre, d.estado, ftd.naturaleza");
+        // return DB::select("
+        //     select
+        //         p.nombre,
+        //         dd.precio,
+        //         sum(dd.cantidad) as cantidad
+        //     from gen_empresa e
+        //     inner join productos p on e.producto_bolsa_id = p.id
+        //     inner join fac_pivot_mov_productos dd on p.id = dd.producto_id
+        //     inner join fac_movimientos d on dd.fac_mov_id = d.id
+        //     where d.fecha_facturacion between '$fecha_ini' and '$fecha_fin'
+        //     and d.estado != 3
+        //     group by p.nombre, dd.precio
+        // ");
     }
 
     public static function formaPagoFiscal($fecha_ini,$fecha_fin) {

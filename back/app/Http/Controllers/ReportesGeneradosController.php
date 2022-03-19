@@ -131,6 +131,7 @@ class ReportesGeneradosController extends Controller
         header("Content-type: application/pdf");
         $od = readfile($output.'.'.$options['format'][0]);
         unlink($output.'.'.$options['format'][0]);
+
         dd($od);
     }
 
@@ -145,7 +146,7 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\rastreoProductoDespacho.jrxml';
+        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto_1.jrxml';
 
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
@@ -252,7 +253,7 @@ class ReportesGeneradosController extends Controller
     public function movimientosPorProducto(){
         // dd($_GET);
         $params = $_GET;
-        $input = 'MovimientosPorProducto';
+        $input = 'MovimientosPorProducto_1';
         self::executeJasper($input, $params);
     }
 

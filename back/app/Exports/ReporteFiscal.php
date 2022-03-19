@@ -42,7 +42,7 @@ class ReporteFiscal implements FromView
             $totalVenta = $totalEfectivo + $totalCredito;
         }
         foreach($bolsas as $bolsa){
-            $impuestoBolsas += $bolsa->precio * $bolsa->cantidad;
+            $impuestoBolsas += $bolsa->precio * $bolsa->ventas;
         }
         $hoy = Carbon::now();
         // dd($taxes);

@@ -187,16 +187,22 @@
     <thead>
        <tr>
            <th><strong>Impuestos</strong></th>
-           <th><strong>Cantidad</strong></th>
+           <th><strong>Devoluciones</strong></th>
+           <th><strong>Ventas</strong></th>
            <th><strong>Precio</strong></th>
+           <th><strong>Sub_Total</strong></th>
+           <th><strong>Tipo Doc</strong></th>
        </tr>
    </thead>
 <tbody>
        @foreach ($bolsas as $bolsa)
            <tr>
                <td style="text-align: left">{{ $bolsa->nombre }}</td>
-               <td style="text-align: left">{{ $bolsa->cantidad }}</td>
+               <td style="text-align: left">{{ $bolsa->devoluciones }}</td>
+               <td style="text-align: left">{{ $bolsa->ventas }}</td>
                <td style="text-align: left">{{ number_format($bolsa->precio, 2) }}</td>
+               <td style="text-align: left">{{ $bolsa->ventas * $bolsa->precio }}</td>
+               <td style="text-align: left">{{ $bolsa->tipo_doc }}</td>
            </tr>
        @endforeach
     <h3  style="text-align:center"><strong>IMPUESTO BOLSAS {{$impuestoBolsas}}</strong></h3>
