@@ -14,7 +14,7 @@ class ChangeSalMercanciasTempRefrigerado extends Migration
     public function up()
     {
         Schema::table('sal_mercancias', function (Blueprint $table) {
-            $table->float('temperatura_refrigerado', 3, 2)->nullable();
+            $table->renameColumn('temperatura', 'temperatura_refrigerado');
         });
     }
 

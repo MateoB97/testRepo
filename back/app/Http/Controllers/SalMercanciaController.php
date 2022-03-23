@@ -43,62 +43,34 @@ class SalMercanciaController extends Controller
         return $list;
     }
 
-    public function store(Request $request) // falta probar
+    public function store(Request $request)
     {
 
-        $visceras = array();
-        $cortes = array();
-        $congelado = array();
+        $nuevoItem = new SalMercancia($request->all());
+        $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
+        $nuevoItem->consecutivo = $lastConsect;
+        $nuevoItem->save();
 
-        foreach ($request->datos as $prod) {
-            $producto = Producto::find($prod->codigo);
-            if ($producto->conservacion === 0) {
-                array_push($visceras, $prod);
-            } else if ($producto->conservacion === 1) {
-                array_push($cortes, $prod);
-            } else if ($producto->conservacion === 2) {
-                array_push($congelado, $prod);
-            }
-        }
-        if (count($visceras) >= 1 && $request->temperatura_refrigerado >= 5) {
-            return 'La temperatura de refrigeración de visceras debe ser menor a 5°';
-        } else if (count($cortes) >= 1 && $request->temperatura_refrigerado >= 7) {
-            return 'La temperatura de refrigeración de cortes debe ser menor a 7°';
-        } else if ($request->temperatura_congelado >= -18) {
-            return 'La temperatura de congelación debe ser menor a -18°';
-        } else if ( ((count($visceras) >= 1 || count($cortes) >= 1) && gettype($request->temperatura_refrigerado) !== 'NULL')
-        || (count($congelado) >=1 && gettype($request->temperatura_congelado) !== 'NULL')) {
-            $nuevoItem = new SalMercancia($request->all());
-            $lastConsect =  intval(SalMercancia::max('consecutivo')) +1 ;
-            $nuevoItem->consecutivo = $lastConsect;
-            $nuevoItem->save();
+        foreach ($request->items as $item) {
+            $prod = new SalPivotInventSalida;
+            $prod->inventario_id = $item;
+            $prod->salMercancia_id = $nuevoItem->id;
+            $prod->save();
 
-            foreach ($request->items as $item) {
-                $prod = new SalPivotInventSalida;
-                $prod->inventario_id = $item;
-                $prod->salMercancia_id = $nuevoItem->id;
-                $prod->save();
-
-                $inv = Inventario::find($item);
-                $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
-                $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
-                $inv->save();
-            }
-
-            foreach ($request->datos as $item) {
-                $nuevoPeso = new SalPivotSalProducto($item);
-                $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
-                $nuevoPeso->cantidad = $item['peso_despacho'];
-                $nuevoPeso->save();
-            }
-            return 'done';
+            $inv = Inventario::find($item);
+            $modificacion1 = ($inv->estado == 2) ? $inv->estado = 3 : '';
+            $modificacion2 = ($inv->estado == 1) ? $inv->estado = 0 : '';
+            $inv->save();
         }
 
-
-        if ($request->temperatura_congelado <= -18 ) {
-            $this->salMercSave($request);
-
+        foreach ($request->datos as $item) {
+            $nuevoPeso = new SalPivotSalProducto($item);
+            $nuevoPeso->sal_mercancia_id = $nuevoItem->id;
+            $nuevoPeso->cantidad = $item['peso_despacho'];
+            $nuevoPeso->save();
         }
+        return 'done';
+
     }
 
     /**

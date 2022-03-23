@@ -104,74 +104,30 @@ class GenBasculasController extends Controller
             $mes = 'C';
         }
 
-
         $date = Carbon::now();
 
         $fechaIni = $date->format('Y/d/m');
         $fechaFin = $date->addDay()->format('Y/d/m');
 
-        // dd($fechaIni , $fechaFin);
-
+        $puestoTiquete = intval($puestoTiquete);
         $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->where('puesto_tiquete', $puestoTiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-        // dd($año);
         $lineasFacturadas = array();
 
         foreach ($list as $item) {
             array_push($lineasFacturadas, $item->num_linea_tiquete);
         }
-        if (strlen($tiquete) > 6) {
-            switch (substr($tiquete, 0, 1)) {
-                case '2':
-                    $seccion = '001';
-                    break;
-                case '4':
-                    $seccion = '002';
-                    break;
-                case '6':
-                    $seccion = '003';
-                    break;
-                case '8':
-                    $seccion = '004';
-                    break;
-                case '10':
-                    $seccion = '005';
-                    break;
-                case '12':
-                    $seccion = '006';
-                    break;
-                case '14':
-                    $seccion = '007';
-                    break;
-                case '16':
-                    $seccion = '008';
-                    break;
-                case '18':
-                    $seccion = '009';
-                    break;
 
-                default:
-                    return 'Error, el numero de secciones no es valido';
-                    break;
-            }
-            $tiquete = intval(substr($tiquete,6,6));
-        } else if (strlen($tiquete) < 6) {
-            $seccion = '000';
+        if ($puestoTiquete >= 1) {
+            $seccionF = '00'.strval($puestoTiquete);
+        } else {
+            $seccionF = '000';
         }
 
-        // if (substr($tiquete, 0, 1) == '2' && strlen($tiquete) > 6){
-        //     $seccion = '001';
-        //     $tiquete = intval(substr($tiquete,6,6));
-        // } else {
-        //     $seccion = '000';
-        // }
-
-        $val = $ruta.'/BL'.$seccion.$dia.$mes.'.TOT';
+        $val = $ruta.'/BL'.$seccionF.$dia.$mes.'.TOT';
 
         $handle = @fopen($val, "r");
 
-        $response = new stdClass ();
-
+        $response = array();
         $fechaActual = $date->subDay()->format('Y-m-d');
 
         if ($handle) {
@@ -184,31 +140,30 @@ class GenBasculasController extends Controller
                 intval(substr($buffer, 7, 3)), // linea tiquete
                 intval(substr($buffer, 31, 2)));// vendedo
 
-                // dd($tiquete);
-                if ( ((intval(substr($buffer, 2, 5)) == $tiquete)) &&
-                     (!in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas))
-                    )
-                    {
-                        $fechaTiquete = Carbon::create(intval(substr($buffer, 33, 4)),intval(substr($buffer, 37, 2)),intval(substr($buffer, 39, 2)));
-                        // dd($fechaTiquete);
-                        if ($fechaTiquete->lt($fechaActual)) {
-                            array_push($arrayPasados, $arrayItem);
-                        }else {
-                            array_push($arrayNuevos, $arrayItem);
-                        }
+                if (
+                    ( intval(substr($buffer, 2, 5)) == $tiquete ) &&
+                    ( !in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas) )
+                )
+                {
+                    $fechaTiquete = Carbon::create(intval(substr($buffer, 33, 4)),intval(substr($buffer, 37, 2)),intval(substr($buffer, 39, 2)));
+                    if ($fechaTiquete->lt($fechaActual)) {
+                        array_push($arrayPasados, $arrayItem);
+                    }else {
+                        array_push($arrayNuevos, $arrayItem);
                     }
+                }
             }
-
-            $response->actual = $arrayNuevos;
-            $response->pasado = $arrayPasados; // tiquetes viejos
-            // $response->pasado = [];
-            return json_encode($response);
-
-            if (!feof($handle)) {
-                echo "Error: unexpected fgets() fail\n";
-            }
-            fclose($handle);
         }
+
+        $response['actual'] = $arrayNuevos;
+        $response['pasado'] = $arrayPasados; // tiquetes viejos
+
+        return json_encode($response);
+
+        if (!feof($handle)) {
+            echo "Error: unexpected fgets() fail\n";
+        }
+        fclose($handle);
     }
 
     public function readTiqueteEpelsa($tiquete)
@@ -242,7 +197,6 @@ class GenBasculasController extends Controller
         $fechaFin = $date->addDay()->format('Y/d/m');
 
         $list = FacPivotMovProducto::where('num_tiquete', $tiquete)->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-        // dd($list);
         foreach ($list as $item) {
             array_push($lineasFacturadas, $item->num_linea_tiquete);
         }
@@ -268,15 +222,12 @@ class GenBasculasController extends Controller
                     $fechaTiquete = Carbon::create(intval(substr($buffer, 78, 4)),intval(substr($buffer, 76, 2)),intval(substr($buffer, 74, 2)));
                     if ((strpos($buffer, '-') === false )){
 
-                        // dd($date);
                         if ( $fechaTiquete->lt($fechaActual)) {
                             array_push($arrayPasados, $arrayItem);
                         }else {
                             array_push($arrayNuevos, $arrayItem);
                         }
-                        // array_push($arrayTotal, $arrayItem);
                     } else {
-                        // array_pop($arrayTotal);
                         array_pop($arrayNuevos);
                     }
                 }
@@ -284,9 +235,7 @@ class GenBasculasController extends Controller
 
             $response->actual = $arrayNuevos;
             $response->pasado = $arrayPasados; // tiquetes viejos
-            // $response->pasado = [];
             return json_encode($response);
-            // return $arrayTotal;
 
             if (!feof($handle)) {
                 echo "Error: unexpected fgets() fail\n";
@@ -535,12 +484,7 @@ class GenBasculasController extends Controller
                                             ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
 
-                // if (isset($list[0]['num_tiquete'])) {
-                //     $tipoDoc = FacTipoDoc::where('naturaleza', 4)->get();
-                //     $facMov = intval($list[0]->fac_mov_id);
-                //     $mov = FacMovimiento::where('id', $facMov)->where('fac_tipo_doc_id', $tipoDoc[0]['id'])->get();
-                // }
-                if ( !isset($list[0]['num_tiquete']) /* && $mov[0]['estado'] !== "3" */ ) {
+                if ( !isset($list[0]['num_tiquete']) ) {
 
                     // break;
                     if (intval($tiqueteAnterior) != intval($arrayItem[3])) {
@@ -749,7 +693,7 @@ class GenBasculasController extends Controller
         $total = 0;
         $fechaIni = date('d/m/Y', strtotime($fecha));
         $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
-  
+
         $arrayTotal = array();
         $arrayItem = array();
         $arrayLines = array();
@@ -804,7 +748,6 @@ class GenBasculasController extends Controller
                                             ->where('num_linea_tiquete', $arrayItem[4])
                                             ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
 
-                // dd($list);
                 if ( count($list) < 1) {
 
                     if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {

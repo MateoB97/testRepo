@@ -15,13 +15,11 @@
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
         "geekcom/phpjasper-laravel": "^1.1",
-        "google/apiclient": "2.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "maatwebsite/excel": "^3.1",
         "mike42/escpos-php": "^2.1",
         "milon/barcode": "^5.3",
-        "nao-pon/flysystem-google-drive": "~1.1",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {

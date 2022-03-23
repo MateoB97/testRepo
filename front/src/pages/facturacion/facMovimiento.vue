@@ -766,24 +766,26 @@ export default {
     },
     localValidate () {
       // if is pos and no update, total abono must be bigger than total
-      if (parseInt(this.tipoDoc.naturaleza) === 4 && this.updateMode === false) {
-        if (parseInt(this.totalAbono) < parseInt(this.total)) {
-          this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
-        } else if (parseInt(this.total) < 1) {
-          this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
-        } else {
-          if (this.sendingCheck === 0) {
+      if (this.sendingCheck === 0) {
+        if (parseInt(this.tipoDoc.naturaleza) === 4 && this.updateMode === false) {
+          if (parseInt(this.totalAbono) < parseInt(this.total)) {
+            this.$q.notify({ color: 'negative', message: 'El pago debe ser mayor a la venta.' })
+          } else if (parseInt(this.total) < 1) {
+            this.$q.notify({ color: 'negative', message: 'No se han agregado productos.' })
+          } else {
             this.openedAddPago = false
             this.globalValidate('guardar')
             this.sendingCheck = 1
           }
+        } else if (parseInt(this.tipoDoc.naturaleza) === 2 || parseInt(this.tipoDoc.naturaleza) === 3) {
+          this.openInventarioNotas = true
+        } else if (parseInt(this.tipoDoc.naturaleza) === 1 && this.updateMode === true) {
+          this.globalValidate('guardar-edicion', this.movActualId)
+          this.sendingCheck = 1
+        } else {
+          this.globalValidate('guardar')
+          this.sendingCheck = 1
         }
-      } else if (parseInt(this.tipoDoc.naturaleza) === 2 || parseInt(this.tipoDoc.naturaleza) === 3) {
-        this.openInventarioNotas = true
-      } else if (parseInt(this.tipoDoc.naturaleza) === 1 && this.updateMode === true) {
-        this.globalValidate('guardar-edicion', this.movActualId)
-      } else {
-        this.globalValidate('guardar')
       }
     },
     setPorcentaje (v) {

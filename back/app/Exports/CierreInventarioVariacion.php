@@ -30,10 +30,6 @@ class CierreInventarioVariacion implements FromView
         $cierre1 = InvCierreInventario::where('fecha_cierre','=', $fecha_inicial)->get()->first();
         $cierre2 = InvCierreInventario::where('fecha_cierre','=', $fecha_final)->get()->first();
         $hoy = Carbon::now();
-        // dd($cierre1);
-        if (gettype($cierre1) !== "object" || gettype($cierre2) !== "object" ) {
-            return 0;
-        }
         $dataCierre = InvCierreInventario::getDataCierreInventarioVariacion($fecha_final, $fecha_ini_entra_salid, $cierre1->id, $cierre2->id);
 
         foreach ($dataCierre as $key => $value) {
@@ -42,32 +38,10 @@ class CierreInventarioVariacion implements FromView
                     $dataCierre[$key]->$key2 = rtrim(rtrim(sprintf('%.8F', $value2), '0'), ".");
                 }
             }
-            // if (gettype($dataCierre[$key]->coPad) !== 'NULL') {
-            //     $emparejamiento[$key] = collect([
-            //         'codPro' => $dataCierre[$key]->codPro,
-            //         'coPad' => $dataCierre[$key]->coPad
-            //     ]);
-            // }
         }
 
         $data = self::toCollect($dataCierre);
         $subGroups = $data->unique('SubGrupo');
-
-        // foreach ($emparejamiento as $key => $value) {
-        //     $hijo = $data->where('codPro', $emparejamiento[$key]['codPro']);
-        //     $padre = $data->where('codPro', $value['coPad']); // sumar a este
-        //     $concat = $padre->concat($hijo);
-        //     $suma = $concat->sum('QtyVentas');
-        //     $padre[$padre->keys()[0]]->QtyVentas = strval($suma);
-        //     // dd($padre);
-        //     // $padre = $padre->replace(['QtyVentas' => strval($suma)]);
-        //     // dump($data[$padre->keys()[0]]);
-        //     // dump($padre->keys()[0]);
-        //     // dump($suma);
-        //     // dump($data);
-        //     // $data[$padre->keys()[0]]->merge([$padre]);
-        // }
-
 
         $sendData = ['details' => $data,
         'subgrupos' => $subGroups,

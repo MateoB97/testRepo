@@ -289,8 +289,6 @@ class ProductosController extends Controller
 
         $lineas = Producto::ProductosxListaprecio(1);
 
-        // $seccion = intval($seccion)*2;
-
         if (!is_dir($empresa->ruta_archivo_tx_dival) && !file_exists($empresa->ruta_archivo_tx_dival)) {
             mkdir($empresa->ruta_archivo_tx_dival, 0777, true);
         }
@@ -332,7 +330,6 @@ class ProductosController extends Controller
         $groups->toArray();
 
         foreach ($groups as $group) {
-            // dump($group);
             if (count($group) == 3) {
                 $linea = '0'.strval($i).'X500000';
                 foreach ($group as $vendedor) {
@@ -380,34 +377,11 @@ class ProductosController extends Controller
 
         $res = file_exists($empresa->ruta_archivo_tx_dival.'/TX.txt');
 
-        // dd($done, $seccion);
         if ($res === true) {
             return 'done';
         } else if ($res !== true) {
             return 'fail';
         }
-            // solo para clientes con 2 secciones de basculas
-            // $linea1 = '02L200M0';
-            // $linea1 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            // $linea1 .= '   ';
-            // $nombre = strtoupper($linea->nombre);
-            // $nombre = str_replace('ñ', 'N', $nombre);
-            // $linea1 .= str_pad($nombre, 73, " ", STR_PAD_RIGHT);
-            // $linea1 .= str_pad($linea->precio, 7, "0", STR_PAD_LEFT);
-            // $linea1 .= str_pad('', 17, "0", STR_PAD_LEFT);
-
-            // fwrite($fp, $linea1.PHP_EOL);
-
-            // $linea2 = '02H3000';
-            // $linea2 .= str_pad($linea->codigo, 5, "0", STR_PAD_LEFT);
-            // if ($linea->unidad_id == 1) {
-            //     $linea2 .= '0';
-            // } else {
-            //     $linea2 .= '1';
-            // }
-            // $linea2 .= '000000000000000000000000000000000000000000000000000             00000000000000000000000000000000000000000000000000000';
-            // fwrite($fp, $linea2.PHP_EOL);
-
     }
 
     public function generarArchivoProductosBasculaEpelsa() {
@@ -462,6 +436,9 @@ class ProductosController extends Controller
         $empresa = GenEmpresa::find(1);
         $productos = Producto::ProductosxListaprecio(1);
 
+        if (!is_dir($empresa->ruta_archivo_txt_ishida) && !file_exists($empresa->ruta_archivo_txt_ishida)) {
+            mkdir($empresa->ruta_archivo_txt_ishida, 0777, true);
+        }
         $fp = fopen($empresa->ruta_archivo_txt_ishida.'/productos.txt', 'w+');
 
         $linea1 = 'Plu_No,PosCode,Posflag,SalesMode,UnitPrice,BarCodeNum,Line1,Line2,Line3,Line4,Line5,Line6,Line7,Line8,Line9,Line10,Line11,Line12,Line13,Line14,Line15,Line16,Line17,Line18,Line19,Line20';

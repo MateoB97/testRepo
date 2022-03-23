@@ -338,13 +338,6 @@ class FacMovimientosController extends Controller
 
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
 
-        // if ( count(FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()) > 0 ){
-        //     $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->get()->last();
-        //     $nuevoItem->consecutivo = $consecutivo->consecutivo + 1;
-        // }else{
-        //     $nuevoItem->consecutivo = intval($tipoDoc->consec_inicio);
-        // }
-
         if ( count(FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->orderBy('consecutivo','desc')->limit(1)->get()) >= 1 && intval($tipoDoc->naturaleza) !== 0){
             $consecutivo = FacMovimiento::where('fac_tipo_doc_id', $nuevoItem->fac_tipo_doc_id)->orderBy('consecutivo','desc')->limit(1)->get();
             $nuevoItem->consecutivo = $consecutivo[0]->consecutivo + 1;
@@ -493,6 +486,7 @@ class FacMovimientosController extends Controller
             $nuevoPivot = new FacPivotMovProducto($linea);
             $nuevoPivot->fac_mov_id = $nuevoItem->id;
             $nuevoPivot->precio = intval($linea['precio']);
+
             $nuevoPivot->save();
 
             if ($tipoDoc->naturaleza == 4 || $tipoDoc->naturaleza == 1) {
@@ -1081,7 +1075,7 @@ class FacMovimientosController extends Controller
 
         $nuevoItem = FacMovimiento::find($id);
         $lineas = FacPivotMovProducto::detallesFacturasConProductoUnidadMedida($id);
-        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get(); // mirar numero de consultas, lentitud en impresion?
+        $lineas2 = FacPivotMovProducto::where('fac_mov_id', $id)->get();
         $tipoDoc = FacTipoDoc::find($nuevoItem->fac_tipo_doc_id);
         $sucursal = TerceroSucursal::find($nuevoItem->cliente_id);
         $tercero = $sucursal->Tercero;
@@ -1091,20 +1085,14 @@ class FacMovimientosController extends Controller
         $totales_por_unidad['Kgs'] = 0;
         $totales_por_unidad['Und'] = 0;
 
-        $user = User::find(2);
+        $user = User::find(Auth::user()->id);
 
-        // $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
-        // $connector = new WindowsPrintConnector($nombre_impresora);
-        // $printer = new Printer($connector);
         $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
-        // dd($nombre_impresora);
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         $printer->pulse();
         $t80 = new ReportesT80();
         $str = '';
-
-        // if ($tipoDoc->naturaleza == 4) {
 
             $pagos = FacPivotMovFormapago::where('fac_mov_id', $id)->get();
 
@@ -1176,7 +1164,7 @@ class FacMovimientosController extends Controller
             $str .= $t80->posDosItemsExtremos("TOTAL", "$".$t80->toNumber($nuevoItem->total));
 
             $totalPagos = 0;
-            if($tipoDoc->naturaleza == 4){
+        if($tipoDoc->naturaleza == 4){
 
             $str .= $t80->posLineaCentro("pagos", "-");
 
@@ -1241,18 +1229,18 @@ class FacMovimientosController extends Controller
             } else {
                 $str.= $t80->posLineaDerecha($nuevoItem->nota);
             }
-        //     if((strlen($nuevoItem->nota) <= $empresa->cantidad_caracteres)){
-        //         $str .= $t80->posLineaDerecha($nuevoItem->nota, false);
-        //         $str .= $t80->posLineaGuion();
-        //     }else {
-        //         $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
-        //         $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
-        //             if($dataNotas) {
-        //                 foreach($dataNotas as $nota) {
-        //                     $str.= $t80->posLineaDerecha($nota);
-        //                 }
-        //             }
-        //      }
+            if((strlen($nuevoItem->nota) <= $empresa->cantidad_caracteres)){
+                $str .= $t80->posLineaDerecha($nuevoItem->nota, false);
+                $str .= $t80->posLineaGuion();
+            }else {
+                $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
+                $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
+                    if($dataNotas) {
+                        foreach($dataNotas as $nota) {
+                            $str.= $t80->posLineaDerecha($nota);
+                        }
+                    }
+             }
             $str .= $t80->posLineaGuion();
         }
 

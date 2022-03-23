@@ -72,8 +72,7 @@ class InvCierreInventario extends Model
         ");
     }
 
-    public static function getDataCierreInventarioVariacion($fecha_final, $fecha_inicial_vcd, $cierre1, $cierre2){ // requerimiento daniela cierre inv, prod CodPadre
-        // dd($cierre1);
+    public static function getDataCierreInventarioVariacion($fecha_final, $fecha_inicial_vcd, $cierre1, $cierre2){
         return DB::select(" SELECT
                 sp.id as [SubGrupoID]
                 ,sp.nombre as [SubGrupo]
