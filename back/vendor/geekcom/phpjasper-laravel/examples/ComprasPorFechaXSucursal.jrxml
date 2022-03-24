@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.15.0.final using JasperReports Library version 6.15.0-dd49bfb94918336b8321d5507193f0169ead4e95  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ComprasPorFecha_original" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="c4ec91bb-fe73-4572-891a-1d67f59b0a79">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="segundoJasperAdapter.xml"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="fecha_inicial" class="java.lang.String"/>
+	<parameter name="fecha_final" class="java.lang.String"/>
+	<parameter name="tercero_id" class="java.lang.String"/>
+	<parameter name="sucursal_id" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[--tabla para guardar datos para -> jasper
+declare @dataCompSucur table(id int, consec varchar(225), descuento int, total bigint, subtotal bigint, saldo bigint, abono_egre bigint, fecha varchar(50), sucursal varchar(300),
+sucursal_id int, tercero_id int, tercero varchar(300), documento varchar(50), tipo_id int, tipo varchar(50), forma varchar(255) , num_registro int )
+
+--cuentas para registros
+declare @maxSales int
+declare @maxDevols int
+
+--inserta la vista creada con cuenta maxSales
+set @maxSales = (select  COUNT(*) from @dataCompSucur)
+
+insert into @dataCompSucur (id, consec, descuento, total, subtotal, saldo, fecha, sucursal, sucursal_id, tercero_id, tercero, documento, tipo_id, tipo, num_registro)
+SELECT [id_compra]
+      ,[consecutivo_compra]
+	  ,[descuento_compra]
+      ,[total_compra]
+      ,[subtotal_compra]
+      ,[saldo_compra]
+      ,[fecha_compra]
+      ,[sucursal_compra]
+      ,[sucursal_id_compra]
+      ,[tercero_compra_id]
+      ,[tercero_compra]
+      ,[documento_compra]
+      ,[tipo_id_compra]
+      ,[tipo_compra]
+      ,[NumRegistro] + @maxSales
+  FROM [dbo].[ViewComprasPorFechaSucursal]
+
+--inserta campos de vista para devol con cuenta maxDevols
+set @maxDevols = (select  COUNT(*) from @dataCompSucur)
+
+insert into @dataCompSucur (id, consec, descuento, total, subtotal, saldo, fecha, sucursal, sucursal_id, tercero_id, tercero, documento, tipo_id, tipo, num_registro)
+SELECT [id_devol]
+      ,[consecutivo_devol]
+	  ,[descuento_devol]
+      ,[total_devol]
+      ,[subtotal_devol]
+      ,[saldo_devol]
+      ,[fecha_devol]
+      ,[sucursal_devol]
+      ,[sucursal_id_devol]
+      ,[tercero_devol_id]
+      ,[tercero_devol]
+      ,[documento_devol]
+      ,[tipo_id_devol]
+      ,[tipo_devol]
+      ,[NumRegistro] + @maxDevols
+  FROM [dbo].[ViewDevolucionesCompraPorFechaSucursal]
+
+declare @maxEgre int
+--(consecutivo int, abono int, total int, fecha date, pago varchar(255), num_registro int)
+set @maxEgre = (select COUNT(*) from @dataCompSucur)
+
+insert into @dataCompSucur (consec, id, descuento, subtotal, sucursal, sucursal_id, tercero_id, tercero, documento, tipo_id, tipo, abono_egre, total, fecha, forma, num_registro)
+SELECT [consec_egre]
+      ,[id_egre]
+	  ,[descuento_egre]
+      ,[subtotal_egre]
+      ,[sucursal_egre]
+      ,[sucursal_id_egre]
+      ,[tercero_egre_id]
+      ,[tercero_egre]
+      ,[documento_egre]
+      ,[tipo_id_egre]
+      ,[compro_nombre]
+      ,[compro_abono_egre]
+      ,[compro_total_egre]
+      ,[compro_fecha_egre]
+      ,[formas_fac]
+      ,[NumRegistro] + @maxEgre
+  FROM [dbo].[ViewComprasxFechaFormasPagoSucursal]
+
+--ejecuta consulta para jasper
+select
+sum(subtotal) subtotal,
+sum(total) total,
+sum(descuento) descuento,
+sum(saldo) saldo,
+sum(abono_egre) abono_egre,
+sucursal,
+tipo,
+tercero
+from @dataCompSucur
+
+where ($P{fecha_inicial} IS NULL OR  replace(fecha, '-', '/' ) >= $P{fecha_inicial})
+and ($P{fecha_final} IS NULL OR  replace(fecha, '-', '/' ) <= $P{fecha_final})
+and ($P{tercero_id} IS NULL OR  tercero_id = $P{tercero_id})
+and ($P{sucursal_id} IS NULL OR  sucursal_id = $P{sucursal_id})
+group by tipo, tercero, sucursal 
+order by tipo,  tercero, sucursal]]>
+	</queryString>
+	<field name="subtotal" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="subtotal"/>
+		<property name="com.jaspersoft.studio.field.label" value="subtotal"/>
+	</field>
+	<field name="total" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="total"/>
+		<property name="com.jaspersoft.studio.field.label" value="total"/>
+	</field>
+	<field name="descuento" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="descuento"/>
+		<property name="com.jaspersoft.studio.field.label" value="descuento"/>
+	</field>
+	<field name="saldo" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="saldo"/>
+		<property name="com.jaspersoft.studio.field.label" value="saldo"/>
+	</field>
+	<field name="abono_egre" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="abono_egre"/>
+		<property name="com.jaspersoft.studio.field.label" value="abono_egre"/>
+	</field>
+	<field name="sucursal" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sucursal"/>
+		<property name="com.jaspersoft.studio.field.label" value="sucursal"/>
+	</field>
+	<field name="tipo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tipo"/>
+		<property name="com.jaspersoft.studio.field.label" value="tipo"/>
+	</field>
+	<field name="tercero" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tercero"/>
+		<property name="com.jaspersoft.studio.field.label" value="tercero"/>
+	</field>
+	<variable name="Total2" class="java.lang.Long" resetType="Group" resetGroup="G_tercero" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="saldo2" class="java.lang.Long" resetType="Group" resetGroup="G_tercero" calculation="Sum">
+		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
+	</variable>
+	<variable name="subtotal1" class="java.lang.Long" resetType="Group" resetGroup="GTipoDoc" calculation="Sum">
+		<variableExpression><![CDATA[$F{subtotal}]]></variableExpression>
+	</variable>
+	<variable name="total1" class="java.lang.Long" resetType="Group" resetGroup="GTipoDoc" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="saldo1" class="java.lang.Long" resetType="Group" resetGroup="GTipoDoc" calculation="Sum">
+		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
+	</variable>
+	<variable name="cuenta" class="java.lang.Integer">
+		<variableExpression><![CDATA[$V{REPORT_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="subtotal2" class="java.lang.Long" resetType="Group" resetGroup="G_tercero" calculation="Sum">
+		<variableExpression><![CDATA[$F{subtotal}]]></variableExpression>
+	</variable>
+	<group name="GTipoDoc">
+		<groupExpression><![CDATA[$F{tipo}]]></groupExpression>
+		<groupHeader>
+			<band height="30">
+				<frame>
+					<reportElement x="0" y="0" width="555" height="30" uuid="574db84f-5c6c-46d1-92a9-a9e2533917a2"/>
+					<textField>
+						<reportElement x="60" y="5" width="440" height="20" uuid="74c9eb3a-896e-4a66-8a26-afeb00101569">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="Arial" size="12" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tipo}.toUpperCase()]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="19">
+				<frame>
+					<reportElement x="0" y="0" width="555" height="19" uuid="6f8042bc-0881-46dc-b7f7-266ed3ca3e19"/>
+					<staticText>
+						<reportElement x="4" y="3" width="40" height="17" uuid="8e8d76c2-ee28-44d9-aeab-d36622a170f0">
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Total ]]></text>
+					</staticText>
+					<textField>
+						<reportElement x="44" y="3" width="176" height="17" uuid="c5945633-e2b7-4459-bb7b-b3add7397a02">
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						</reportElement>
+						<textElement verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tipo}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)" isBlankWhenNull="true">
+						<reportElement x="220" y="0" width="120" height="19" uuid="3c86ecf7-7b34-4711-99a9-731438bd25af"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{saldo1}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)">
+						<reportElement x="470" y="0" width="85" height="19" uuid="0f4f58c9-9723-4fbd-8d16-888469f26c37"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{total1}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)">
+						<reportElement x="360" y="0" width="90" height="19" uuid="e8fdc4f9-6dff-4695-a01b-f16d8bf21012"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{subtotal1}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="G_tercero">
+		<groupExpression><![CDATA[$F{tercero}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<frame>
+					<reportElement x="0" y="0" width="555" height="20" uuid="4c1b21d3-a433-43fa-a4ba-e53bbd585bd3"/>
+					<textField>
+						<reportElement x="0" y="0" width="180" height="20" uuid="f502871f-e302-4cea-b57e-eea1fe2040d0"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tercero}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<frame>
+					<reportElement x="0" y="0" width="555" height="20" uuid="be5d43f4-c43c-4fe0-8e4a-a55700e83201"/>
+					<staticText>
+						<reportElement x="4" y="3" width="40" height="17" uuid="cabab0af-390c-486f-8ce9-3b5e350678f2">
+							<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Total ]]></text>
+					</staticText>
+					<textField>
+						<reportElement x="44" y="0" width="170" height="20" uuid="67b045f4-c4de-4f61-b1d4-c91ab0d59807"/>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tercero}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)">
+						<reportElement x="485" y="0" width="70" height="20" uuid="680e0e5b-265e-4d6c-a532-3493c71c5f03"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{Total2}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)" isBlankWhenNull="true">
+						<reportElement x="240" y="1" width="70" height="20" uuid="7bdfbbac-17e0-4969-9949-db975dbbf9c7"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{saldo2}]]></textFieldExpression>
+					</textField>
+					<textField pattern="$#,##0.###;¤(-#,##0.###)">
+						<reportElement x="370" y="0" width="70" height="20" uuid="d579364c-8de1-450f-a99e-f5a04f3d4479"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="8" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$V{subtotal2}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="40" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="40" uuid="4c5e480a-d06a-4ceb-afaf-95003d508a01">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.element.name" value="ComprasTitle"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<staticText>
+					<reportElement x="0" y="0" width="555" height="40" uuid="030715c2-bd02-4a9d-8793-878350cb9713">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="22" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Compras Por Fecha - Sucursales]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="15" uuid="e992a6ea-f625-4eae-990e-48d1eda101aa">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textField pattern="MMMMM dd, yyyy">
+					<reportElement x="386" y="-1" width="104" height="15" uuid="e7688a59-b0db-484f-bdba-f5582d2c42d0">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="210" y="0" width="80" height="15" uuid="c1c86b2b-a95e-4c8b-a187-d2d0dbe31f06">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{fecha_final}]]></textFieldExpression>
+				</textField>
+				<textField pattern="HH:mm">
+					<reportElement x="490" y="0" width="65" height="15" uuid="cb477165-e564-4838-b232-6d0438fd50a3">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement markup="rtf">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="140" y="0" width="70" height="15" uuid="c4a4b180-fc7e-4901-8c35-b5f4d5a9376d">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[ || Fecha Fin: ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="296" y="0" width="90" height="15" uuid="4ea2f5b7-b2c0-4010-9ff7-f4f53fa4b0a5">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Fecha impresion:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="80" y="0" width="60" height="15" uuid="b191bba8-a452-4b8a-b1db-f73dd9b6685f">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{fecha_inicial}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="10" y="0" width="70" height="15" uuid="b488e781-74ea-43de-be58-6c1c18b9c68f">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Fecha inicial: ]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="12" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="12" uuid="9b425913-d595-46f2-9d78-39512b968608"/>
+				<staticText>
+					<reportElement x="240" y="0" width="70" height="12" uuid="1431d300-4001-4400-9d81-b50202260b98">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Saldo]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="0" width="150" height="12" uuid="fa41c8c4-7042-4c74-9469-d3117beddfbe">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Sucursal]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="370" y="0" width="70" height="12" uuid="055e203c-7c0a-4046-8b7c-c611771450ab">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Subtotal]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="485" y="-1" width="70" height="12" uuid="0781b607-3a71-4537-8761-0feea35ec5f9">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="154" y="0" width="60" height="12" uuid="12aad4d8-202e-42df-b1d0-a8ab9ed0668c">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d0604694-6d32-4c9f-8f61-c4dfc14f4439"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Descuento]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<frame>
+				<reportElement mode="Transparent" x="0" y="0" width="555" height="11" uuid="470a8cde-7f91-45ca-a839-f6abc8811928"/>
+				<textField pattern="$#,##0.###;¤(-#,##0.###)" isBlankWhenNull="true">
+					<reportElement x="370" y="0" width="70" height="12" uuid="9069fddb-ad7f-49f8-8915-e9db563d4460">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f9bbaee6-632e-41d5-882e-6ba466172612"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{subtotal}]]></textFieldExpression>
+				</textField>
+				<textField pattern="$#,##0.###;¤(-#,##0.###)">
+					<reportElement x="485" y="-1" width="70" height="12" uuid="a9b9a7d5-4413-477c-b73d-13854d70323b">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f6c00ad7-16d2-4311-9d97-23d97ecd7055"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="0" width="150" height="12" uuid="06ab754e-63bb-4d73-9583-0301844f951d">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="10a67eef-395e-45a4-ad6d-c4820f9c3182"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sucursal}.toLowerCase()]]></textFieldExpression>
+				</textField>
+				<textField pattern="$#,##0.###;¤(-#,##0.###)" isBlankWhenNull="true">
+					<reportElement x="240" y="1" width="70" height="12" uuid="8938165b-44fc-4d7f-811c-e3619b494db6">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="94df67cd-6503-414a-90ad-3be0ad852b3d"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="150" y="0" width="70" height="11" uuid="a90de920-895d-4573-801d-8d4213b78e91">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d0604694-6d32-4c9f-8f61-c4dfc14f4439"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{descuento}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="15" uuid="97d862a0-0963-4ec7-8721-55ba93cfd02c">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textField>
+					<reportElement x="0" y="0" width="25" height="15" uuid="811f4980-785c-4611-9a15-585127b3564f">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report">
+					<reportElement x="40" y="0" width="35" height="15" uuid="d3c0bcb6-c61c-4619-9258-9e6d6477cdf6">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="25" y="0" width="14" height="15" uuid="c63c2ed0-3f02-4394-a107-d3f3887e03e3">
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle"/>
+					<text><![CDATA[DE]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</pageFooter>
+</jasperReport>
