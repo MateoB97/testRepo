@@ -11,8 +11,8 @@ class LotLiquidacion extends Model
 
     protected $fillable = ['costoPrecio','costoSacrificio','costoDesposte','costoTransporte','costoTransportePlantaPunto','costoEmpaque','ppe','pcc','pcr','prog_lotes_id'];
 
-    public function getDateFormat()
-    {
-        return Tools::dateTimeSql();
-    }
+    // public function getDateFormat()
+    // {
+    //     return Tools::dateTimeSql();
+    // }
 }

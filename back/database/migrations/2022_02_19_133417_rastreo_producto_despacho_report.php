@@ -31,7 +31,8 @@ class RastreoProductoDespachoReport extends Migration
         ,ts.nombre sucDesp
         ,sm.id salida
         ,sm.vehiculo
-        ,sm.created_at fechaDesp
+        ,cast(sm.created_at as date) fechaDesp
+		,cast(sm.created_at as time) horaDesp
         ,pt.almacenamiento
         from
         -- invProdLot

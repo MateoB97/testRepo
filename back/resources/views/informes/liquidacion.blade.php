@@ -5,7 +5,7 @@
 <style>
 	.table {
 	  font-family: arial, sans-serif;
-	  border-collapse: collapse;	
+	  border-collapse: collapse;
 	  border: 1px solid #000;
 	}
 
@@ -127,6 +127,7 @@
 				</td>
 				<td class="wtercio text-center">
 					<h3>LIQUIDACION</h3>
+                    <p>Fecha liquidación: {{$liquidacion->date}}</p>
 					<br>
 					<h4 class="no-margin">PROGRAMACIÓN:</h4>
 					<p>{{ $programacion->id }}</p>
@@ -342,8 +343,8 @@
 				</tr>
 			@endforeach
 		</tbody>
-	</table>	
-	
+	</table>
+
 
 </body>
 </html>
