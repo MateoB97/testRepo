@@ -19,6 +19,7 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Illuminate\Support\Facades\Auth;
+use App\ReportesT80;
 use App\Tools;
 use stdClass;
 
@@ -114,10 +115,14 @@ class GenBasculasController extends Controller
         $lineasFacturadas = array();
 
         foreach ($list as $item) {
-            array_push($lineasFacturadas, $item->num_linea_tiquete);
+            $facturado = strval($item->num_tiquete).strval($item->num_linea_tiquete).strval($item->puesto_tiquete);
+            if ($item->puesto_tiquete == 0) {
+                $facturado = rtrim($facturado, '0');
+            }
+            array_push($lineasFacturadas, $facturado);
         }
-
         if ($puestoTiquete >= 1) {
+            $puestoTiquete = $puestoTiquete / 2;
             $seccionF = '00'.strval($puestoTiquete);
         } else {
             $seccionF = '000';
@@ -138,11 +143,14 @@ class GenBasculasController extends Controller
                 intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
                 intval(substr($buffer, 2, 5)), // numero tiquete
                 intval(substr($buffer, 7, 3)), // linea tiquete
+                intval(substr($buffer, 0, 2)), // seccion tiquete
                 intval(substr($buffer, 31, 2)));// vendedo
+
+                $compara = ltrim(substr($buffer, 2, 5), '0').ltrim(substr($buffer, 7, 3), '0').ltrim(substr($buffer, 0, 2), '0');
 
                 if (
                     ( intval(substr($buffer, 2, 5)) == $tiquete ) &&
-                    ( !in_array(intval(substr($buffer, 7, 3)), $lineasFacturadas) )
+                    ( !in_array($compara, $lineasFacturadas) )
                 )
                 {
                     $fechaTiquete = Carbon::create(intval(substr($buffer, 33, 4)),intval(substr($buffer, 37, 2)),intval(substr($buffer, 39, 2)));
@@ -406,14 +414,15 @@ class GenBasculasController extends Controller
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
         $empresa = GenEmpresa::find(1);
+        $t80 = new ReportesT80();
 
+        $secciones = $empresa->secciones_dibal;
         $fechaIni = date('d/m/Y', strtotime($fecha));
         $fechaFin = date('d/m/Y', strtotime($fecha . ' + 1 day'));
 
         $arrayTotal = array();
 
         $arrayItem = array();
-        $totalGnal = 0;
         $totalTiquete = 0;
 
         $dia = substr($fecha, 0,2);
@@ -428,108 +437,126 @@ class GenBasculasController extends Controller
             $mes = 'C';
         }
 
-        if ($empresa->tipo_escaner == 1) {
-            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
-        } else if ($empresa->tipo_escaner == 4) {
-            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
-        }
+        for ($i=0; $i <= ($secciones - 1) ; $i++) {
 
+            if ($empresa->tipo_escaner == 1) {
+                $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL00'.strval($i).$dia.$mes.'.TOT';
+            } else if ($empresa->tipo_escaner == 4) {
+                $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
+            }
 
-        $tiqueteAnterior = 0;
+            $totalGnal = 0;
+            $tiqueteAnterior = 0;
+            $seccionAnterior = 0;
 
-        $handle = @fopen($val, "r");
+            $handle = @fopen($val, "r");
 
-        if ($handle) {
+            if ($handle) {
 
-            $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('TIQUETES NO FACTURADOS', 48, " ", STR_PAD_BOTH);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+                $etiqueta = str_pad("", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(strtoupper($empresa->razon_social), 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(strtoupper($empresa->nombre), 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("NIT: ".$empresa->nit, 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(strtoupper($empresa->tipo_regimen), 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad(strtoupper($empresa->direccion), 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("TEL: ".$empresa->telefono, 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad("", 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+                $etiqueta .= str_pad('TIQUETES NO FACTURADOS', 48, " ", STR_PAD_BOTH);
+                $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+                $etiqueta .= str_pad('Fecha: '.$fechaIni, 48, " ", STR_PAD_RIGHT);
+                $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
 
-            $ctrlDevsEpel = 0;
+                $ctrlDevsEpel = 0;
 
-            while (($buffer = fgets($handle)) !== false) {
+                while (($buffer = fgets($handle)) !== false) {
 
-                if ($empresa->tipo_escaner == 1) {
-                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                                    intval(substr($buffer, 16, 6)), // cantidad
-                                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 3, 4)), // numero tiquete
-                                    intval(substr($buffer, 7, 3)), // linea tiquete
-                                    intval(substr($buffer, 31, 2)));// vendedor
-                } else if ($empresa->tipo_escaner == 4) {
+                    if ($empresa->tipo_escaner == 1) {
+                        $arrayItem = array( 'codProd' => intval(substr($buffer, 10, 6)), // cdigo producto
+                                        'cantidad'    => intval(substr($buffer, 16, 6)), // cantidad
+                                        'pTotProd'    => intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
+                                        'numTiqu'     => intval(substr($buffer, 3, 4)), // numero tiquete
+                                        'lineaTiqu'   => intval(substr($buffer, 7, 3)), // linea tiquete
+                                        'puestoTiqu'  => intval(substr($buffer, 0, 2)), // puesto tiquete
+                                        'vendedor'    => intval(substr($buffer, 31, 2)));// vendedor
+                        $list = FacPivotMovProducto::where('num_tiquete', $arrayItem['numTiqu'])
+                                                    ->where('num_linea_tiquete', $arrayItem['lineaTiqu'])
+                                                    ->where('puesto_tiquete', $arrayItem['puestoTiqu'])
+                                                    ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+                    } else if ($empresa->tipo_escaner == 4) {
 
-                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                    intval(substr($buffer, 0, 4)), // numero tiquete
-                    intval(substr($buffer, 4, 3)), // linea tiquete
-                    intval(substr($buffer, 11, 4)));// vendedor
-                    if ((strpos($buffer, '-') === false )) {
-                        $ctrlDevsEpel++;
-                    }
-                }
-
-                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
-                                            ->where('num_linea_tiquete', $arrayItem[4])
-                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-
-                if ( !isset($list[0]['num_tiquete']) ) {
-
-                    // break;
-                    if (intval($tiqueteAnterior) != intval($arrayItem[3])) {
-                        if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
-                            $vendedor = $v->nombre;
-                        } else {
-                            $vendedor = $arrayItem[5];
+                        $arrayItem = array( 'codProd' => intval(substr($buffer, 30, 4)), // cdigo producto
+                                        'cantidad'    => intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
+                                        'pTotProd'    => intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
+                                        'numTiqu'     => intval(substr($buffer, 0, 4)), // numero tiquete
+                                        'lineaTiqu'   => intval(substr($buffer, 4, 3)), // linea tiquete
+                                        'puestoTiqu'  => 0, // puesto tiquete
+                                        'vendedor'    => intval(substr($buffer, 11, 4)));// vendedor
+                        if ((strpos($buffer, '-') === false )) {
+                            $ctrlDevsEpel++;
                         }
-                        $etiqueta .= str_pad(' Tiq. # : '.$arrayItem[3].' - '.eliminar_acentos(str_replace('ñ', 'N',substr($vendedor,0, 30))).' ', 48, "-", STR_PAD_BOTH);
-                        $tiqueteAnterior = $arrayItem[3];
+
+                        $list = FacPivotMovProducto::where('num_tiquete', $arrayItem['numTiqu'])
+                                                    ->where('num_linea_tiquete', $arrayItem['lineaTiqu'])
+                                                    ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
                     }
 
-                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-                    if ($arrayItem[1] < 1) {
-                        $arrayItem[1] = 1;
-                    }
-                    if ($arrayItem[1] < 100) {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
-                    } else {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
-                    }
 
-                    // linea 1
-                    if ($producto) {
-                        $etiqueta .= str_pad($producto->codigo, 3, "0", STR_PAD_LEFT);
-                        $etiqueta .= ' ';
-                        $nombre = strtoupper($producto->nombre);
-                        $nombre = str_replace('ñ', 'N', $nombre);
-                        $etiqueta .= str_pad(substr($nombre, 0, 28), 29, " ", STR_PAD_RIGHT);
-                        $etiqueta .= ' ';
-                        $total = intval($arrayItem[2]);
+                    if ( !isset($list[0]['num_tiquete']) ) {
+
+                        // break;
+                        if (intval($tiqueteAnterior) != intval($arrayItem['numTiqu'])) {
+                            if ($v = GenVendedor::where('codigo_unico', intval($arrayItem['vendedor']))->get()->first()) {
+                                $vendedor = $v->nombre;
+                                $vendedor = substr($vendedor, 0, 17);
+                            } else {
+                                $vendedor = $arrayItem['vendedor'];
+                            }
+                            $etiqueta .= $t80->posLineaCentro(' Tiq. # : '.$arrayItem['numTiqu'].' - '.eliminar_acentos(str_replace('ñ', 'N',substr($vendedor,0, 30))).' '
+                            .' - Sección: '.$arrayItem['puestoTiqu'].' ', "-", false);
+                            $tiqueteAnterior = $arrayItem['numTiqu'];
+                            // $seccionAnterior = $arrayItem['puestoTiqu'];
+                        }
+
+                        $producto = Producto::where('codigo', $arrayItem['codProd'])->get()->first();
+                        if ($arrayItem['cantidad'] < 1) {
+                            $arrayItem['cantidad'] = 1;
+                        }
+                        if ($arrayItem['cantidad'] < 100) {
+                            $precioUnit = intval($arrayItem['pTotProd'])/(intval($arrayItem['cantidad']));
+                        } else {
+                            $precioUnit = intval($arrayItem['pTotProd'])/(intval($arrayItem['cantidad'])/1000);
+                        }
+
+                        // linea 1
+                        $total = intval($arrayItem['pTotProd']);
                         $totalGnal = $totalGnal + $total;
                         $total =  number_format($total, 0, ',', '.');
-                        $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
-                        $etiqueta .= ' |';
-                        $etiqueta .= str_pad('', 2, " ", STR_PAD_LEFT);
+                        if ($producto) {
+                            $cod = intval($producto->codigo);
+                            $unidades = GenUnidades::find($producto->gen_unidades_id)->abrev_pos;
+                            $etiqueta .= str_pad(strval($cod), 3, "0", STR_PAD_LEFT);
+                            $etiqueta .= ' ';
+                            $nombre = strtoupper($producto->nombre);
+                            $nombre = str_replace('ñ', 'N', $nombre);
+                            $etiqueta .= str_pad(substr($nombre, 0, 28), 29, " ", STR_PAD_RIGHT);
+                            $etiqueta .= ' ';
+                            $etiqueta .= str_pad($total, 10, " ", STR_PAD_LEFT);
+                            $etiqueta .= ' |';
+                            $etiqueta .= str_pad('', 2, " ", STR_PAD_LEFT);
+                        } else {
+                            $etiqueta .= $t80->posDosItemsExtremos(' El codigo '. $arrayItem['codProd']. ' no existe', strval($total) .' |'," ");
+                            $unidades = '---';
+                        }
                         // linea 2
                         $etiqueta .= '    ';
-                        if ($arrayItem[1] < 100) {
-                            $etiqueta .= str_pad(number_format($arrayItem[1], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
+                        if ($arrayItem['cantidad'] < 100) {
+                            $etiqueta .= str_pad(number_format($arrayItem['cantidad'], 3, ',', '.'), 6, " ", STR_PAD_LEFT);
                         } else {
-                            $etiqueta .= str_pad(number_format($arrayItem[1]/1000, 3, ',', '.'), 6, " ", STR_PAD_LEFT);
+                            $etiqueta .= str_pad(number_format($arrayItem['cantidad']/1000, 3, ',', '.'), 6, " ", STR_PAD_LEFT);
                         }
                         $etiqueta .= ' ';
-                        $etiqueta .= GenUnidades::find($producto->gen_unidades_id)->abrev_pos;
+                        $etiqueta .= $unidades;
                         $etiqueta .= ' ';
                         $etiqueta .= 'X';
                         $etiqueta .= ' ';
@@ -537,32 +564,31 @@ class GenBasculasController extends Controller
                         $etiqueta.= str_pad(number_format($precioUnit, 0, ',', '.'), 10, " ", STR_PAD_LEFT);
                         $etiqueta .= ' ';    //22
                         $etiqueta .= '                   ';
-                    } else {
-                        $etiqueta .= str_pad('El codigo '. $arrayItem[0]. 'no existe', 48, " ", STR_PAD_RIGHT);
                     }
+
                 }
 
+                $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
+                $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
+                $etiqueta .= 'Total No Facturado:';
+                $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
+                $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
+                $printer->text($etiqueta);
+                $printer->feed(2);
+                $printer->close();
+                $printer->cut();
             }
-
-            $etiqueta .= str_pad('', 48, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad('', 48, "-", STR_PAD_LEFT);
-            $etiqueta .= 'Total No Facturado:';
-            $etiqueta .= str_pad(number_format($totalGnal, 0, ',', '.'), 29, " ", STR_PAD_LEFT);
-            $etiqueta .= str_pad("Fecha Impresion " . date('Y-m-d H:i:s'), 48, " ", STR_PAD_RIGHT);
-
-            $printer->text($etiqueta);
-            $printer->feed(2);
-            $printer->cut();
-            $printer->pulse();
-            $printer->close();
-
-            return 'done';
-
             if (!feof($handle)) {
                 echo "Error: unexpected fgets() fail\n";
             }
             fclose($handle);
         }
+        $printer->feed(2);
+        $printer->close();
+        $printer->cut();
+        $printer->pulse();
+        return 'done';
+
     }
 
     public function tiquetesNoFacturadosPDF($fecha)
@@ -574,9 +600,15 @@ class GenBasculasController extends Controller
             $arrayLines = $this->marquesPDF($fecha);
 
         } else  {
-            $arrayLines = $this->epelsaDibalPDF($fecha);
+            if ($empresa->tipo_escaner == 1) {
+                $secciones = $empresa->secciones_dibal;
+                $arrayLines = $this->epelsaDibalPDF($fecha, $secciones);
+            } else if ($empresa->tipo_escaner == 4) {
+                $arrayLines = $this->epelsaDibalPDF($fecha);
+            }
         }
         $data = ['etiqueta' => $arrayLines];
+
         $pdf = PDF::loadView('facturacion.tiquetesnofacturados', $data);
 
         return $pdf->stream();
@@ -687,7 +719,7 @@ class GenBasculasController extends Controller
         return $arrayLines;
     }
 
-    public function epelsaDibalPDF($fecha)
+    public function epelsaDibalPDF($fecha, $secciones = 0)
     {
         $empresa = GenEmpresa::find(1);
         $total = 0;
@@ -710,109 +742,123 @@ class GenBasculasController extends Controller
         } else if ($mes == 12) {
             $mes = 'C';
         }
+        for ($i=0; $i <= ($secciones - 1) ; $i++) {
 
-        if ($empresa->tipo_escaner == 1) {
-            $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL000'.$dia.$mes.'.TOT';
-        } else if ($empresa->tipo_escaner == 4) {
-            $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
-        }
-
-        $tiqueteAnterior = 0;
-
-        $handle = @fopen($val, "r");
-
-        if ($handle) {
-
-            $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
-
-            while (($buffer = fgets($handle)) !== false) {
-                // var_dump($buffer);
-                if ($empresa->tipo_escaner == 1) {
-                    $arrayItem = array( intval(substr($buffer, 10, 6)), // cdigo producto
-                    intval(substr($buffer, 16, 6)), // cantidad
-                    intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
-                    intval(substr($buffer, 3, 4)), // numero tiquete
-                    intval(substr($buffer, 7, 3)), // linea tiquete
-                    intval(substr($buffer, 31, 2)));// vendedor
-
-                } else if ($empresa->tipo_escaner == 4) {
-                    $arrayItem = array( intval(substr($buffer, 30, 4)), // cdigo producto
-                                    intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
-                                    intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
-                                    intval(substr($buffer, 0, 4)), // numero tiquete
-                                    intval(substr($buffer, 4, 3)), // linea tiquete
-                                    intval(substr($buffer, 11, 4)));// vendedor
-                }
-
-                $list = FacPivotMovProducto::where('num_tiquete', $arrayItem[3])
-                                            ->where('num_linea_tiquete', $arrayItem[4])
-                                            ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
-
-                if ( count($list) < 1) {
-
-                    if ($v = GenVendedor::where('codigo_unico', intval($arrayItem[5]))->get()->first()) {
-                        $vendedor = $v->nombre;
-                    } else {
-                        $vendedor = $arrayItem[5];
-                    }
-
-                    $producto = Producto::where('codigo', $arrayItem[0])->get()->first();
-                    if ($arrayItem[1] < 1) {
-                        $arrayItem[1] = 1;
-                    }
-
-                    if ($arrayItem[1] < 100) {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1]));
-                    } else {
-                        $precioUnit = intval($arrayItem[2])/(intval($arrayItem[1])/1000);
-                        $arrayItem[1] = $arrayItem[1]/1000;
-                    }
-
-                    // linea 1
-                    if ($producto) {
-
-                        $total = intval($arrayItem[2]);
-                        $totalGnal = $totalGnal + $total;
-
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' => $producto->codigo,
-                            'producto' => strtoupper($producto->nombre),
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
-                            'precio' => $precioUnit
-                        ));
-
-                    } else {
-                        array_push($arrayLines, array(
-                            'tiquete' => $arrayItem[3],
-                            'vendedor' => $vendedor,
-                            'linea_tiquete'=> $arrayItem[4],
-                            'codigo' =>  $arrayItem[0],
-                            'producto' => 'PRODUCTO NO EXISTENTE',
-                            'total' => $total,
-                            'cantidad' => $arrayItem[1],
-                            'unidades' => 0,
-                            'precio' => 0
-                        ));
-                    }
-                    if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
-                        array_pop($arrayLines);
-                        array_pop($arrayLines);
-                    }
-                }
+            if ($empresa->tipo_escaner == 1) {
+                $val = $empresa->ruta_archivo_tiquetes_dibal.'/BL00'.strval($i).$dia.$mes.'.TOT';
+            } else if ($empresa->tipo_escaner == 4) {
+                $val = $empresa->ruta_archivo_tiquetes_epelsa.'/tqgen'.$dia.$mes;
             }
-            // dd($arrayLines);
 
-            return $arrayLines;
+            $ctrlDevsEpel = 0;
 
-        } else {
+            $handle = @fopen($val, "r");
 
-            return 'El archivo para la fecha especificada no existe';
+            // dd($handle);
+            if ($handle) {
+
+                $etiqueta = str_pad("", 48, "-", STR_PAD_BOTH);
+
+                while (($buffer = fgets($handle)) !== false) {
+                    // var_dump($buffer);
+                    if ($empresa->tipo_escaner == 1) {
+                        $arrayItem = array( 'codProd' => intval(substr($buffer, 10, 6)), // cdigo producto
+                                        'cantidad'    => intval(substr($buffer, 16, 6)), // cantidad
+                                        'pTotProd'    => intval(substr($buffer, 22, 9)),// precio total producto (precio*cantidad)
+                                        'numTiqu'     => intval(substr($buffer, 3, 4)), // numero tiquete
+                                        'lineaTiqu'   => intval(substr($buffer, 7, 3)), // linea tiquete
+                                        'puestoTiqu'  => intval(substr($buffer, 0, 2)), // puesto tiquete
+                                        'vendedor'    => intval(substr($buffer, 31, 2)));// vendedor
+                        $list = FacPivotMovProducto::where('num_tiquete', $arrayItem['numTiqu'])
+                                                    ->where('num_linea_tiquete', $arrayItem['lineaTiqu'])
+                                                    ->where('puesto_tiquete', $arrayItem['puestoTiqu'])
+                                                    ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+                    } else if ($empresa->tipo_escaner == 4) {
+
+                        $arrayItem = array( 'codProd' => intval(substr($buffer, 30, 4)), // cdigo producto
+                                        'cantidad'    => intval(str_replace('.','',substr($buffer, 54, 7))), // cantidad
+                                        'pTotProd'    => intval(str_replace('.','',substr($buffer, 61, 8))),// precio total producto (precio*cantidad)
+                                        'numTiqu'     => intval(substr($buffer, 0, 4)), // numero tiquete
+                                        'lineaTiqu'   => intval(substr($buffer, 4, 3)), // linea tiquete
+                                        'vendedor'    => intval(substr($buffer, 11, 4)));// vendedor
+                        if ((strpos($buffer, '-') === false )) {
+                            $ctrlDevsEpel++;
+                        }
+
+                        $list = FacPivotMovProducto::where('num_tiquete', $arrayItem['numTiqu'])
+                                                    ->where('num_linea_tiquete', $arrayItem['lineaTiqu'])
+                                                    ->whereBetween('created_at', [$fechaIni, $fechaFin])->get();
+                    }
+
+
+                    if ( !isset($list[0]['num_tiquete'])) {
+
+                        if ($v = GenVendedor::where('codigo_unico', intval($arrayItem['vendedor']))->get()->first()) {
+                            $vendedor = $v->nombre;
+                        } else {
+                            $vendedor = $arrayItem['vendedor'];
+                        }
+
+                        $producto = Producto::where('codigo', $arrayItem['codProd'])->get()->first();
+                        if ($arrayItem['cantidad'] < 1) {
+                            $arrayItem['cantidad'] = 1;
+                        }
+
+                        if ($arrayItem['cantidad'] < 100) {
+                            $precioUnit = intval($arrayItem['pTotProd'])/(intval($arrayItem['cantidad']));
+                        } else {
+                            $precioUnit = intval($arrayItem['pTotProd'])/(intval($arrayItem['cantidad'])/1000);
+                            $arrayItem['cantidad'] = $arrayItem['cantidad']/1000;
+                        }
+
+                        // linea 1
+                        if ($producto) {
+
+                            $total = intval($arrayItem['pTotProd']);
+                            $totalGnal = $totalGnal + $total;
+
+                            array_push($arrayLines, array(
+                                'tiquete' => $arrayItem['numTiqu'],
+                                'vendedor' => $vendedor,
+                                'linea_tiquete'=> $arrayItem['lineaTiqu'],
+                                'puestoTiqu' => $arrayItem['puestoTiqu'],
+                                'codigo' => $producto->codigo,
+                                'producto' => strtoupper($producto->nombre),
+                                'total' => $total,
+                                'cantidad' => $arrayItem['cantidad'],
+                                'unidades' => GenUnidades::find($producto->gen_unidades_id)->abrev_pos,
+                                'precio' => $precioUnit
+                            ));
+
+                        } else {
+                            array_push($arrayLines, array(
+                                'tiquete' => $arrayItem['numTiqu'],
+                                'vendedor' => $vendedor,
+                                'linea_tiquete'=> $arrayItem['lineaTiqu'],
+                                'puestoTiqu' => $arrayItem['puestoTiqu'],
+                                'codigo' =>  $arrayItem['codProd'],
+                                'producto' => 'PRODUCTO NO EXISTENTE',
+                                'total' => $total,
+                                'cantidad' => $arrayItem['cantidad'],
+                                'unidades' => 0,
+                                'precio' => 0
+                            ));
+                        }
+                        if ((strpos($buffer, '-') !== false && $empresa->tipo_escaner == 4)){
+                            array_pop($arrayLines);
+                            array_pop($arrayLines);
+                        }
+                    }
+                }
+
+            } else {
+                $mensaje = array();
+                $mensaje['mensaje'] = 'Uno de los archivos para la fecha especificada no existe';
+                return $mensaje;
+            }
         }
+        // dd($arrayLines);
+        return $arrayLines;
     }
 
     public function tiquetesDiaBascula($bascula, $fecha){
