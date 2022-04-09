@@ -146,86 +146,86 @@ class ReportesGeneradosController extends Controller
     }
 
     public function compileJrXml(){
-        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\MovimientosPorProducto_1.jrxml';
+        $input = 'C:\xampp\htdocs\sgcdev\back\vendor\geekcom\phpjasper-laravel\examples\TicketInvoice.jrxml';
 
         $jasper = new PHPJasper;
         $jasper->compile($input)->execute();
     }
 
-    public function rastreoProdDesp (){
+    public function rastreoProdDesp (){ //r +
         $params = $_GET;
         $input = 'rastreoProductoDespacho';
         self::executeJasper($input, $params);
     }
 
-    public function transformaciones(){
+    public function transformaciones(){ //r +
         $params = $_GET;
         $input = 'transformaciones';
         self::executeJasper($input, $params);
     }
 
-    public function reporteTiqueteFactura(){
+    public function reporteTiqueteFactura(){ //r +
         $params = $_GET;
         $input = 'TicketInvoice';
         self::executeJasper($input, $params);
     }
 
-    public function saldosCartera(){
+    public function saldosCartera(){ //r +
         $params = $_GET;
         $input = 'reportcxc';
         self::executeJasper($input, $params);
     }
 
-    public function saldosCarteraTR(){
+    public function saldosCarteraTR(){ //r +
 
         $params = $_GET;
         $input = 'reportcxctraslado';
         self::executeJasper($input, $params);
     }
 
-    public function comprasPorFecha(){
+    public function comprasPorFecha(){ //r +
         $params = $_GET;
         $input = 'ComprasPorFecha';
         self::executeJasper($input, $params);
     }
 
-    public function comprasDetails(){
+    public function comprasDetails(){ //r +
         $params = $_GET;
         $input = 'comprasDetails';
         self::executeJasper($input, $params);
     }
 
-    public function comprasFormaPago(){
+    public function comprasFormaPago(){ //r +
         $params = $_GET;
         $input = 'comprasFormaPago';
         self::executeJasper($input, $params);
     }
-    public function comprasPorFechaPesos(){
+    public function comprasPorFechaPesos(){ //r +
         $params = $_GET;
         $input = 'comprasPorFechaPesos';
         self::executeJasper($input, $params);
     }
-    public function comprasPorFechaPesosDEVS(){
+    public function comprasPorFechaPesosDEVS(){ //r +
         $params = $_GET;
         $input = 'comprasPorFechaPesosDEVS';
         self::executeJasper($input, $params);
     }
-    public function comprasPorFechaXSucursal(){
+    public function comprasPorFechaXSucursal(){ //r +
         $params = $_GET;
         $input = 'comprasPorFechaXSucursal';
         self::executeJasper($input, $params);
     }
-    public function comprasXProducto(){
+    public function comprasXProducto(){ //r - cambiar reporte ProdPondComp
         $params = $_GET;
         $input = 'comprasXProducto';
         self::executeJasper($input, $params);
     }
-    public function InventarioPesosDespacho(){
+    public function InventarioPesosDespacho(){ //r +
         $params = $_GET;
         $input = 'InventarioPesosDespacho';
         self::executeJasper($input, $params);
     }
-    public function movimientosPorFecha(){
+    public function movimientosPorFecha(){ //r +
         $params = $_GET;
         $input = 'MovimientosPorFecha';
         self::executeJasper($input, $params);
@@ -237,45 +237,45 @@ class ReportesGeneradosController extends Controller
         self::executeJasper($input, $params);
     }
 
-    public function movimientosPorFechaPorSucursal(){
+    public function movimientosPorFechaPorSucursal(){ //r +
         $params = $_GET;
         $input = 'MovimientosPorFechaSucursales';
         self::executeJasper($input, $params);
     }
 
-    public function movimientosPorFechaGrupo(){
+    public function movimientosPorFechaGrupo(){ //r +
         // dd($_GET);
         $params = $_GET;
         $input = 'DetallesMovimientosPorFecha';
         self::executeJasper($input, $params);
     }
 
-    public function movimientosPorProducto(){
+    public function movimientosPorProducto(){ //r +
         // dd($_GET);
         $params = $_GET;
-        $input = 'MovimientosPorProducto_1';
+        $input = 'MovimientosPorProducto';
         self::executeJasper($input, $params);
     }
 
-    public function pesoPlantaLote(){
+    public function pesoPlantaLote(){ //r +
         $params = $_GET;
         $input = 'PesoPlantaxLote';
         self::executeJasper($input, $params);
     }
 
-    public function pesosTotalesProductos(){
+    public function pesosTotalesProductos(){ //r +
         $params = $_GET;
         $input = 'ventasPesosTotales';
         self::executeJasper($input, $params);
     }
 
-    public function pesosTotalesDevolProductos(){
+    public function pesosTotalesDevolProductos(){ //r +
         $params = $_GET;
         $input = 'devolucionesVentasPesosTotales';
         self::executeJasper($input, $params);
     }
 
-    public function movimientoFormaPagoPorFecha(){
+    public function movimientoFormaPagoPorFecha(){ //r +
         $params = $_GET;
         $input = 'FormasPagoMovsPorFecha';
         self::executeJasper($input, $params);
@@ -916,10 +916,6 @@ class ReportesGeneradosController extends Controller
         $printer->cut();
         $printer->close();
     }
-
-
-
-
 
      public static function validarProceso($nombreEmpresa, $marinado, $productoEmpacado, $encabezadoEtiqueta, $tercero_nombre){
 

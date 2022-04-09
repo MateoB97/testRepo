@@ -75,6 +75,8 @@ class LotLiquidacionesController extends Controller
 
     	$liquidacion = LotLiquidacion::where('prog_lotes_id', $programacion->id)->get()->first();
 
+        $liquidacion->date = substr($liquidacion->created_at,0,10);
+
     	// $pesosCompra = LotPesosProgramacion::where('lotProgramacion_id', $programacion->id)->get();
 
         // $pesosCompraTotal = ['ppe' => $liquidacion->ppe, 'pcc' => $liquidacion->pcc, 'pcr' => $liquidacion->pcr];

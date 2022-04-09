@@ -180,7 +180,7 @@ class FacRecibosCajaController extends Controller
         $str.= $t80->posLineaDerecha('No. Fac   Valor Factura    Valor Abono     Saldo');
         $str .= $t80->posLineaGuion();
 
-        foreach ($lineas as $linea) {
+        foreach ($lineas as $linea) { // torcido?
             $str .= str_pad($linea->consec_mov, 9, " ", STR_PAD_RIGHT);
             $str .= str_pad('$ '.number_format(intval($linea->valor_factura), 0, ',', '.'), 13, " ", STR_PAD_LEFT);
             $str .= str_pad('$ '.number_format(intval($linea->valor), 0, ',', '.'), 13, " ", STR_PAD_LEFT);

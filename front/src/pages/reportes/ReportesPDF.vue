@@ -410,19 +410,19 @@
                 </div> -->
                 <div class="col-4">
                   <GlobalFiltersComponent
-                    titleBtn="Reporte Fiscal"
-                    url="api/reportesgenerados/reportefiscal"
-                    :datesFilter="true"
-                    :dateUnique="1"
-                  />
-                </div>
-                <div class="col-4">
-                  <GlobalFiltersComponent
                     titleBtn="Pesos Totales - Productos"
                     url="api/reportesgenerados/pesostotalesproductos"
                     :datesFilter="true"
                     :productosFilter="true"
                     :dateUnique="0"
+                  />
+                </div>
+                <div class="col-4">
+                  <GlobalFiltersComponent
+                    titleBtn="Reporte Fiscal"
+                    url="api/reportesgenerados/reportefiscal"
+                    :datesFilter="true"
+                    :dateUnique="1"
                   />
                 </div>
                 <div class="col-4">

@@ -87,71 +87,75 @@
 </style>
 </head>
 <body>
-	<table class="table table-font">
-		<thead>
-			<tr>
-				<th>Linea</th>
-				<th>Cod Producto</th>
-				<th>Producto</th>
-				<th>Precio ($)</th>
-				<th>cantidad</th>
-				<th>unidades</th>
-				<th>Total ($)</th>
-			</tr>
-		</thead>
-		<tbody>
-			@php
-				$totalCounter = 0;
-				$granTotal = 0;
-			@endphp
-			@foreach ($etiqueta as $key => $mov)
-				@if ($key == 0)
-					<tr>
-						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }}  </strong></td>
-					</tr>
-					@php
-    					$totalCounter = intval($mov['total']);
-    					$granTotal = intval($mov['total']);
-					@endphp
+    @if (count($etiqueta) <= 1)
+        <h3>{{$etiqueta['mensaje']}}</h3>
+    @else
+        <table class="table table-font">
+            <thead>
+                <tr>
+                    <th>Linea</th>
+                    <th>Cod Producto</th>
+                    <th>Producto</th>
+                    <th>Precio ($)</th>
+                    <th>cantidad</th>
+                    <th>unidades</th>
+                    <th>Total ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $totalCounter = 0;
+                    $granTotal = 0;
+                @endphp
+                @foreach ($etiqueta as $key => $mov)
+                    @if ($key == 0)
+                        <tr>
+                            <td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }} - Sección: {{$mov['puestoTiqu']}}  </strong></td>
+                        </tr>
+                        @php
+                            $totalCounter = intval($mov['total']);
+                            $granTotal = intval($mov['total']);
+                        @endphp
 
-				@elseif ( $mov['tiquete'] != $etiqueta[$key -1]['tiquete'])
-					<tr>
-						<td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
-						<td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.') }}</strong></td>
-					</tr>
-				 	<tr>
-						<td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }} </strong></td>
-					</tr>
-					@php
-    					$totalCounter = intval($mov['total']);
-    					$granTotal += intval($mov['total']);
-					@endphp
+                    @elseif ( $mov['tiquete'] != $etiqueta[$key -1]['tiquete'])
+                        <tr>
+                            <td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
+                            <td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.') }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" style="text-align: center"><strong>N° Tiquete: {{ $mov['tiquete'] }} - Vendedor: {{ $mov['vendedor'] }} - Sección: {{$mov['puestoTiqu']}}  </strong></td>
+                        </tr>
+                        @php
+                            $totalCounter = intval($mov['total']);
+                            $granTotal += intval($mov['total']);
+                        @endphp
 
-				@else
-					@php
-    					$totalCounter += intval($mov['total']);
-    					$granTotal += intval($mov['total']);
-					@endphp
-				@endif
-				<tr>
-					<td style="text-align: right">{{ $mov['linea_tiquete'] }}</td>
-					<td style="text-align: right">{{ $mov['codigo'] }}</td>
-					<td style="text-align: right">{{ $mov['producto'] }}</td>
-					<td style="text-align: right">{{ number_format($mov['precio'], 0, ',', '.') }}</td>
-					<td style="text-align: right">{{ $mov['cantidad'] }}</td>
-					<td style="text-align: right">{{ $mov['unidades'] }}</td>
-					<td style="text-align: right">{{ number_format($mov['total'], 0, ',', '.') }}</td>
-				</tr>
-			@endforeach
-			<tr>
-				<td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
-				<td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.')  }}</strong></td>
-			</tr>
-			<tr>
-				<td colspan="6" rowspan="" headers=""><strong>Total Tiquetes No Facturados:</strong></td>
-				<td style="text-align: right"><strong>$ {{ number_format($granTotal, 0, ',', '.')  }}</strong></td>
-			</tr>
-		</tbody>
-	</table>
+                    @else
+                        @php
+                            $totalCounter += intval($mov['total']);
+                            $granTotal += intval($mov['total']);
+                        @endphp
+                    @endif
+                    <tr>
+                        <td style="text-align: right">{{ $mov['linea_tiquete'] }}</td>
+                        <td style="text-align: right">{{ $mov['codigo'] }}</td>
+                        <td style="text-align: right">{{ $mov['producto'] }}</td>
+                        <td style="text-align: right">{{ number_format($mov['precio'], 0, ',', '.') }}</td>
+                        <td style="text-align: right">{{ $mov['cantidad'] }}</td>
+                        <td style="text-align: right">{{ $mov['unidades'] }}</td>
+                        <td style="text-align: right">{{ number_format($mov['total'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td colspan="6" rowspan="" headers=""><strong>Total Tiquete:</strong></td>
+                    <td style="text-align: right"><strong>$ {{ number_format($totalCounter, 0, ',', '.')  }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="6" rowspan="" headers=""><strong>Total Tiquetes No Facturados:</strong></td>
+                    <td style="text-align: right"><strong>$ {{ number_format($granTotal, 0, ',', '.')  }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    @endif
 </body>
 </html>

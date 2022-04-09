@@ -6,16 +6,17 @@ export const helperFacturacionScanerLineas = {
       this.$q.loading.show()
       var app = this
       var tiqueteLeido = false
-      var seccionTiquete = 0
+      let numTiquete = ''
       let puestoTiquete = ''
       if (app.num_tiquete.length === 13) {
-        seccionTiquete = parseInt(app.num_tiquete.substr(0, 1))
-        app.num_tiquete = parseInt(app.num_tiquete.substr(2, 11))
-        app.puesto_tiquete = seccionTiquete
+        numTiquete = app.num_tiquete.substr(2, 11)
+        puestoTiquete = app.num_tiquete.substr(0, 1)
+        app.num_tiquete = parseInt(numTiquete)
+        app.puesto_tiquete = (parseInt(puestoTiquete) * 2)
       } else {
-        seccionTiquete = 0
-        app.num_tiquete = parseInt(app.num_tiquete.substr(0, 11))
-        app.puesto_tiquete = seccionTiquete
+        numTiquete = app.num_tiquete.substr(0, 11)
+        app.num_tiquete = parseInt(numTiquete)
+        app.puesto_tiquete = '00'
       }
       console.log(app.num_tiquete, 'num tiquete')
       console.log(app.dataResumen)
@@ -30,9 +31,8 @@ export const helperFacturacionScanerLineas = {
         }
       }
       if (!tiqueteLeido) {
-        console.log(seccionTiquete, 'seccion tiquete')
-        puestoTiquete = seccionTiquete.toString()
-        axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiquetedibal/' + app.num_tiquete + '/' + puestoTiquete).then(
+        console.log(app.puesto_tiquete, 'seccion tiquete')
+        axios.get(app.$store.state.jhsoft.url + 'api/basculas/readtiquetedibal/' + app.num_tiquete + '/' + app.puesto_tiquete).then(
           function (response) {
             console.log(response, 'respuesta lectura basculas')
             if (response.data.actual.length > 0) {
@@ -57,7 +57,7 @@ export const helperFacturacionScanerLineas = {
                     despacho: false,
                     num_tiquete: element[3],
                     num_linea_tiquete: element[4],
-                    puesto_tiquete: seccionTiquete
+                    puesto_tiquete: element[5]
                   }
                   app.dataResumen.push(newProduct)
                   vendedor = element[5]
@@ -104,7 +104,7 @@ export const helperFacturacionScanerLineas = {
                             despacho: false,
                             num_tiquete: element[3],
                             num_linea_tiquete: element[4],
-                            puesto_tiquete: seccionTiquete
+                            puesto_tiquete: element[5]
                           }
                           app.pasadosResumen.push(oldProduct)
                           vendedor = element[5]
