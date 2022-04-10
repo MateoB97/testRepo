@@ -787,9 +787,9 @@ class ReportesGeneradosController extends Controller
 
         $fechaIni = $_GET['fecha_inicial'];
         // $fechaIni = '2021-05-17';
-        $user = User::find(2);
+        $user = User::find(Auth::user()->id);
 
-        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find($user->gen_impresora_id)->ruta));
+        $nombre_impresora = str_replace('SMB', 'smb', strtoupper(GenImpresora::find(Auth::user()->gen_impresora_id)->ruta));
         $connector = new WindowsPrintConnector($nombre_impresora);
         $printer = new Printer($connector);
 
