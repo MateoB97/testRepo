@@ -1220,7 +1220,7 @@ class FacMovimientosController extends Controller
             $str .= $t80->posLineaCentro("nota");
             if(strlen($nuevoItem->nota) > $empresa->cantidad_caracteres){
                 $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
-                $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
+                $dataNotas = $t80->divString($nuevoItem->nota, $num_partes);
                     if($dataNotas) {
                         foreach($dataNotas as $nota) {
                             $str.= $t80->posLineaDerecha($nota);
@@ -1234,7 +1234,7 @@ class FacMovimientosController extends Controller
                 $str .= $t80->posLineaGuion();
             }else {
                 $num_partes = strlen($nuevoItem->nota) / intval($empresa->cantidad_caracteres);
-                $dataNotas = self::div_string($nuevoItem->nota, $num_partes);
+                $dataNotas = $t80->divString($nuevoItem->nota, $num_partes);
                     if($dataNotas) {
                         foreach($dataNotas as $nota) {
                             $str.= $t80->posLineaDerecha($nota);
